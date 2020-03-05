@@ -156,7 +156,7 @@ const evalSubExpr = (subExpr, cellRender) => {
 // cellRender: (x, y) => {}
 const evalSuffixExpr = (srcStack, formulaMap, cellRender, cellList) => {
   const stack = [];
-  console.log('origin stack:', stack);
+  // console.log('origin stack:', stack);
   // console.log(':::::formulaMap:', formulaMap);
   for (let i = 0; i < srcStack.length; i += 1) {
     // console.log(':::>>>', srcStack[i]);
@@ -180,8 +180,8 @@ const evalSuffixExpr = (srcStack, formulaMap, cellRender, cellList) => {
       stack.push(Number(stack.pop()) / Number(top));
     } else if (fc === '=' || fc === '>' || fc === '<') {
       const top = stack.pop();
-      const Fn = Function;
-      stack.push(new Fn(`return ${stack.pop()} ${expr === '=' ? '==' : expr} ${top}`)());
+      const Fn = `return '${stack.pop()}' ${expr === '=' ? '==' : expr} '${top}'`;
+      stack.push(new Function(Fn)());
     } else if (expr instanceof Formula) {
       const { name, argLength } = expr;
       const params = [];
@@ -202,7 +202,7 @@ const evalSuffixExpr = (srcStack, formulaMap, cellRender, cellList) => {
       }
       stack.push(evalSubExpr(expr, cellRender));
     }
-    console.log('stack:', stack);
+    // console.log('stack:', stack);
   }
   return stack[0];
 };

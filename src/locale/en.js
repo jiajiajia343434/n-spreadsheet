@@ -58,7 +58,9 @@ export default {
   },
   formula: {
     text: {},
-    logic: {},
+    logic: {
+      _if: 'IF',
+    },
     time: {},
     statistics: {},
     math: {
