@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>x-spreadsheet</title>
+
+    <link href="xspreadsheet.css" rel="stylesheet">
+</head>
+<body onload="load()">
+<div style="position: fixed; right: 0; top: .3em;">
+</div>
+<div id="main"></div>
+<script>
+  var xs;
+
+  function load() {
+    xs = x.spreadsheet('#main', {
+      showToolbar: true,
+      showGrid: true
+    })
+      .loadData([{
+        'name': 'sheet1',
+        //设置冻结行和列的右下角单元格，例如B3表示冻结第1，2行和A列
+        'freeze': 'B3',
+        //定义所有用到的样式
+        'styles': [{
+          'bgcolor': '#f4f5f8',
+          'textwrap': true,
+          'color': '#900b09',
+          'border': {
+            'top': ['thin', '#0366d6'],
+            'bottom': ['thin', '#0366d6'],
+            'right': ['thin', '#0366d6'],
+            'left': ['thin', '#0366d6']
+          }
+        }, {
+          //百分比样式
+          'format': 'percent'
+        }, {
+          //美元样式
+          'format': 'usd'
+        }, {
+          'format': 'date'
+        }, {
+          'format': 'time'
+        }, {
+          'format': 'datetime'
+        }, {
+          //背景色样式
+          'bgcolor': '#d5dce4'
+        }, {
+          //边框样式
+          'border': {
+            'bottom': ['thin', '#000'],
+            'top': ['thin', '#000'],
+            'left': ['thin', '#000'],
+            'right': ['thin', '#000']
+          }
+        }, {
+          //居中样式
+          'align': 'center'
+        }],
+        //所有的合并单元格区域
+        'merges': ['B13:D14'],
+        //定义表格内单元格的数据
+        'rows': {
+          '1': {
+            'cells': {
+              '0': {},
+              '2': {}
+            }
+          },
+          '2': {
+            'cells': {
+              '0': {},
+              '1': { 'text': '1' },
+              '2': {}
+            }
+          },
+          //百分比格式示例
+          '3': {
+            'cells': {
+              '1': {
+                'text': '1',
+                //对应样式表中序号
+                'style': 1
+              }
+            }
+          },
+          //美元格式示例
+          '4': {
+            'cells': {
+              '1': {
+                'text': '1',
+                'style': 2
+              }
+            }
+          },
+          '5': { 'cells': { '1': { 'style': 5 } } },
+          //背景色示例
+          '6': {
+            'cells': {
+              '1': {
+                'style': 6,
+                'text': '填充色'
+              },
+              '2': { 'style': 6 },
+              '3': { 'style': 6 }
+            }
+          },
+          '7': {
+            'cells': {
+              '1': { 'style': 6 },
+              '2': { 'style': 6 },
+              '3': { 'style': 6 },
+              '5': {
+                'text': '数据格式：（数字）',
+                //不允许编辑（锁定单元格）示例
+                'editable': false
+              },
+              '6': { 'text': '100' }
+            }
+          },
+          //边框示例
+          '8': {
+            'cells': {
+              '1': {
+                'text': '边框',
+                'style': 7
+              },
+              '2': { 'style': 7 },
+              '3': { 'style': 7 },
+              '8': {}
+            }
+          },
+          '9': {
+            'cells': {
+              '1': { 'style': 7 },
+              '2': { 'style': 7 },
+              '3': { 'style': 7 }
+            }
+          },
+          '12': {
+            'cells': {
+              '1': {
+                //表示合并单元格的大小（比较奇葩。1，2表示2行3列，例2，3表示3行4列）
+                'merge': [1, 2],
+                'text': '合并并居中',
+                //居中样式示例
+                'style': 8
+              },
+              '2': { 'style': 8 },
+              '3': { 'style': 8 }
+            }
+          },
+          '13': {
+            'cells': {
+              '1': { 'style': 8 },
+              '2': { 'style': 8 },
+              '3': { 'style': 8 }
+            }
+          },
+          //定义当前表格总行数
+          'len': 300
+        },
+        'cols': {
+          //定义某个特定的列宽，此处为第6列列宽200
+          '5': { 'width': 200 },
+          //定义当前表格总列数
+          'len': 126
+        },
+        //设置某单元格数据验证规则
+        'validations': [{
+          'refs': ['G8'],
+          'mode': 'cell',
+          'type': 'number',
+          'required': false,
+          'operator': 'be',
+          'value': ['1', '100']
+        }],
+        'autofilter': {}
+      }])//表格内容发生变动时的回调方法
+      .change((cdata) => {
+        //cdata是当前sheet表格数据，再次可以根据数据做一些事情
+        console.log(JSON.stringify(cdata));
+        console.log(xs.getData());
+      });
+  }
+</script>
+<script type="text/javascript" src="xspreadsheet.js"></script>
+<script type="text/javascript" src="xspreadsheet.js"></script>
+</body>
+</body>
+</html>
