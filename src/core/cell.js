@@ -65,7 +65,7 @@ const infixExprToSuffixExpr = (src) => {
           } else {
             // console.log('fn:', fn, fnArgType, stack, operatorStack);
             while (fn !== '(') {
-              stack.push(fn);
+              stack.push(new Formula(fn, fnArgsLen));
               if (operatorStack.length <= 0) break;
               fn = operatorStack.pop();
             }
