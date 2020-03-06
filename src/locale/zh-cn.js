@@ -62,7 +62,9 @@ export default {
       _if: '条件判断'
     },
     time: {},
-    statistics: {},
+    statistics: {
+      average: '求平均值',
+    },
     math: {
       sum: '求和',
     },
