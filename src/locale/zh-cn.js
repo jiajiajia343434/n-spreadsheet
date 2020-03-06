@@ -64,6 +64,8 @@ export default {
     time: {},
     statistics: {
       average: '求平均值',
+      count: '计数',
+      max:'求最大值'
     },
     math: {
       sum: '求和',

@@ -62,7 +62,11 @@ export default {
       _if: 'IF',
     },
     time: {},
-    statistics: {},
+    statistics: {
+      average: 'average',
+      count: 'count',
+      max:'max'
+    },
     math: {
       sum: 'SUM',
     },
