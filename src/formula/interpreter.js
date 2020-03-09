@@ -28,7 +28,7 @@ const operatorMap = {
 
 };
 //eg: -1 + SUM(A1:A5 A2:B2,NUMBER(-1),(1+B2)*3+B6)
-//中缀表达式 => 后缀表达式, 公式作为子表达式处理
+//中缀表达式 => 后缀表达式 + 公式树的形式 , 即公式作为子表达式处理，在后缀表达式里一个公式当做普通操作数看待
 const infixToSuffixExpr = src => {
   let ex = src.trim();
 
@@ -40,6 +40,7 @@ const infixToSuffixExpr = src => {
     let c = ex.charAt(i);
 
     //遇到""字符串直接引用内部所有内容作为操作数
+    // todo 转义的情况
     if (c === '"') {
       i += 1;
       while (ex.charAt(i) !== '"') {
@@ -56,7 +57,7 @@ const infixToSuffixExpr = src => {
 
     //遇到空格判断是否为操作符
     if (c === ' ') {
-
+      // todo 实现空格运算符
     }
 
     //遇到连续的字母和数字，合并为操作数
@@ -183,9 +184,10 @@ const infixToSuffixExpr = src => {
           sub_start = commaIndex[cursor] + 1;
           cursor += 1;
         }
-        if (cursor > 0) {
+        if (cursor > 0 || param_str.length > 0) {
           //fix bug: 如果cursor大于0，说明至少有一个逗号
           //所以最后应该截取最后一个逗号之后的表达式作为最后一个参数
+          //还有一种情况是只有一个参数的情况，没有逗号
           expression_str.push(param_str.substring(sub_start));
         }
 
