@@ -62,7 +62,16 @@ export default {
       _if: 'IF',
     },
     time: {},
-    statistics: {},
+    statistics: {
+      average: 'average',
+      averageif: 'averageif',
+      count: 'count',
+      countif: 'countif',
+      max:'max',
+      mim:'min',
+      counta:'counta',
+      countblank:'countblank',
+    },
     math: {
       sum: 'SUM',
     },
