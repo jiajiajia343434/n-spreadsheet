@@ -22,8 +22,10 @@ const Formula = [
                 if(Array.isArray(args[idx])){
                     let childIdx;
                     for(childIdx=0;childIdx<args[idx].length;childIdx++){
-                        total+=Number(args[idx][childIdx])
-                        count++;
+                        if(isNumber(args[idx][childIdx])){
+                            total+=Number(args[idx][childIdx])
+                            count++;
+                        }
                     }
                 }else{
                     total+=Number(args[idx]);
@@ -86,12 +88,9 @@ const Formula = [
                 return 0;
             }else{
                 let count=0;
-                for(var idx=0;idx<args.length;idx++){
+                for(let idx=0;idx<args.length;idx++){
                     if(Array.isArray(args[idx])){
-                        let childIdx;
-                        for(childIdx=0;childIdx<args[idx].length;childIdx++){
-                            count++;
-                        }
+                        count+=args[idx].length;
                     }else{
                         count++;
                     }
@@ -109,7 +108,7 @@ const Formula = [
                 return 0;
             }else{
                 let count=0;
-                for(var idx=0;idx<args.length;idx++){
+                for(let idx=0;idx<args.length;idx++){
                     if(Array.isArray(args[idx])){
                         let childIdx;
                         for(childIdx=0;childIdx<args[idx].length;childIdx++){
@@ -132,7 +131,7 @@ const Formula = [
                 return 0;
             }else{
                 let count=0;
-                for(var idx=0;idx<args.length;idx++){
+                for(let idx=0;idx<args.length;idx++){
                     if(Array.isArray(args[idx])){
                         let childIdx;
                         for(childIdx=0;childIdx<args[idx].length;childIdx++){
@@ -157,7 +156,7 @@ const Formula = [
                 let count=0;
                 //取出条件语句
                 let strExp=args[args.length-1];
-                for(var idx=0;idx<args.length-1;idx++){
+                for(let idx=0;idx<args.length-1;idx++){
                     if(Array.isArray(args[idx])){
                         let childIdx;
                         for(childIdx=0;childIdx<args[idx].length;childIdx++){
@@ -176,37 +175,6 @@ const Formula = [
                     }
                 }
                 return count;
-            }
-        }
-    },
-
-    {
-        key: 'MEDIAN',
-        title: tf('formula.statistics.median'),
-        render: (args)=>{
-            if(args.length==0){
-                throw new Error("没有参数，无法计算");
-            }else{
-                let arrNums=[];
-                for(let idx=0;idx<args.length;idx++){
-                    if(Array.isArray(args[idx])){
-                        let childIdx;
-                        for(childIdx=0;childIdx<args[idx].length;childIdx++){
-                            //判断表达式，转换为函数得到逻辑值
-                            if(isNumber(args[idx][childIdx])){
-                                console.log(args[idx][childIdx]);
-                                arrNums.push(args[idx][childIdx]);
-                            }
-                        }
-                    }else{
-                        if(isNumber(args[idx])){
-                            arrNums.push(args[idx]);
-                        }
-                    }
-                }
-                arrNums.sort(function (a, b) { return a - b });
-                return arrNums.length % 2 === 0 ? (Number(arrNums[arrNums.length / 2]) + Number(arrNums[(arrNums.length / 2) - 1])) / 2 : arrNums[Math.floor(arrNums.length / 2)];
-
             }
         }
     },
@@ -235,29 +203,6 @@ const Formula = [
         }
     },
 
-    {
-        key: 'MIN',
-        title: tf('formula.statistics.min'),
-        render: (args)=>{
-            if(args.length==0){
-                return 0;
-            }else{
-                let arrayList=[];
-                for(var idx=0;idx<args.length;idx++){
-                    if(Array.isArray(args[idx])){
-                        let childIdx;
-                        for(childIdx=0;childIdx<args[idx].length;childIdx++){
-                            arrayList.push(Number(args[idx][childIdx]));
-                        }
-                    }else{
-                        arrayList.push(Number(args[idx]));
-                    }
-                }
-                let maxValue= Math.min(...arrayList)
-                return maxValue;
-            }
-        }
-    }
 ];
 
 //内部函数，判断字符串是否可以转换为数值
