@@ -67,7 +67,10 @@ export default {
       averageif: 'averageif',
       count: 'count',
       countif: 'countif',
-      max:'max'
+      max:'max',
+      mim:'min',
+      counta:'counta',
+      countblank:'countblank',
     },
     math: {
       sum: 'SUM',

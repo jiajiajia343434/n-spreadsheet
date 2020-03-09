@@ -33,6 +33,7 @@ const Formula = [
             return total/count;
         }
     },
+
     {
         key: 'AVERAGEIF',
         title: tf('formula.statistics.averageif'),
@@ -99,6 +100,53 @@ const Formula = [
             }
         }
     },
+
+    {
+        key: 'COUNTA',
+        title: tf('formula.statistics.counta'),
+        render: (args)=>{
+            if(args.length==0){
+                return 0;
+            }else{
+                let count=0;
+                for(var idx=0;idx<args.length;idx++){
+                    if(Array.isArray(args[idx])){
+                        let childIdx;
+                        for(childIdx=0;childIdx<args[idx].length;childIdx++){
+                            if(args[idx][childIdx].trim()!=""){
+                                count++;
+                            }
+                        }
+                    }
+                    return count;
+                }
+            }
+        }
+    },
+
+    {
+        key: 'COUNTBLANK',
+        title: tf('formula.statistics.countblank'),
+        render: (args)=>{
+            if(args.length==0){
+                return 0;
+            }else{
+                let count=0;
+                for(var idx=0;idx<args.length;idx++){
+                    if(Array.isArray(args[idx])){
+                        let childIdx;
+                        for(childIdx=0;childIdx<args[idx].length;childIdx++){
+                            if(args[idx][childIdx].trim()===""){
+                                count++;
+                            }
+                        }
+                    }
+                    return count;
+                }
+            }
+        }
+    },
+
     {
         key: 'COUNTIF',
         title: tf('formula.statistics.countif'),
@@ -163,9 +211,6 @@ const Formula = [
         }
     },
 
-
-
-
     {
         key: 'MAX',
         title: tf('formula.statistics.max'),
@@ -189,6 +234,7 @@ const Formula = [
             }
         }
     },
+
     {
         key: 'MIN',
         title: tf('formula.statistics.min'),
@@ -214,6 +260,7 @@ const Formula = [
     }
 ];
 
+//内部函数，判断字符串是否可以转换为数值
 function isNumber(value) {
     return 'number' && !isNaN(value);
 }

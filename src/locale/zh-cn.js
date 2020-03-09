@@ -66,6 +66,8 @@ export default {
       average: '求平均值',
       averageif: '按条件求平均值',
       count: '计数',
+      counta:'非空格计数',
+      countblank:'空格计数',
       countif: '按条件计数',
       median:'取中值',
       max:'最大值',
