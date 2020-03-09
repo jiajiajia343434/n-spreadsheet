@@ -64,8 +64,12 @@ export default {
     time: {},
     statistics: {
       average: '求平均值',
+      averageif: '按条件求平均值',
       count: '计数',
-      max:'求最大值'
+      countif: '按条件计数',
+      median:'取中值',
+      max:'最大值',
+      min:'最小值',
     },
     math: {
       sum: '求和',

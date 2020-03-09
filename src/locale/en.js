@@ -64,7 +64,9 @@ export default {
     time: {},
     statistics: {
       average: 'average',
+      averageif: 'averageif',
       count: 'count',
+      countif: 'countif',
       max:'max'
     },
     math: {
