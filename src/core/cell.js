@@ -1,4 +1,4 @@
-import { expr2xy, xy2expr } from './alphabet';
+import {expr2xy, xy2expr} from './alphabet';
 
 class Formula {
   constructor(name, argLength) {
@@ -64,10 +64,15 @@ const infixExprToSuffixExpr = (src) => {
             fnArgsLen = 1;
           } else {
             // console.log('fn:', fn, fnArgType, stack, operatorStack);
-            while (fn !== '(') {
-              stack.push(fn);
+            if (('+-*/<>=').indexOf(fn) > -1) {
+              while (fn !== '(') {
+                stack.push(fn);
+                if (operatorStack.length <= 0) break;
+                fn = operatorStack.pop();
+              }
+            } else {
+              stack.push(new Formula(fn, fnArgsLen));
               if (operatorStack.length <= 0) break;
-              fn = operatorStack.pop();
             }
           }
           fnArgType = 0;
@@ -109,21 +114,38 @@ const infixExprToSuffixExpr = (src) => {
         } else {
           // priority: */ > +-
           // console.log(operatorStack, c, stack);
+          let isSubZero = false;
           if (operatorStack.length > 0 && (c === '+' || c === '-')) {
-            let top = operatorStack[operatorStack.length - 1];
-            if (top !== '(') stack.push(operatorStack.pop());
-            if (top === '*' || top === '/') {
-              while (operatorStack.length > 0) {
-                top = operatorStack[operatorStack.length - 1];
-                if (top !== '(') {
-                  stack.push(operatorStack.pop());
-                } else {
-                  break;
+            if (c === '-') {
+              let j = i - 1;
+              while (src.charAt(j) !== ' ' && j >= 0) {
+                if (src.charAt(j) === '(' || src.charAt(j) === ',') {
+                  isSubZero = true;
+                }
+                j -= 1;
+              }
+            }
+            if (!isSubZero) {
+              let top = operatorStack[operatorStack.length - 1];
+              if (top !== '(') stack.push(operatorStack.pop());
+              if (top === '*' || top === '/') {
+                while (operatorStack.length > 0) {
+                  top = operatorStack[operatorStack.length - 1];
+                  if (top !== '(') {
+                    stack.push(operatorStack.pop());
+                  } else {
+                    break;
+                  }
                 }
               }
             }
           }
-          operatorStack.push(c);
+          if (isSubZero) {
+            subStrs.push(c);
+            continue;
+          } else {
+            operatorStack.push(c);
+          }
         }
         subStrs = [];
       }
@@ -140,7 +162,7 @@ const infixExprToSuffixExpr = (src) => {
 };
 
 const evalSubExpr = (subExpr, cellRender) => {
-  if (subExpr[0] >= '0' && subExpr[0] <= '9') {
+  if ((subExpr[0] >= '0' && subExpr[0] <= '9')||subExpr[0] === '-') {
     return Number(subExpr);
   }
   if (subExpr[0] === '"') {
@@ -183,7 +205,7 @@ const evalSuffixExpr = (srcStack, formulaMap, cellRender, cellList) => {
       const Fn = `return '${stack.pop()}' ${expr === '=' ? '==' : expr} '${top}'`;
       stack.push(new Function(Fn)());
     } else if (expr instanceof Formula) {
-      const { name, argLength } = expr;
+      const {name, argLength} = expr;
       const params = [];
       for (let j = 0; j < argLength; j += 1) {
         params.push(stack.pop());
