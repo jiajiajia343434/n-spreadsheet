@@ -183,7 +183,11 @@ const infixToSuffixExpr = src => {
           sub_start = commaIndex[cursor] + 1;
           cursor += 1;
         }
-        expression_str.push(param_str.substring(sub_start));
+        if (cursor > 0) {
+          //fix bug: 如果cursor大于0，说明至少有一个逗号
+          //所以最后应该截取最后一个逗号之后的表达式作为最后一个参数
+          expression_str.push(param_str.substring(sub_start));
+        }
 
         //构建函数对象
         let fnName = result.pop();
