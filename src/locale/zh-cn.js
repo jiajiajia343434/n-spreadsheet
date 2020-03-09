@@ -57,7 +57,9 @@ export default {
     duration: '持续时间',
   },
   formula: {
-    text: {},
+    text: {
+      substitute:'将字符串中的部分字符串以新字符串替换'
+    },
     logic: {
       _if: '条件判断'
     },
