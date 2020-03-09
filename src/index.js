@@ -1,10 +1,10 @@
 /* global window, document */
-import { h } from './ui/element';
+import {h} from './ui/element';
 import DataProxy from './core/data_proxy';
 import Sheet from './ui/sheet';
 import Bottombar from './ui/bottombar';
-import { cssPrefix } from './config';
-import { locale } from './locale/locale';
+import {cssPrefix} from './config';
+import {locale} from './locale/locale';
 import './index.less';
 // import XLSX from 'xlsx';
 import Excel from 'exceljs';
@@ -71,7 +71,7 @@ class Spreadsheet {
   }
 
   validate() {
-    const { validations } = this.data;
+    const {validations} = this.data;
     return validations.errors.size <= 0;
   }
 
