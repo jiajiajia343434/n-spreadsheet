@@ -256,6 +256,15 @@ const evalSuffixExpr = (suffixExpr, formulaMap, cellRender) => {
       if (op instanceof Colon) {// todo 以后转为引用实现时不需要判断
         let v = op.cal(params.reverse());
         stack.push([...v.map(_v => cellRender(_v.x, _v.y))]);
+      } else if (op instanceof Connect) {// todo 以后转为引用实现时不需要判断
+        let p = params.reverse();
+        let r = op.cal(p.map(_p => {
+          if (_p instanceof Cell) {
+            return cellRender(_p.x, _p.y);
+          }
+          return _p;
+        }));
+        stack.push(r);
       } else {
         stack.push(op.cal(params.reverse()));
       }
@@ -277,7 +286,14 @@ const evalSuffixExpr = (suffixExpr, formulaMap, cellRender) => {
 const evalFormula = (srcText, formulaMap, cellRender, parentCell) => {
   let expr = infixToSuffixExpr(srcText);
   if (expr.length === 0) return srcText;
-  return evalSuffixExpr(expr, formulaMap, cellRender);
+  let result = evalSuffixExpr(expr, formulaMap, cellRender);
+  if (result instanceof Cell) {
+    return cellRender(result.x, result.y);
+  }
+  if (Array.isArray(result)) {
+    return result[0]
+  }
+  return result;
 };
 
 //单元格引用
