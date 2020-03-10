@@ -61,7 +61,10 @@ export default {
       substitute:'将字符串中的部分字符串以新字符串替换'
     },
     logic: {
-      _if: '条件判断'
+      _if: '条件判断',
+      _switch: '条件匹配/筛选',
+      _true: '返回真',
+      _xor: '异或',
     },
     time: {},
     statistics: {
@@ -85,6 +88,12 @@ export default {
       _sumifs:'多条件求和',
       _roundup:'向上取整',
       _rounddown:'向下取整',
+      _exp: 'e的N次幂',
+      _pi: '圆周率π',
+      _power: 'a的n次幂',
+      _product: '数字(范围)乘积',
+      _rand: '[0,1)随机数',
+      _randbetween: '指定范围内的随机整数',
     },
     // sum: '求和',
     // average: '求平均值',

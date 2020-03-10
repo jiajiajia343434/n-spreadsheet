@@ -414,6 +414,149 @@ const Formula = [
             }
         }
     },
+    {
+        key: 'ABS',
+        title: tf('formula.math._abs'),
+        render: (args) => {
+            if(args.length !== 1) {
+                throw new Error('参数必有且唯一');
+            }
+            if(Number(args[0]) > 0) {
+                return Number(args[0]);
+            } else if(Number(args[0]) < 0) {
+                return -Number(args[0]);
+            } else {
+                throw new Error('0没有绝对值');
+            }
+        }
+    },
+    {
+        key: 'EXP',
+        title: tf('formula.math._exp'),
+        render: (args) => {
+            let e = 2.71828182845904;
+            let i = 0;
+            let re = 1;
+            if(args.length !== 1) {
+                throw new Error('参数存在且唯一');
+            }
+            while(i <= Number(args[0]) - 1) {
+                re *= e;
+                i++;
+            }
+            return Number(re.toFixed(7));
+        }
+    },
+    {
+        key: 'PI',
+        title: tf('formula.math._pi'),
+        render: () => {
+            return Number(3.14159265);
+        }
+    },
+    {
+        key: 'POWER',
+        title: tf('formula.math._power'),
+        render: (args) => {
+            if(args.length !== 2) {
+                throw new Error('参数存在且为两个');
+            }
+            let re = 1;
+            let i = 0;
+            for(i; i < Number(args[1]); i++) {
+                re *= Number(args[0]);
+            }
+            return Number(re);
+        }
+    },
+    {
+        key: 'PRODUCT',
+        title: tf('formula.math._product'),
+        render: function (args) {
+            if (args.length < 1) {
+                throw new Error('参数必须，至少1个');
+            } else if (args.length > 255) {
+                throw new Error('参数最多255个');
+            }
+            let result = 1;
+            let nullNum = 0;
+            let all = 0;
+            if(args.length === 1) {
+                if(Array.isArray(args)) {
+                    if(args[0].length === 0) {
+                        return 0;
+                    }
+                    args[0].map(item => {
+                        if(item.length === 0) {
+                            item = 1;
+                            nullNum += 1;
+                        }
+                        result *= Number(item);
+                    });
+                } else {
+                    if(args[0].length === 0) {
+                        args[0] = 1;
+                        nullNum += 1;
+                    }
+                    result *= Number(args[0]);
+                }
+                args.forEach(item => {
+                    all += item.length;
+                });
+                if(nullNum === all) {
+                    result = 0;
+                }
+                nullNum = 0;
+                return Number(result);
+            } else if(args.length >= 1){
+                args.forEach(item => {
+                    if(Array.isArray(item)) {
+                        item.map(item => {
+                            if(item.length === 0) {
+                                item = 1;
+                                nullNum += 1;
+                            }
+                            result *= Number(item);
+                        });
+                    } else {
+                        if(item.length === 0) {
+                            item = 1;
+                            nullNum += 1;
+                        }
+                        result *= Number(item);
+                    }
+                });
+                args.forEach(item => {
+                    all += item.length;
+                });
+                if(nullNum === all) {
+                    result = 0;
+                    all = 0;
+                }
+                nullNum = 0;
+                return Number(result);
+            } else {
+                return 0;
+            }
+        }
+    },
+    {
+        key: 'RAND',
+        title: tf('formula.math._rand'),
+        render: () => {
+            return Math.random();
+        }
+    },
+    {
+        key: 'RANDBETWEEN',
+        title: tf('formula.math._randbetween'),
+        render: (args) => {
+            if(args.length !== 2) {
+                throw new Error('参数存在且为两个');
+            }
+            return Math.floor(Math.random() * (args[1] - args[0] + 1) + args[0]);
+        }
+    }
 
 
 ];
