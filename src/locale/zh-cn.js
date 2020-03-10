@@ -57,7 +57,9 @@ export default {
     duration: '持续时间',
   },
   formula: {
-    text: {},
+    text: {
+      substitute:'将字符串中的部分字符串以新字符串替换'
+    },
     logic: {
       _if: '条件判断'
     },
@@ -75,6 +77,14 @@ export default {
     },
     math: {
       sum: '求和',
+      _round:'四舍五入',
+      _sqrt:'求平方根',
+      _abs:'求绝对值',
+      _trunc:'截尾取整',
+      _sumif:'单条件求和',
+      _sumifs:'多条件求和',
+      _roundup:'向上取整',
+      _rounddown:'向下取整',
     },
     // sum: '求和',
     // average: '求平均值',
