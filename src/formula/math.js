@@ -173,8 +173,6 @@ const Formula = [
                         return result.toFixed(power);
                     }
                 } else {
-                    console.log("888" + num1);
-                    console.log("888" + num2);
                     if (num1 < num2) {
                         return num2;
                     } else {
@@ -233,19 +231,19 @@ const Formula = [
             }
         }
     },
-    {
-        key: 'ABS',
-        title: tf('formula.math._abs'),
-        render: function (args) {
-            if (args.length != 1) {
-                throw new Error("参数不符");
-            } else if (args[0] >= 0) {
-                return args[0];
-            } else {
-                return Number(args[0]) * (-1);
-            }
-        }
-    },
+    // {
+    //     key: 'ABS',
+    //     title: tf('formula.math._abs'),
+    //     render: function (args) {
+    //         if (args.length != 1) {
+    //             throw new Error("参数不符");
+    //         } else if (args[0] >= 0) {
+    //             return args[0];
+    //         } else {
+    //             return Number(args[0]) * (-1);
+    //         }
+    //     }
+    // },
     {
         key: 'SUM',
         title: tf('formula.math._sum'),
@@ -343,14 +341,12 @@ const Formula = [
                     if (i == 1) {
                         if (args[i + 1].indexOf('>') != -1 || args[i + 1].indexOf('<') != -1 || args[i + 1].indexOf('=') != -1) {
                             var func = new Function("a", "b", "return a+b;");
-
                             for (var j = 0; j < args[i].length; j++) {
                                 var str = func(args[i][j], args[i + 1]);
                                 if (str.charAt(1) == "=") {
                                     str = str.replace("=", "==");
                                 }
                                 if (eval(str)) {
-                                    console.log("index" + i + ":" + j);
                                     ary1.push(j);
                                 }
                             }
@@ -365,14 +361,12 @@ const Formula = [
                     } else {
                         if (args[i + 1].indexOf('>') != -1 || args[i + 1].indexOf('<') != -1 || args[i + 1].indexOf('=') != -1) {
                             var func = new Function("a", "b", "return a+b;");
-
                             for (var j = 0; j < args[i].length; j++) {
                                 var str = func(args[i][j], args[i + 1]);
                                 if (str.charAt(1) == "=") {
                                     str = str.replace("=", "==");
                                 }
                                 if (eval(str)) {
-                                    console.log("index" + i + ":" + j);
                                     ary2.push(j);
                                 }
                             }
@@ -402,7 +396,6 @@ const Formula = [
         key: 'TRUNC',
         title: tf('formula.math._trunc'),
         render: function (args) {
-            console.log("参数长度为:" + args);
             if (args.length > 2) {
                 throw new Error("参数不符");
             } else if (args.length == 1) {
