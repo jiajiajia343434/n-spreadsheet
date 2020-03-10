@@ -61,7 +61,19 @@ export default {
     logic: {
       _if: 'IF',
     },
-    time: {},
+    time: {
+      networkdaysintl: 'NETWORKDAYS.INTL',
+      now: 'NOW',
+      second: 'SECOND',
+      time: 'TIME',
+      timevalue: 'TIMEVALUE',
+      today: 'TODAY',
+      weekday: 'WEEKDAY',
+      weeknum: 'WEEKNUM',
+      workday: 'WORKDAY',
+      workdayintl: 'WORKDAY.INTL',
+
+    },
     statistics: {
       average: 'average',
       averageif: 'averageif',
