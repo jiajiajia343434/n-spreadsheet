@@ -187,7 +187,7 @@ const Formula = [
                 return 0;
             }else{
                 let arrayList=[];
-                for(var idx=0;idx<args.length;idx++){
+                for(let idx=0;idx<args.length;idx++){
                     if(Array.isArray(args[idx])){
                         let childIdx;
                         for(childIdx=0;childIdx<args[idx].length;childIdx++){
