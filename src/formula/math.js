@@ -27,38 +27,38 @@ const Formula = [
                 //参数2为正
                 //return Number(args[0]).toFixed(Number(args[1]));
                 if (args[0] >= 0) {
-                    var times = Math.pow(10, Number(args[1]))
-                    var des = Number(args[0]) * times + 0.5
+                    let times = Math.pow(10, Number(args[1]))
+                    let des = Number(args[0]) * times + 0.5
                     des = parseInt(des, 10) / times
                     return des + '';
                 } else {
-                    var times = Math.pow(10, Number(args[1]));
-                    var des = Number(args[0]) * times * (-1) + 0.5;
+                    let times = Math.pow(10, Number(args[1]));
+                    let des = Number(args[0]) * times * (-1) + 0.5;
                     des = parseInt(des, 10) / times * (-1);
                     return des + '';
                 }
 
             } else {
                 //参数2为负
-                var power = Number(args[1]) * (-1);//要舍弃的位数
-                var str = args[0].toString();//参数1
+                let power = Number(args[1]) * (-1);//要舍弃的位数
+                let str = args[0].toString();//参数1
                 if (str.indexOf('.') != -1) {
                     //有小数点
-                    var num = new Array();
+                    let num = new Array();
                     num = str.split('.');
-                    var zero = Math.pow(10, power);//补零
-                    var nums = Number(num[0]);//取出来小数点之前的整数
+                    let zero = Math.pow(10, power);//补零
+                    let nums = Number(num[0]);//取出来小数点之前的整数
                     if (nums > 0) {
-                        var strs = nums.toString();
-                        var n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
+                        let strs = nums.toString();
+                        let n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
                         if (n >= 5) {
                             return (Number(strs.substring(0, (strs.length - power))) + 1) * zero;
                         } else {
                             return Number(strs.substring(0, (strs.length - power))) * zero;
                         }
                     } else {
-                        var strs = (nums * (-1)).toString();
-                        var n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
+                        let strs = (nums * (-1)).toString();
+                        let n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
                         if (n >= 5) {
                             return (Number(strs.substring(0, (strs.length - power))) + 1) * zero * (-1);
                         } else {
@@ -67,19 +67,19 @@ const Formula = [
                     }
                 } else {
                     //没有小数点
-                    var nums = Number(args[0]);//取出来小数点之前的整数
-                    var zero = Math.pow(10, power);//补零
+                    let nums = Number(args[0]);//取出来小数点之前的整数
+                    let zero = Math.pow(10, power);//补零
                     if (nums > 0) {
-                        var strs = nums.toString();
-                        var n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
+                        let strs = nums.toString();
+                        let n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
                         if (n >= 5) {
                             return (Number(strs.substring(0, (strs.length - power))) + 1) * zero;
                         } else {
                             return Number(strs.substring(0, (strs.length - power))) * zero;
                         }
                     } else {
-                        var strs = (nums * (-1)).toString();
-                        var n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
+                        let strs = (nums * (-1)).toString();
+                        let n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
                         if (n >= 5) {
                             return (Number(strs.substring(0, (strs.length - power))) + 1) * zero * (-1);
                         } else {
@@ -97,57 +97,57 @@ const Formula = [
             if (args.length != 2) {
                 throw new Error("参数不符");
             } else if (Number(args[1]) >= 0) {
-                var power = Number(args[1]);//要舍弃的位数
-                var num1 = Number(args[0]);
-                var num2 = Number(args[0]).toFixed(Number(args[1]));
+                let power = Number(args[1]);//要舍弃的位数
+                let num1 = Number(args[0]);
+                let num2 = Number(args[0]).toFixed(Number(args[1]));
                 if (num1 >= 0) {
                     if (num1 < num2) {
                         return num2;
                     } else {
-                        var num3 = Math.pow(10, power * (-1));
-                        var result = Number(num2) + Number(num3);
+                        let num3 = Math.pow(10, power * (-1));
+                        let result = Number(num2) + Number(num3);
                         return result.toFixed(power);
                     }
                 } else {
                     if (num1 > num2) {
                         return num2;
                     } else {
-                        var num3 = Math.pow(10, power * (-1));
-                        var result = Number(num2) - Number(num3);
+                        let num3 = Math.pow(10, power * (-1));
+                        let result = Number(num2) - Number(num3);
                         return result.toFixed(power);
                     }
                 }
             } else {
                 //参数2为负
-                var power = Number(args[1]) * (-1);//要舍弃的位数
-                var str = args[0].toString();//参数1
+                let power = Number(args[1]) * (-1);//要舍弃的位数
+                let str = args[0].toString();//参数1
                 if (str.indexOf('.') != -1) {
                     //有小数点
-                    var num = new Array();
+                    let num = new Array();
                     num = str.split('.');
-                    var zero = Math.pow(10, power);//补零
-                    var nums = Number(num[0]);//取出来小数点之前的整数
+                    let zero = Math.pow(10, power);//补零
+                    let nums = Number(num[0]);//取出来小数点之前的整数
                     if (nums > 0) {
-                        var strs = nums.toString();
-                        var n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
+                        let strs = nums.toString();
+                        let n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
                         return (Number(strs.substring(0, (strs.length - power))) + 1) * zero;
                     } else {
-                        var strs = (nums * (-1)).toString();
-                        var n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
+                        let strs = (nums * (-1)).toString();
+                        let n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
                         return (Number(strs.substring(0, (strs.length - power))) + 1) * zero * (-1);
                     }
                 } else {
                     //没有小数点
-                    var nums = Number(args[0]);//取出来小数点之前的整数
-                    var zero = Math.pow(10, power);//补零
+                    let nums = Number(args[0]);//取出来小数点之前的整数
+                    let zero = Math.pow(10, power);//补零
 
                     if (nums > 0) {
-                        var strs = nums.toString();
-                        var n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
+                        let strs = nums.toString();
+                        let n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
                         return (Number(strs.substring(0, (strs.length - power))) + 1) * zero;
                     } else {
-                        var strs = (nums * (-1)).toString();
-                        var n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
+                        let strs = (nums * (-1)).toString();
+                        let n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
                         return (Number(strs.substring(0, (strs.length - power))) + 1) * zero * (-1);
                     }
                 }
@@ -161,57 +161,57 @@ const Formula = [
             if (args.length != 2) {
                 throw new Error("参数不符");
             } else if (Number(args[1]) >= 0) {
-                var power = Number(args[1]);//要舍弃的位数
-                var num1 = Number(args[0]);
-                var num2 = Number(args[0]).toFixed(Number(args[1]));
+                let power = Number(args[1]);//要舍弃的位数
+                let num1 = Number(args[0]);
+                let num2 = Number(args[0]).toFixed(Number(args[1]));
                 if (num1 >= 0) {
                     if (num1 > num2) {
                         return num2;
                     } else {
-                        var num3 = Math.pow(10, power * (-1));
-                        var result = Number(num2) - Number(num3);
+                        let num3 = Math.pow(10, power * (-1));
+                        let result = Number(num2) - Number(num3);
                         return result.toFixed(power);
                     }
                 } else {
                     if (num1 < num2) {
                         return num2;
                     } else {
-                        var num3 = Math.pow(10, power * (-1));
-                        var result = Number(num2) + Number(num3);
+                        let num3 = Math.pow(10, power * (-1));
+                        let result = Number(num2) + Number(num3);
                         return result.toFixed(power);
                     }
                 }
             } else {
                 //参数2为负
-                var power = Number(args[1]) * (-1);//要舍弃的位数
-                var str = args[0].toString();//参数1
+                let power = Number(args[1]) * (-1);//要舍弃的位数
+                let str = args[0].toString();//参数1
                 if (str.indexOf('.') != -1) {
                     //有小数点
-                    var num = new Array();
+                    let num = new Array();
                     num = str.split('.');
-                    var zero = Math.pow(10, power);//补零
-                    var nums = Number(num[0]);//取出来小数点之前的整数
+                    let zero = Math.pow(10, power);//补零
+                    let nums = Number(num[0]);//取出来小数点之前的整数
                     if (nums > 0) {
-                        var strs = nums.toString();
-                        var n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
+                        let strs = nums.toString();
+                        let n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
                         return Number(strs.substring(0, (strs.length - power))) * zero;
                     } else {
-                        var strs = (nums * (-1)).toString();
-                        var n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
+                        let strs = (nums * (-1)).toString();
+                        let n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
                         return Number(strs.substring(0, (strs.length - power))) * zero * (-1);
                     }
                 } else {
                     //没有小数点
-                    var nums = Number(args[0]);//取出来小数点之前的整数
-                    var zero = Math.pow(10, power);//补零
+                    let nums = Number(args[0]);//取出来小数点之前的整数
+                    let zero = Math.pow(10, power);//补零
 
                     if (nums > 0) {
-                        var strs = nums.toString();
-                        var n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
+                        let strs = nums.toString();
+                        let n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
                         return Number(strs.substring(0, (strs.length - power))) * zero;
                     } else {
-                        var strs = (nums * (-1)).toString();
-                        var n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
+                        let strs = (nums * (-1)).toString();
+                        let n = Number(strs.charAt(strs.length - power));//舍弃的最后一位
                         return Number(strs.substring(0, (strs.length - power))) * zero * (-1);
                     }
                 }
@@ -270,12 +270,12 @@ const Formula = [
                 if (args.length == 2) {
                     if (args[1].indexOf('>') != -1 || args[1].indexOf('<') != -1 || args[1].indexOf('=') != -1) {
 
-                        var func = new Function("a", "b", "return a+b;");
+                        let func = new Function("a", "b", "return a+b;");
 
-                        var sum = 0;
-                        for (var i = 0; i < args[0].length; i++) {
+                        let sum = 0;
+                        for (let i = 0; i < args[0].length; i++) {
                             if (args[0][i] != null && args[0][i] != "") {
-                                var str = func(args[0][i], args[1]);
+                                let str = func(args[0][i], args[1]);
                                 if (str.charAt(1) == "=") {
                                     str = str.replace("=", "==");
                                 }
@@ -289,17 +289,17 @@ const Formula = [
                         }
                         return sum;
                     } else {
-                        var sum = 0;
-                        for (var i = 0; i < args[0].length; i++) {
+                        let sum = 0;
+                        for (let i = 0; i < args[0].length; i++) {
                             if (args[0][i] != null && args[0][i] != "") {
-                                // var str = args[0][i] + "==" + args[1];
+                                // let str = args[0][i] + "==" + args[1];
                                 // if (eval(str)) {
                                 //     sum += Number(args[0][i]);
                                 // }
 
-                                var str1 = '\"'+args[0][i]+'\"';
-                                var str2 = '\"'+args[1]+'\"';
-                                if (eval(str1==str2)) {
+                                let str1 = '\"' + args[0][i] + '\"';
+                                let str2 = '\"' + args[1] + '\"';
+                                if (eval(str1 == str2)) {
                                     sum += Number(args[0][i]);
                                 }
                             } else {
@@ -312,12 +312,12 @@ const Formula = [
                 } else {
                     if (args[1].indexOf('>') != -1 || args[1].indexOf('<') != -1 || args[1].indexOf('=') != -1) {
 
-                        var func = new Function("a", "b", "return a+b;");
+                        let func = new Function("a", "b", "return a+b;");
 
-                        var sum = 0;
-                        for (var i = 0; i < args[0].length; i++) {
+                        let sum = 0;
+                        for (let i = 0; i < args[0].length; i++) {
                             if (args[0][i] != null && args[0][i] != "") {
-                                var str = func(args[0][i], args[1]);
+                                let str = func(args[0][i], args[1]);
                                 if (str.charAt(1) == "=") {
                                     str = str.replace("=", "==");
                                 }
@@ -330,23 +330,26 @@ const Formula = [
                         }
                         return sum;
                     } else {
-                        var sum = 0;
-                        for (var i = 0; i < args[0].length; i++) {
+                        let sum = 0;
+                        for (let i = 0; i < args[0].length; i++) {
                             if (args[0][i] != null && args[0][i] != "") {
-                                var str1 = '\"'+args[0][i]+'\"';
-                                var str2 = '\"'+args[1]+'\"';
-                                if (eval(str1==str2)) {
+                                let str1 = '\"' + args[0][i] + '\"';
+                                let str2 = '\"' + args[1] + '\"';
+                                if (eval(str1 == str2)) {
                                     sum += Number(args[2][i]);
                                 }
                             } else {
-                                continue;
+                                if (args[1] == null || args[1] == "") {
+                                    sum += Number(args[2][i]);
+                                } else {
+                                    continue;
+                                }
+
                             }
                         }
                         return sum;
 
                     }
-
-
                 }
             }
         }
@@ -358,16 +361,16 @@ const Formula = [
             if (args.length < 3 || args.length > 255) {
                 throw new Error("参数不符");
             } else {
-                var length = args.length;
-                var sum = 0;
-                var ary1 = new Array();
-                var ary2 = new Array();
-                for (var i = 1; i < args.length; i += 2) {
+                let length = args.length;
+                let sum = 0;
+                let ary1 = new Array();
+                let ary2 = new Array();
+                for (let i = 1; i < args.length; i += 2) {
                     if (i == 1) {
                         if (args[i + 1].indexOf('>') != -1 || args[i + 1].indexOf('<') != -1 || args[i + 1].indexOf('=') != -1) {
-                            var func = new Function("a", "b", "return a+b;");
-                            for (var j = 0; j < args[i].length; j++) {
-                                var str = func(args[i][j], args[i + 1]);
+                            let func = new Function("a", "b", "return a+b;");
+                            for (let j = 0; j < args[i].length; j++) {
+                                let str = func(args[i][j], args[i + 1]);
                                 if (str.charAt(1) == "=") {
                                     str = str.replace("=", "==");
                                 }
@@ -376,8 +379,8 @@ const Formula = [
                                 }
                             }
                         } else {
-                            for (var j = 1; j < args[i].length; j++) {
-                                var str = args[i][j] + "==" + args[i + 1];
+                            for (let j = 1; j < args[i].length; j++) {
+                                let str = args[i][j] + "==" + args[i + 1];
                                 if (eval(str)) {
                                     ary1.push(j);
                                 }
@@ -385,9 +388,9 @@ const Formula = [
                         }
                     } else {
                         if (args[i + 1].indexOf('>') != -1 || args[i + 1].indexOf('<') != -1 || args[i + 1].indexOf('=') != -1) {
-                            var func = new Function("a", "b", "return a+b;");
-                            for (var j = 0; j < args[i].length; j++) {
-                                var str = func(args[i][j], args[i + 1]);
+                            let func = new Function("a", "b", "return a+b;");
+                            for (let j = 0; j < args[i].length; j++) {
+                                let str = func(args[i][j], args[i + 1]);
                                 if (str.charAt(1) == "=") {
                                     str = str.replace("=", "==");
                                 }
@@ -396,8 +399,8 @@ const Formula = [
                                 }
                             }
                         } else {
-                            for (var j = 1; j < args[i].length; j++) {
-                                var str = args[i][j] + "==" + args[i + 1];
+                            for (let j = 1; j < args[i].length; j++) {
+                                let str = args[i][j] + "==" + args[i + 1];
                                 if (eval(str)) {
                                     ary2.push(j);
                                 }
@@ -408,8 +411,8 @@ const Formula = [
                         })
                     }
                 }
-                for (var i = 0; i < ary1.length; i++) {
-                    var ind = ary1[i];
+                for (let i = 0; i < ary1.length; i++) {
+                    let ind = ary1[i];
                     if (args[0][ind] != null || args[0][ind] != "") {
                         sum += Number(args[0][ind]);
                     } else {
@@ -430,15 +433,15 @@ const Formula = [
             } else if (args.length == 1) {
                 return Math.trunc(Number(args[0]));
             } else {
-                var numStr = args[0].toString();
-                var index = numStr.indexOf('.');
+                let numStr = args[0].toString();
+                let index = numStr.indexOf('.');
                 if (index == -1) {
                     index = numStr.length;
                     numStr += ".0000000000000";
                 } else {
                     numStr += "0000000000000";
                 }
-                var newNum = numStr.substring(0, index + Number(args[1]) + 1);
+                let newNum = numStr.substring(0, index + Number(args[1]) + 1);
                 return newNum;
             }
         }
@@ -447,12 +450,12 @@ const Formula = [
         key: 'ABS',
         title: tf('formula.math._abs'),
         render: (args) => {
-            if(args.length !== 1) {
+            if (args.length !== 1) {
                 throw new Error('参数必有且唯一');
             }
-            if(Number(args[0]) > 0) {
+            if (Number(args[0]) > 0) {
                 return Number(args[0]);
-            } else if(Number(args[0]) < 0) {
+            } else if (Number(args[0]) < 0) {
                 return -Number(args[0]);
             } else {
                 throw new Error('0没有绝对值');
@@ -466,10 +469,10 @@ const Formula = [
             let e = 2.71828182845904;
             let i = 0;
             let re = 1;
-            if(args.length !== 1) {
+            if (args.length !== 1) {
                 throw new Error('参数存在且唯一');
             }
-            while(i <= Number(args[0]) - 1) {
+            while (i <= Number(args[0]) - 1) {
                 re *= e;
                 i++;
             }
@@ -487,12 +490,12 @@ const Formula = [
         key: 'POWER',
         title: tf('formula.math._power'),
         render: (args) => {
-            if(args.length !== 2) {
+            if (args.length !== 2) {
                 throw new Error('参数存在且为两个');
             }
             let re = 1;
             let i = 0;
-            for(i; i < Number(args[1]); i++) {
+            for (i; i < Number(args[1]); i++) {
                 re *= Number(args[0]);
             }
             return Number(re);
@@ -510,20 +513,20 @@ const Formula = [
             let result = 1;
             let nullNum = 0;
             let all = 0;
-            if(args.length === 1) {
-                if(Array.isArray(args)) {
-                    if(args[0].length === 0) {
+            if (args.length === 1) {
+                if (Array.isArray(args)) {
+                    if (args[0].length === 0) {
                         return 0;
                     }
                     args[0].map(item => {
-                        if(item.length === 0) {
+                        if (item.length === 0) {
                             item = 1;
                             nullNum += 1;
                         }
                         result *= Number(item);
                     });
                 } else {
-                    if(args[0].length === 0) {
+                    if (args[0].length === 0) {
                         args[0] = 1;
                         nullNum += 1;
                     }
@@ -532,23 +535,23 @@ const Formula = [
                 args.forEach(item => {
                     all += item.length;
                 });
-                if(nullNum === all) {
+                if (nullNum === all) {
                     result = 0;
                 }
                 nullNum = 0;
                 return Number(result);
-            } else if(args.length >= 1){
+            } else if (args.length >= 1) {
                 args.forEach(item => {
-                    if(Array.isArray(item)) {
+                    if (Array.isArray(item)) {
                         item.map(item => {
-                            if(item.length === 0) {
+                            if (item.length === 0) {
                                 item = 1;
                                 nullNum += 1;
                             }
                             result *= Number(item);
                         });
                     } else {
-                        if(item.length === 0) {
+                        if (item.length === 0) {
                             item = 1;
                             nullNum += 1;
                         }
@@ -558,7 +561,7 @@ const Formula = [
                 args.forEach(item => {
                     all += item.length;
                 });
-                if(nullNum === all) {
+                if (nullNum === all) {
                     result = 0;
                     all = 0;
                 }
@@ -580,7 +583,7 @@ const Formula = [
         key: 'RANDBETWEEN',
         title: tf('formula.math._randbetween'),
         render: (args) => {
-            if(args.length !== 2) {
+            if (args.length !== 2) {
                 throw new Error('参数存在且为两个');
             }
             return Math.floor(Math.random() * (args[1] - args[0] + 1) + args[0]);
