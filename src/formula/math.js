@@ -274,22 +274,38 @@ const Formula = [
 
                         var sum = 0;
                         for (var i = 0; i < args[0].length; i++) {
-                            var str = func(args[0][i], args[1]);
-                            if (str.charAt(1) == "=") {
-                                str = str.replace("=", "==");
+                            if (args[0][i] != null && args[0][i] != "") {
+                                var str = func(args[0][i], args[1]);
+                                if (str.charAt(1) == "=") {
+                                    str = str.replace("=", "==");
+                                }
+                                if (eval(str)) {
+                                    sum += Number(args[0][i]);
+                                }
+                            } else {
+                                continue;
                             }
-                            if (eval(str)) {
-                                sum += Number(args[0][i]);
-                            }
+
                         }
                         return sum;
                     } else {
                         var sum = 0;
                         for (var i = 0; i < args[0].length; i++) {
-                            var str = args[0][i] + "==" + args[1];
-                            if (eval(str)) {
-                                sum += Number(args[0][i]);
+                            if (args[0][i] != null && args[0][i] != "") {
+                                // var str = args[0][i] + "==" + args[1];
+                                // if (eval(str)) {
+                                //     sum += Number(args[0][i]);
+                                // }
+
+                                var str1 = '\"'+args[0][i]+'\"';
+                                var str2 = '\"'+args[1]+'\"';
+                                if (eval(str1==str2)) {
+                                    sum += Number(args[0][i]);
+                                }
+                            } else {
+                                continue;
                             }
+
                         }
                         return sum;
                     }
@@ -300,21 +316,30 @@ const Formula = [
 
                         var sum = 0;
                         for (var i = 0; i < args[0].length; i++) {
-                            var str = func(args[0][i], args[1]);
-                            if (str.charAt(1) == "=") {
-                                str = str.replace("=", "==");
-                            }
-                            if (eval(str)) {
-                                sum += Number(args[2][i]);
+                            if (args[0][i] != null && args[0][i] != "") {
+                                var str = func(args[0][i], args[1]);
+                                if (str.charAt(1) == "=") {
+                                    str = str.replace("=", "==");
+                                }
+                                if (eval(str)) {
+                                    sum += Number(args[2][i]);
+                                }
+                            } else {
+                                continue;
                             }
                         }
                         return sum;
                     } else {
                         var sum = 0;
                         for (var i = 0; i < args[0].length; i++) {
-                            var str = args[0][i] + "==" + args[1];
-                            if (eval(str)) {
-                                sum += Number(args[2][i]);
+                            if (args[0][i] != null && args[0][i] != "") {
+                                var str1 = '\"'+args[0][i]+'\"';
+                                var str2 = '\"'+args[1]+'\"';
+                                if (eval(str1==str2)) {
+                                    sum += Number(args[2][i]);
+                                }
+                            } else {
+                                continue;
                             }
                         }
                         return sum;
@@ -385,7 +410,11 @@ const Formula = [
                 }
                 for (var i = 0; i < ary1.length; i++) {
                     var ind = ary1[i];
-                    sum += Number(args[0][ind]);
+                    if (args[0][ind] != null || args[0][ind] != "") {
+                        sum += Number(args[0][ind]);
+                    } else {
+                        continue;
+                    }
                 }
             }
             return sum;
