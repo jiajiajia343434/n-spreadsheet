@@ -6,6 +6,176 @@ import { tf } from '../locale/locale';
 
 
 const Formula = [
+    {
+        //返回日期序列数。
+        key: 'DATE',
+        title: tf('formula.time.date'),
+        render: function (args) {
+            if(args == null || args.length<1){
+                throw new Error("参数过少");
+            }
+            //如果参数中有非数字，返回#NAME
+            if(isNaN(args[0]) || isNaN(args[1]) || isNaN(args[2])){
+                throw new Error("#NAME");
+            }
+            //参数为一个时间的序列号值
+            var date = new Date(args[0],Number(args[1])-1,args[2]);
+
+            var serial = 25569.0 + ((date.getTime() - (date.getTimezoneOffset() * 60 * 1000)) / (1000 * 60 * 60 * 24));
+            return Math.floor(serial);
+        },
+    },
+  {
+    //返回以序列数表示的某日期的天数。 天数是介于 1 到 31 之间的整数。
+    key: 'DAY',
+    title: tf('formula.time.day'),
+    render: function (args) {
+        if(args == null || args.length<1){
+            throw new Error("参数过少");
+        }
+        //如果参数中有非数字，返回#NAME
+        if(isNaN(args[0])){
+            throw new Error("#NAME");
+        }
+        //参数为一个时间的序列号值
+        var date = new Date(Math.round((Number(args[0]) - 25569)*86400*1000+(new Date()).getTimezoneOffset() * 60 * 1000));
+
+        return date.getDate();
+    },
+  },
+  {
+    //返回时间值的小时数。
+    // 小时数是介于 0 (12:00 A.M.) 到 23 (11:00 P.M.) 之间的整数
+    key: 'HOUR',
+    title: tf('formula.time.hour'),
+    render: function (args) {
+        if(args == null || args.length<1){
+            throw new Error("参数过少");
+        }
+        //如果参数中有非数字，返回#NAME
+        if(isNaN(args[0])){
+            throw new Error("#NAME");
+        }
+        //参数为一个时间的序列号值
+        var date = new Date(Math.round((Number(args[0]) - 25569)*86400*1000+(new Date()).getTimezoneOffset() * 60 * 1000));
+
+        return date.getHours();
+    },
+  },
+  {
+    //返回时间值中的分钟。 分钟是一个介于 0 到 59 之间的整数
+    key: 'MINUTE',
+    title: tf('formula.time.minute'),
+    render: function (args) {
+      if(args == null || args.length<1){
+        throw new Error("参数过少");
+      }
+      //如果参数中有非数字，返回#NAME
+      if(isNaN(args[0])){
+        throw new Error("#NAME");
+      }
+      //参数为一个时间的序列号值
+      var date = new Date(Math.round((Number(args[0]) - 25569)*86400*1000+(new Date()).getTimezoneOffset() * 60 * 1000));
+
+      return date.getMinutes();
+    },
+  },
+  {
+    //返回日期（以序列数表示）中的月份
+    key: 'MONTH',
+    title: tf('formula.time.month'),
+    render: function (args) {
+      if(args == null || args.length<1){
+        throw new Error("参数过少");
+      }
+      //如果参数中有非数字，返回#NAME
+      if(isNaN(args[0])){
+        throw new Error("#NAME");
+      }
+      //参数为一个时间的序列号值
+      var date = new Date(Math.round((Number(args[0]) - 25569)*86400*1000+(new Date()).getTimezoneOffset() * 60 * 1000));
+
+      return date.getMonth()+1;
+    },
+  },
+  {
+    //返回参数 startdate 和 enddate 之间完整的工作日数值。
+    // 工作日不包括周末和专门指定的假期。
+    key: 'NETWORKDAYS',
+    title: tf('formula.time.networkdays'),
+    render: function (args) {
+      if(args == null || args.length<2){
+        throw new Error("参数过少");
+      }
+      //读取参数：开始日期，结束日期
+      var startdate = new Date(args[0]);
+      var enddate = new Date(args[1]);
+      //计算日期差
+      var rd = Math.floor((enddate.getTime()-startdate.getTime())/ (1000 * 60 * 60 * 24));
+
+      //默认星期六、星期日
+      var weekenddates = [0,6];
+
+      var holidays = args.length>=3?args[2]:null;
+      console.log(args[2])
+      //判断是否周末
+      if(weekenddates.findIndex(item => { return item == startdate.getDay()})>=0 && weekenddates.findIndex(item => { return item == enddate.getDay()})>=0 && Math.abs(rd)<2){
+        return 0;
+      }
+      if (rd == 0)
+        return 1;
+      var r = 0;
+      var dtTemp = startdate;
+
+      // TODO:节假日未实现
+      if(Array.isArray(holidays)){
+        let childIdx;
+        for(childIdx=0;childIdx<holidays.length;childIdx++){
+          console.log(holidays[childIdx]);
+        }
+      }
+      // console.log(holidays.toString())
+
+      if(rd > 0){
+        //开始日期早于结束日期
+        for(var i = 0; i <= rd; i++){
+          r++;
+          startdate.setTime(startdate.getTime()+1000 * 60 * 60 * 24)
+          if(weekenddates.findIndex(item => { return item == startdate.getDay()})>=0){
+            r--;
+            continue;
+          }
+          //判断节假日
+          var thisDate = 25569.0 + ((startdate.getTime() - (startdate.getTimezoneOffset() * 60 * 1000)) / (1000 * 60 * 60 * 24));
+          if(holidays != null && Math.floor(thisDate) == holidays){
+            r--;
+            continue;
+          }
+
+        }
+        return r;
+      }else{
+        //开始日期晚于结束日期
+        for(var i = 0; i >= rd; i--){
+          r--;
+          startdate.setTime(startdate.getTime()-1000 * 60 * 60 * 24)
+          if(weekenddates.findIndex(item => { return item == startdate.getDay()})>=0){
+            r++;
+            continue;
+          }
+          //判断节假日
+          var thisDate = 25569.0 + ((startdate.getTime() - (startdate.getTimezoneOffset() * 60 * 1000)) / (1000 * 60 * 60 * 24));
+          if(holidays != null && Math.floor(thisDate) == holidays){
+            r++;
+            continue;
+          }
+
+        }
+        return r;
+      }
+
+    },
+  },
   {
     //返回两个日期之间的所有工作日数，使用参数指示哪些天是周末，以及有多少天是周末。
     // 周末和任何指定为假期的日期不被视为工作日。

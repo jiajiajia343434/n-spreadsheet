@@ -67,6 +67,12 @@ export default {
       _xor: '异或',
     },
     time: {
+      date: '日期',
+      day: '日期的天数',
+      hour: '小时',
+      minute: '分钟',
+      month: '月份',
+      networkdays: '工作日数',
       networkdaysintl: '工作日数',
       now: '当前日期和时间',
       second: '时间值的秒数',

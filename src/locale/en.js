@@ -62,6 +62,12 @@ export default {
       _if: 'IF',
     },
     time: {
+      date: 'DATE',
+      day: 'DAY',
+      hour: 'HOUR',
+      minute: 'MINUTE',
+      month: 'MONTH',
+      networkdays: 'NETWORKDAYS',
       networkdaysintl: 'NETWORKDAYS.INTL',
       now: 'NOW',
       second: 'SECOND',
