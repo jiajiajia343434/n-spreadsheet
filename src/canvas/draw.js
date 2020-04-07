@@ -12,8 +12,9 @@ function npx(px) {
 }
 
 function npxLine(px) {
-  const n = npx(px);
-  return n > 0 ? n - 0.5 : 0.5;
+  return npx(px) - 0.5;
+  // const n = npx(px);
+  // return n > 0 ? n - 0.5 : 0.5;
 }
 
 class DrawBox {
@@ -31,9 +32,7 @@ class DrawBox {
     this.borderLeft = null;
   }
 
-  setBorders({
-    top, bottom, left, right,
-  }) {
+  setBorders({ top, bottom, left, right }) {
     if (top) this.borderTop = top;
     if (right) this.borderRight = right;
     if (bottom) this.borderBottom = bottom;
@@ -104,7 +103,7 @@ class DrawBox {
 function drawFontLine(type, tx, ty, align, valign, blheight, blwidth) {
   const floffset = {
     x: 0,
-    y: 0
+    y: 0,
   };
   if (type === 'underline') {
     if (valign === 'bottom') {
@@ -228,16 +227,17 @@ class Draw {
       fillStyle: color,
       strokeStyle: color,
     });
-    const txts = mtxt.toString().split('\n');
-    const biw = box.innerWidth();
+    const txts = `${mtxt}`.split('\n');
+    const biw = npx(box.innerWidth());
     const ntxts = [];
     txts.forEach((it) => {
+      // console.log(it, it.length, ctx.font, ctx.measureText(it).width, biw);
       const txtWidth = ctx.measureText(it).width;
       if (textWrap && txtWidth > biw) {
         let textLine = {
           w: 0,
           len: 0,
-          start: 0
+          start: 0,
         };
         for (let i = 0; i < it.length; i += 1) {
           if (textLine.w >= biw) {
@@ -245,7 +245,7 @@ class Draw {
             textLine = {
               w: 0,
               len: 0,
-              start: i
+              start: i,
             };
           }
           textLine.len += 1;
@@ -277,7 +277,7 @@ class Draw {
 
   border(style, color) {
     const { ctx } = this;
-    ctx.lineWidth = thinLineWidth;
+    ctx.lineWidth = thinLineWidth();
     ctx.strokeStyle = color;
     // console.log('style:', style);
     if (style === 'medium') {
@@ -298,6 +298,7 @@ class Draw {
     const { ctx } = this;
     if (xys.length > 1) {
       const [x, y] = xys[0];
+      ctx.beginPath();
       ctx.moveTo(npxLine(x), npxLine(y));
       for (let i = 1; i < xys.length; i += 1) {
         const [x1, y1] = xys[i];
@@ -316,23 +317,26 @@ class Draw {
     const {
       borderTop, borderRight, borderBottom, borderLeft,
     } = box;
-    if (borderTop) {
+    if (borderTop && borderTop.length > 0) {
       this.border(...borderTop);
-      // console.log('box.topxys:', box.topxys());
       this.line(...box.topxys());
     }
-    if (borderRight) {
+
+    if (borderRight && borderRight.length > 0) {
       this.border(...borderRight);
       this.line(...box.rightxys());
     }
-    if (borderBottom) {
+
+    if (borderBottom && borderBottom.length > 0) {
       this.border(...borderBottom);
       this.line(...box.bottomxys());
     }
-    if (borderLeft) {
+
+    if (borderLeft && borderLeft.length > 0) {
       this.border(...borderLeft);
       this.line(...box.leftxys());
     }
+
     ctx.restore();
   }
 
@@ -354,7 +358,7 @@ class Draw {
     ctx.restore();
   }
 
-  error(box) {
+  comment(box) {
     const { ctx } = this;
     const { x, y, width } = box;
     const sx = x + width - 1;
@@ -366,6 +370,26 @@ class Draw {
     ctx.closePath();
     ctx.fillStyle = 'rgba(255, 0, 0, .65)';
     ctx.fill();
+    ctx.restore();
+  }
+
+  error(box) {
+    const { ctx } = this;
+    const { x, y, width, height } = box;
+
+    const sy = y + height - 1;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(npx(x + 2), npx(sy - 1));
+
+    for (let i = 0; i < width - 2; i += 2) {
+      const fix = (i / 2) % 2;
+      ctx.lineTo(npx(x + 2 + i), npx(sy - 1 - fix * 2));
+    }
+
+    ctx.lineWidth = npx(1) - 0.5;
+    ctx.strokeStyle = 'rgba(255, 0, 0, .65)';
+    ctx.stroke();
     ctx.restore();
   }
 
@@ -392,7 +416,9 @@ class Draw {
     ctx.save();
     ctx.beginPath();
     ctx.fillStyle = bgcolor || '#fff';
-    ctx.rect(npxLine(x + 1), npxLine(y + 1), npx(width - 2), npx(height - 2));
+    // console.log('draw:', npxLine(x) + 0.5, npxLine(y) + 0.5, npx(width) - 1, npx(height) - 1);
+    // ctx.rect(npxLine(x + 1), npxLine(y + 1), npx(width - 2), npx(height - 2));
+    ctx.rect(npxLine(x) + 0.5, npxLine(y) + 0.5, npx(width) - 1, npx(height) - 1);
     ctx.clip();
     ctx.fill();
     dtextcb();

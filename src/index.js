@@ -1,32 +1,39 @@
 /* global window, document */
-import {h} from './ui/element';
+import { h } from './ui/element';
 import DataProxy from './core/data_proxy';
 import Sheet from './ui/sheet';
 import Bottombar from './ui/bottombar';
-import {cssPrefix} from './config';
-import {locale} from './locale/locale';
+import { cssPrefix } from './config';
+import { locale } from './locale/locale';
 import './index.less';
-// import XLSX from 'xlsx';
-import Excel from 'exceljs';
+import ExcelParser from './utils/parser/excel';
 
 class Spreadsheet {
   constructor(selectors, options = {}) {
     let targetEl = selectors;
-    this.options = options;
-    this.sheetIndex = 1;
-    this.datas = [];
     if (typeof selectors === 'string') {
       targetEl = document.querySelector(selectors);
     }
+    options.view = {
+      height: () => targetEl.clientHeight,
+      width: () => targetEl.clientWidth,
+    };
+    this.options = options;
+    this.sheetIndex = 1;
+    this.datas = [];
     this.bottombar = new Bottombar(() => {
       const d = this.addSheet();
-      this.sheet.resetData(d);
+      this.sheet.reset(d);
+      this.sheet.trigger('change', d.getData(), this.datas.map(data => data.getData()));
     }, (index) => {
       this.swapSheet(index);
+      this.sheet.trigger('change', this.data.getData(), this.datas.map(data => data.getData()));
     }, () => {
       this.deleteSheet();
+      this.sheet.trigger('change', this.data.getData(), this.datas.map(data => data.getData()));
     }, (index, value) => {
       this.datas[index].name = value;
+      this.sheet.trigger('change', this.data.getData(), this.datas.map(data => data.getData()));
     });
     this.data = this.addSheet();
     const rootEl = h('div', `${cssPrefix}`)
@@ -37,12 +44,15 @@ class Spreadsheet {
     rootEl.child(this.bottombar.el);
   }
 
-  addSheet(name) {
+  addSheet(name, active = true) {
     const n = name || `sheet${this.sheetIndex}`;
     const d = new DataProxy(n, this.options);
+    d.change = (...args) => {
+      this.sheet.trigger('change', ...args, this.datas.map(data => data.getData()));
+    };
     this.datas.push(d);
     // console.log('d:', n, d, this.datas);
-    this.bottombar.addItem(n, true);
+    this.bottombar.addItem(n, active);
     this.sheetIndex += 1;
     return d;
   }
@@ -51,18 +61,28 @@ class Spreadsheet {
     const [oldIndex, nindex] = this.bottombar.deleteItem();
     if (oldIndex >= 0) {
       this.datas.splice(oldIndex, 1);
-      if (nindex >= 0) this.sheet.resetData(this.datas[nindex]);
+      if (nindex >= 0) this.sheet.reset(this.datas[nindex]);
     }
+    this.data = this.datas[nindex];
   }
 
   swapSheet(index) {
     const d = this.datas[index];
-    this.sheet.resetData(d);
+    this.data = d;
+    this.sheet.reset(d);
   }
 
   loadData(data) {
-    const d = Array.isArray(data) ? data[0] : data;
-    this.sheet.loadData(d);
+    const ds = Array.isArray(data) ? data : [data];
+    for (let i = 0; i < ds.length; i += 1) {
+      const it = ds[i];
+      const nd = this.addSheet(it.name, false);
+      nd.setData(it);
+    }
+    const oldCount = this.datas.length - ds.length;
+    for (let i = 1; i <= oldCount; i += 1) {
+      this.deleteSheet();
+    }
     return this;
   }
 
@@ -71,40 +91,37 @@ class Spreadsheet {
   }
 
   validate() {
-    const {validations} = this.data;
+    const { validations } = this.data;
     return validations.errors.size <= 0;
   }
 
   change(cb) {
-    this.data.change = cb;
+    this.sheet.on('change', cb);
+    return this;
+  }
+
+  on(eventName, func) {
+    this.sheet.on(eventName, func);
     return this;
   }
 
   openFile() {
     const el = document.createElement('input');
+    el.style.display = 'none';
     el.type = 'file';
     el.id = '_file';
     document.body.append(el);
     el.click();
-    const file = document.getElementById('_file');
-    file.onchange = () => {
+    const fileDom = document.getElementById('_file');
+    fileDom.onchange = () => {
+      // eslint-disable-next-line
       const reader = new FileReader();
-      reader.readAsArrayBuffer(file.files[0]);
+      reader.readAsArrayBuffer(fileDom.files[0]);
+      fileDom.remove();
       reader.onload = () => {
-        // window.workbook = XLSX.read(reader.result, {
-        //   type: 'array',
-        //   cellFormula: true,
-        //   cellHTML: true,
-        //   cellNF: true,
-        //   cellStyles: true,
-        //   cellText: true,
-        //   cellDates: true,
-        // });
-        const workbook = new Excel.Workbook();
-        workbook.xlsx.load(reader.result)
-          .then(function () {
-            window.workbook = workbook;
-          });
+        const { result } = reader;
+        const parser = new ExcelParser();
+        parser.parse(result).then(data => this.loadData(data));
       };
     };
   }

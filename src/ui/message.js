@@ -3,7 +3,7 @@ import { h } from './element';
 import Icon from './icon';
 import { cssPrefix } from '../config';
 
-export function xtoast(title, content) {
+export function message(title, content) {
   const el = h('div', `${cssPrefix}-toast`);
   const dimmer = h('div', `${cssPrefix}-dimmer active`);
   const remove = () => {

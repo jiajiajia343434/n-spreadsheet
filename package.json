@@ -1,18 +1,18 @@
 {
-  "name": "x-data-spreadsheet",
-  "version": "1.0.30",
-  "description": "a javascript xpreadsheet",
+  "name": "n-spreadsheet",
+  "version": "0.0.4",
+  "description": "A excel-liked javaScript spreadsheet",
   "main": "src/index.js",
   "files": [
     "assets",
     "dist",
     "src"
   ],
-  "author": "myliang <liangyuliang0335@gmail.com>",
+  "author": "gph",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/myliang/x-spreadsheet.git"
+    "url": "http://192.168.1.173:10000/dongzhaoyang/n-spreadsheet.git"
   },
   "nyc": {
     "all": true,
@@ -64,12 +64,6 @@
   },
   "dependencies": {
     "exceljs": "^3.8.0",
-    "opencollective": "^1.0.3",
-    "opencollective-postinstall": "^2.0.2",
     "xlsx": "^0.15.5"
-  },
-  "collective": {
-    "type": "opencollective",
-    "url": "https://opencollective.com/x-spreadsheet"
   }
 }

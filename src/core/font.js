@@ -51,7 +51,7 @@ function getFontSizePxByPt(pt) {
       return fontSize.px;
     }
   }
-  return pt;
+  return Math.round(pt * 4 / 3);
 }
 
 /** transform baseFonts to map

@@ -3,6 +3,7 @@ import { h } from './element';
 import Suggest from './suggest';
 import Datepicker from './datepicker';
 import { cssPrefix } from '../config';
+
 // import { mouseMoveUp } from '../event';
 
 function resetTextareaSize() {
@@ -58,7 +59,7 @@ function inputEventHandler(evt) {
       }
       textlineEl.html(v);
       resetTextareaSize.call(this);
-      this.change('input', v);
+      // this.change('input', v);
     } else {
       evt.target.value = '';
     }
@@ -80,7 +81,7 @@ function inputEventHandler(evt) {
     }
     textlineEl.html(v);
     resetTextareaSize.call(this);
-    this.change('input', v);
+    // this.change('input', v);
   }
 }
 
@@ -137,6 +138,9 @@ function dateFormat(d) {
   return `${d.getFullYear()}-${month}-${date}`;
 }
 
+// edit state
+let editing = false;
+
 export default class Editor {
   constructor(formulas, viewFn, rowHeight) {
     this.viewFn = viewFn;
@@ -149,7 +153,7 @@ export default class Editor {
     this.datepicker.change((d) => {
       // console.log('d:', d);
       this.setText(dateFormat(d));
-      this.clear();
+      this.restore();
     });
     this.areaEl = h('div', `${cssPrefix}-editor-area`)
       .children(
@@ -159,8 +163,10 @@ export default class Editor {
         this.suggest.el,
         this.datepicker.el,
       )
-      .on('mousemove.stop', () => {})
-      .on('mousedown.stop', () => {});
+      .on('mousemove.stop', () => {
+      })
+      .on('mousedown.stop', () => {
+      });
     this.el = h('div', `${cssPrefix}-editor`)
       .child(this.areaEl).hide();
     this.suggest.bindInputEvents(this.textEl);
@@ -169,7 +175,8 @@ export default class Editor {
     this.freeze = { w: 0, h: 0 };
     this.cell = null;
     this.inputText = '';
-    this.change = () => {};
+    this.change = () => {
+    };
   }
 
   setFreezeLengths(width, height) {
@@ -177,11 +184,12 @@ export default class Editor {
     this.freeze.h = height;
   }
 
-  clear() {
+  restore() {
     // const { cell } = this;
     // const cellText = (cell && cell.text) || '';
     if (this.inputText !== '') {
-      this.change('finished', this.inputText);
+      // this.change('finished', this.inputText);
+      this.change(this.inputText);
     }
     this.cell = null;
     this.areaOffset = null;
@@ -191,6 +199,7 @@ export default class Editor {
     this.textlineEl.html('');
     resetSuggestItems.call(this);
     this.datepicker.hide();
+    editing = false;
   }
 
   setOffset(offset, suggestPosition = 'top') {
@@ -247,6 +256,7 @@ export default class Editor {
         suggest.search('');
       }
     }
+    editing = true;
   }
 
   setText(text) {
@@ -254,5 +264,13 @@ export default class Editor {
     // console.log('text>>:', text);
     setText.call(this, text, text.length);
     resetTextareaSize.call(this);
+  }
+
+  getText() {
+    return this.inputText;
+  }
+
+  isEditing() {
+    return editing;
   }
 }

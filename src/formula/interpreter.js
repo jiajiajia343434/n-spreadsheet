@@ -286,7 +286,12 @@ const evalSuffixExpr = (suffixExpr, formulaMap, cellRender) => {
 const evalFormula = (srcText, formulaMap, cellRender, parentCell) => {
   let expr = infixToSuffixExpr(srcText);
   if (expr.length === 0) return srcText;
-  let result = evalSuffixExpr(expr, formulaMap, cellRender);
+  let result = srcText;
+  try {
+    result = evalSuffixExpr(expr, formulaMap, cellRender);
+  } catch (e) {
+    console.log(e);
+  }
   if (result instanceof Cell) {
     return cellRender(result.x, result.y);
   }

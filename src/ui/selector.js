@@ -200,8 +200,8 @@ export default class Selector {
     this.t = new SelectorElement();
     this.l = new SelectorElement();
     this.tl = new SelectorElement();
-    this.br.inputChange = (v) => {
-      this.inputChange(v);
+    this.br.inputChange = () => {
+      this.inputChange();
     };
     this.br.el.show();
     this.offset = null;

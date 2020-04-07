@@ -32,6 +32,7 @@ export default {
     pasteFormat: 'Paste format only',
     insertRow: 'Insert row',
     insertColumn: 'Insert column',
+    hide: 'hide',
     deleteSheet: 'Delete',
     deleteRow: 'Delete row',
     deleteColumn: 'Delete column',
@@ -57,7 +58,14 @@ export default {
     duration: 'Duration',
   },
   formula: {
-    text: {},
+    text: {
+      substitute:'SUBSTITUTE',
+      text:'TEXT',
+      textjoin:'TEXTJOIN',
+      _trim:'TRIM',
+      upper:'UPPER',
+      _value:'VALUE',
+    },
     logic: {
       _if: 'IF',
     },

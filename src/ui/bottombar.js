@@ -1,11 +1,11 @@
-import { h } from './element';
-import { bindClickoutside, unbindClickoutside } from './event';
-import { cssPrefix } from '../config';
+import {h} from './element';
+import {bindClickoutside, unbindClickoutside} from './event';
+import {cssPrefix} from '../config';
 import Icon from './icon';
 import FormInput from './form_input';
 import Dropdown from './dropdown';
-import { xtoast } from './message';
-import { tf } from '../locale/locale';
+import {message} from './message';
+import { t, tf } from '../locale/locale';
 
 class DropdownMore extends Dropdown {
   constructor(click) {
@@ -71,9 +71,9 @@ class ContextMenu {
 
 export default class Bottombar {
   constructor(addFunc = () => {},
-    swapFunc = () => {},
-    deleteFunc = () => {},
-    updateFunc = () => {}) {
+              swapFunc = () => {},
+              deleteFunc = () => {},
+              updateFunc = () => {}) {
     this.swapFunc = swapFunc;
     this.updateFunc = updateFunc;
     this.dataNames = [];
@@ -93,7 +93,7 @@ export default class Bottombar {
             if (this.dataNames.length < 10) {
               addFunc();
             } else {
-              xtoast('tip', 'it less than or equal to 10');
+              message(t('error.tip'), 'it less than or equal to 10');
             }
           }),
           h('span', '').child(this.moreEl),
@@ -118,10 +118,13 @@ export default class Bottombar {
       input.input.on('blur', ({ target }) => {
         const { value } = target;
         const nindex = this.dataNames.findIndex(it => it === v);
+        this.renameItem(nindex, value);
+        /*
         this.dataNames.splice(nindex, 1, value);
         this.moreEl.reset(this.dataNames);
         item.html('').child(value);
         this.updateFunc(nindex, value);
+        */
       });
       item.html('').child(input.el);
       input.focus();
@@ -134,8 +137,20 @@ export default class Bottombar {
     this.moreEl.reset(this.dataNames);
   }
 
+  renameItem(index, value) {
+    this.dataNames.splice(index, 1, value);
+    this.moreEl.reset(this.dataNames);
+    this.items[index].html('').child(value);
+    this.updateFunc(index, value);
+  }
+
   deleteItem() {
-    const { activeEl, deleteEl } = this;
+    const { activeEl } = this;
+    let { deleteEl } = this;
+    this.deleteEl = null;
+    if (typeof deleteEl === 'undefined' || deleteEl === null) {
+      deleteEl = activeEl;
+    }
     if (this.items.length > 1) {
       const index = this.items.findIndex(it => it === deleteEl);
       this.items.splice(index, 1);

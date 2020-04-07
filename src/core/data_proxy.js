@@ -13,6 +13,7 @@ import { Validations } from './validation';
 import { CellRange } from './cell_range';
 import { expr2xy, xy2expr } from './alphabet';
 import { t } from '../locale/locale';
+import { message } from '../ui/message';
 
 // private methods
 /*
@@ -70,21 +71,21 @@ import { t } from '../locale/locale';
  */
 const defaultSettings = {
   view: {
-    height: () => document.documentElement.clientHeight,
-    width: () => document.documentElement.clientWidth,
+    height: () => document.documentElement.clientHeight / 2,
+    width: () => document.documentElement.clientWidth / 2,
   },
   showGrid: true,
   showToolbar: true,
   showContextmenu: true,
   row: {
     len: 100,
-    height: 25,
+    height: 18,
   },
   col: {
     len: 26,
-    width: 100,
-    indexWidth: 60,
-    minWidth: 60,
+    width: 80,
+    indexWidth: 40,
+    minWidth: 1,
   },
   style: {
     bgcolor: '#ffffff',
@@ -106,10 +107,25 @@ const defaultSettings = {
 const toolbarHeight = 41;
 const bottombarHeight = 41;
 
+function containsReadonly(range) {
+  const { getCell } = this;
+  const { sri, eri, sci, eci } = range;
+
+  for (let ri = sri; ri <= eri; ri += 1) {
+    for (let ci = sci; ci <= eci; ci += 1) {
+      const cell = getCell.call(this, ri, ci);
+      if (cell && cell.editable === false) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
 
 // src: cellRange
 // dst: cellRange
-function canPaste(src, dst, error = () => {}) {
+function canPaste(src, dst, error = () => {
+}) {
   const { merges } = this;
   const cellRange = dst.clone();
   const [srn, scn] = src.size();
@@ -120,12 +136,17 @@ function canPaste(src, dst, error = () => {}) {
   if (scn > dcn) {
     cellRange.eci = dst.sci + scn - 1;
   }
+  if (containsReadonly.call(this, cellRange)) {
+    error(t('error.hasCannotEditable'));
+    return false;
+  }
   if (merges.intersects(cellRange)) {
     error(t('error.pasteForMergedCell'));
     return false;
   }
   return true;
 }
+
 function copyPaste(srcCellRange, dstCellRange, what, autofill = false) {
   const { rows, merges } = this;
   // delete dest merge
@@ -160,8 +181,41 @@ function setStyleBorder(ri, ci, bss) {
   if (cell.style !== undefined) {
     cstyle = helper.cloneDeep(styles[cell.style]);
   }
-  Object.assign(cstyle, { border: bss });
+  cstyle = helper.merge(cstyle, { border: bss });
   cell.style = this.addStyle(cstyle);
+}
+
+function clearNeighborStyleBorder(mode, ri, ci) {
+  const { styles } = this;
+  let nri;
+  let nci;
+  let tp;// target position
+  if (mode === 'left') {
+    nri = ri;
+    nci = ci - 1;
+    tp = 'right';
+  }
+  if (mode === 'right') {
+    nri = ri;
+    nci = ci + 1;
+    tp = 'left';
+  }
+  if (mode === 'top') {
+    nri = ri - 1;
+    nci = ci;
+    tp = 'bottom';
+  }
+  if (mode === 'bottom') {
+    nri = ri + 1;
+    nci = ci;
+    tp = 'top';
+  }
+  const cell = this.getCell(nri, nci);
+  if (cell && typeof cell.style === 'number' && styles[cell.style].border) {
+    const border = helper.cloneDeep(styles[cell.style].border);
+    border[tp] = [];
+    setStyleBorder.call(this, nri, nci, border);
+  }
 }
 
 function setStyleBorders({ mode, style, color }) {
@@ -175,6 +229,39 @@ function setStyleBorders({ mode, style, color }) {
       return;
     }
   }
+  // clear neighbor
+  if (mode === 'all' || mode === 'outside') {
+    for (let i = sri; i <= eri; i += 1) {
+      clearNeighborStyleBorder.call(this, 'left', i, sci);
+      clearNeighborStyleBorder.call(this, 'right', i, eci);
+    }
+    for (let i = sci; i <= eci; i += 1) {
+      clearNeighborStyleBorder.call(this, 'top', sri, i);
+      clearNeighborStyleBorder.call(this, 'bottom', eri, i);
+    }
+  }
+  if (mode === 'left') {
+    for (let i = sri; i <= eri; i += 1) {
+      clearNeighborStyleBorder.call(this, mode, i, sci);
+    }
+  }
+  if (mode === 'right') {
+    for (let i = sri; i <= eri; i += 1) {
+      clearNeighborStyleBorder.call(this, mode, i, eci);
+    }
+  }
+  if (mode === 'top') {
+    for (let i = sci; i <= eci; i += 1) {
+      clearNeighborStyleBorder.call(this, mode, sri, sri);
+    }
+  }
+  if (mode === 'bottom') {
+    for (let i = sci; i <= eci; i += 1) {
+      clearNeighborStyleBorder.call(this, mode, eri, i);
+    }
+  }
+
+  // set border
   if (mode === 'outside' && !multiple) {
     setStyleBorder.call(this, sri, sci, {
       top: [style, color], bottom: [style, color], left: [style, color], right: [style, color],
@@ -341,7 +428,8 @@ export default class DataProxy {
     this.history = new History();
     this.clipboard = new Clipboard();
     this.autoFilter = new AutoFilter();
-    this.change = () => {};
+    this.change = () => {
+    };
     this.exceptRowSet = new Set();
     this.sortedRowMap = new Map();
     this.unsortedRowMap = new Map();
@@ -407,7 +495,8 @@ export default class DataProxy {
   }
 
   // what: all | text | format
-  paste(what = 'all', error = () => {}) {
+  paste(what = 'all', error = () => {
+  }) {
     // console.log('sIndexes:', sIndexes);
     const { clipboard, selector } = this;
     if (clipboard.isClear()) return false;
@@ -432,7 +521,8 @@ export default class DataProxy {
     });
   }
 
-  autofill(cellRange, what, error = () => {}) {
+  autofill(cellRange, what, error = () => {
+  }) {
     const srcRange = this.selector.range;
     if (!canPaste.call(this, srcRange, cellRange, error)) return false;
     this.changeData(() => {
@@ -549,8 +639,33 @@ export default class DataProxy {
     });
   }
 
+  // // state: input | finished
+  // setSelectedCellText(text, state = 'input') {
+  //   const { autoFilter, selector, rows } = this;
+  //   const { ri, ci } = selector;
+  //   let nri = ri;
+  //   if (this.unsortedRowMap.has(ri)) {
+  //     nri = this.unsortedRowMap.get(ri);
+  //   }
+  //   const oldCell = rows.getCell(nri, ci);
+  //   const oldText = oldCell ? oldCell.text : '';
+  //   this.setCellText(nri, ci, text, state);
+  //   // replace filter.value
+  //   if (autoFilter.active()) {
+  //     const filter = autoFilter.getFilter(ci);
+  //     if (filter) {
+  //       const vIndex = filter.value.findIndex(v => v === oldText);
+  //       if (vIndex >= 0) {
+  //         filter.value.splice(vIndex, 1, text);
+  //       }
+  //       // console.log('filter:', filter, oldCell);
+  //     }
+  //   }
+  //   // this.resetAutoFilter();
+  // }
+
   // state: input | finished
-  setSelectedCellText(text, state = 'input') {
+  setSelectedCellText(text) {
     const { autoFilter, selector, rows } = this;
     const { ri, ci } = selector;
     let nri = ri;
@@ -559,7 +674,7 @@ export default class DataProxy {
     }
     const oldCell = rows.getCell(nri, ci);
     const oldText = oldCell ? oldCell.text : '';
-    this.setCellText(nri, ci, text, state);
+    this.setCellText(nri, ci, text);
     // replace filter.value
     if (autoFilter.active()) {
       const filter = autoFilter.getFilter(ci);
@@ -702,6 +817,10 @@ export default class DataProxy {
     if (this.isSignleSelected()) return;
     const [rn, cn] = selector.size();
     // console.log('merge:', rn, cn);
+    if (containsReadonly.call(this, selector.range)) {
+      message(t('error.tip'), t('error.hasCannotEditable'));
+      return;
+    }
     if (rn > 1 || cn > 1) {
       const { sri, sci } = selector.range;
       this.changeData(() => {
@@ -920,7 +1039,14 @@ export default class DataProxy {
   getCellStyleOrDefault(ri, ci) {
     const { styles, rows } = this;
     const cell = rows.getCell(ri, ci);
-    const cellStyle = (cell && cell.style !== undefined) ? styles[cell.style] : {};
+    let cellStyle = {};
+    if (cell && cell.style !== undefined) {
+      if (typeof cell.style === 'number' || typeof cell.style === 'string') {
+        cellStyle = styles[cell.style];
+      } else {
+        cellStyle = cell.style;
+      }
+    }
     return helper.merge(this.defaultStyle(), cellStyle);
   }
 
@@ -929,17 +1055,30 @@ export default class DataProxy {
     return this.getCellStyleOrDefault(ri, ci);
   }
 
+  // // state: input | finished
+  // setCellText(ri, ci, text, state) {
+  //   const { rows, history, validations } = this;
+  //   // if (state === 'finished') {
+  //   //   rows.setCellText(ri, ci, '');
+  //   //   history.add(this.getData());
+  //   //   rows.setCellText(ri, ci, text);
+  //   // } else {
+  //   //   rows.setCellText(ri, ci, text);
+  //   //   this.change(this.getData());
+  //   // }
+  //   history.add(this.getData());
+  //   rows.setCellText(ri, ci, text);
+  //   this.change(this.getData());
+  //   // validator
+  //   validations.validate(ri, ci, text);
+  // }
+
   // state: input | finished
-  setCellText(ri, ci, text, state) {
+  setCellText(ri, ci, text) {
     const { rows, history, validations } = this;
-    if (state === 'finished') {
-      rows.setCellText(ri, ci, '');
-      history.add(this.getData());
-      rows.setCellText(ri, ci, text);
-    } else {
-      rows.setCellText(ri, ci, text);
-      this.change(this.getData());
-    }
+    history.add(this.getData());
+    rows.setCellText(ri, ci, text);
+    this.change(this.getData());
     // validator
     validations.validate(ri, ci, text);
   }
@@ -1046,6 +1185,29 @@ export default class DataProxy {
       .forEach(it => cb(it));
   }
 
+  hideRowsOrCols() {
+    const { rows, cols, selector } = this;
+    const [rlen, clen] = selector.size();
+    const {
+      sri, sci, eri, eci,
+    } = selector.range;
+    if (rlen === rows.len) {
+      for (let ci = sci; ci <= eci; ci += 1) {
+        cols.setHide(ci, true);
+      }
+    } else if (clen === cols.len) {
+      for (let ri = sri; ri <= eri; ri += 1) {
+        rows.setHide(ri, true);
+      }
+    }
+  }
+
+  // type: row | col
+  // index row-index | col-index
+  unhideRowsOrCols(type, index) {
+    this[`${type}s`].unhide(index);
+  }
+
   rowEach(min, max, cb) {
     let y = 0;
     const { rows } = this;
@@ -1063,9 +1225,11 @@ export default class DataProxy {
         offset += 1;
       } else {
         const rowHeight = rows.getHeight(i);
-        cb(i, y, rowHeight);
-        y += rowHeight;
-        if (y > this.viewHeight()) break;
+        if (rowHeight > 0) {
+          cb(i, y, rowHeight);
+          y += rowHeight;
+          if (y > this.viewHeight()) break;
+        }
       }
     }
   }
@@ -1075,9 +1239,11 @@ export default class DataProxy {
     const { cols } = this;
     for (let i = min; i <= max; i += 1) {
       const colWidth = cols.getWidth(i);
-      cb(i, x, colWidth);
-      x += colWidth;
-      if (x > this.viewWidth()) break;
+      if (colWidth > 0) {
+        cb(i, x, colWidth);
+        x += colWidth;
+        if (x > this.viewWidth()) break;
+      }
     }
   }
 

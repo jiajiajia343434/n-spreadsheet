@@ -4,17 +4,16 @@ import _cell from '../core/cell';
 import { formulam } from '../formula/formula';
 import { formatm } from '../core/format';
 
-import {
-  Draw, DrawBox, thinLineWidth, npx,
-} from '../canvas/draw';
+import { Draw, DrawBox, npx, thinLineWidth } from '../canvas/draw';
 // gobal var
 const cellPaddingWidth = 5;
 const tableFixedHeaderCleanStyle = { fillStyle: '#f4f5f8' };
 const tableGridStyle = {
   fillStyle: '#fff',
   lineWidth: thinLineWidth,
-  strokeStyle: '#e6e6e6',
+  strokeStyle: '#d3d3d3',
 };
+
 function tableFixedHeaderStyle() {
   return {
     textAlign: 'center',
@@ -32,6 +31,7 @@ function getDrawBox(data, rindex, cindex, yoffset = 0) {
   } = data.cellRect(rindex, cindex);
   return new DrawBox(left, top + yoffset, width, height, cellPaddingWidth);
 }
+
 /*
 function renderCellBorders(bboxes, translateFunc) {
   const { draw } = this;
@@ -50,7 +50,8 @@ function renderCellBorders(bboxes, translateFunc) {
 */
 
 export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
-  const { sortedRowMap } = data;
+  const { sortedRowMap, rows, cols } = data;
+  if (rows.isHide(rindex) || cols.isHide(cindex)) return;
   let nrindex = rindex;
   if (sortedRowMap.has(rindex)) {
     nrindex = sortedRowMap.get(rindex);
@@ -66,11 +67,7 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
   const style = data.getCellStyleOrDefault(nrindex, cindex);
   const dbox = getDrawBox(data, rindex, cindex, yoffset);
   dbox.bgcolor = style.bgcolor;
-  if (style.border !== undefined) {
-    dbox.setBorders(style.border);
-    // bboxes.push({ ri: rindex, ci: cindex, box: dbox });
-    draw.strokeBorders(dbox);
-  }
+  // console.log('cell:', rindex, cindex);
   draw.rect(dbox, () => {
     // render text
     let cellText = _cell.render(cell.text || '', formulam, (y, x) => (data.getCellTextOrDefault(x, y)));
@@ -99,6 +96,10 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
       draw.frozen(dbox);
     }
   });
+  if (style.border !== undefined) {
+    dbox.setBorders(style.border);
+    draw.strokeBorders(dbox);
+  }
 }
 
 function renderAutofilter(viewRange) {
@@ -208,6 +209,12 @@ function renderFixedHeaders(type, viewRange, w, h, tx, ty) {
         renderSelectedHeaderCell.call(this, 0, y, w, rowHeight);
       }
       draw.fillText(ii + 1, w / 2, y + (rowHeight / 2));
+      if (i > 0 && data.rows.isHide(i - 1)) {
+        draw.save();
+        draw.attr({ strokeStyle: '#c6c6c6' });
+        draw.line([5, y + 5], [w - 5, y + 5]);
+        draw.restore();
+      }
     });
     draw.line([0, sumHeight + nty], [w, sumHeight + nty]);
     draw.line([w, nty], [w, sumHeight + nty]);
@@ -222,6 +229,12 @@ function renderFixedHeaders(type, viewRange, w, h, tx, ty) {
         renderSelectedHeaderCell.call(this, x, 0, colWidth, h);
       }
       draw.fillText(stringAt(ii), x + (colWidth / 2), h / 2);
+      if (i > 0 && data.cols.isHide(i - 1)) {
+        draw.save();
+        draw.attr({ strokeStyle: '#c6c6c6' });
+        draw.line([x + 5, 5], [x + 5, h - 5]);
+        draw.restore();
+      }
     });
     draw.line([sumWidth + ntx, 0], [sumWidth + ntx, h]);
     draw.line([0, h], [sumWidth + ntx, h]);
@@ -238,9 +251,7 @@ function renderFixedLeftTopCell(fw, fh) {
   draw.restore();
 }
 
-function renderContentGrid({
-  sri, sci, eri, eci, w, h,
-}, fw, fh, tx, ty) {
+function renderContentGrid({ sri, sci, eri, eci, w, h }, fw, fh, tx, ty) {
   const { draw, data } = this;
   const { settings } = data;
 
