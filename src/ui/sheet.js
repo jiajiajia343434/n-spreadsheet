@@ -15,13 +15,15 @@ import { message } from './message';
 import { cssPrefix } from '../config';
 import { formulas } from '../formula/formula';
 import { t as locale } from '../locale/locale';
+import helper from '../model/helper';
+import OperableCell from '../utils/decorator/OperableCell';
 
 /**
  * @desc throttle fn
- * @param func function
- * @param wait Delay in milliseconds
+ * @param fn function
+ * @param interval Delay in milliseconds
  */
-function throttle(func, wait) {
+function throttle(fn, interval) {
   let timeout;
   return (...arg) => {
     const that = this;
@@ -29,13 +31,31 @@ function throttle(func, wait) {
     if (!timeout) {
       timeout = setTimeout(() => {
         timeout = null;
-        func.apply(that, args);
-      }, wait);
+        fn.apply(that, args);
+      }, interval);
     }
   };
 }
 
-function scrollbarMove() {
+/**
+ * @desc debounce fn
+ * @param fn function
+ * @param delay Delay in milliseconds
+ */
+function debounce(fn, delay) {
+  let timer;
+  return (...arg) => {
+    const that = this;
+    const args = arg;
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      // 绑定this，传入参数给callback。通常我们需要事件对象就ok
+      fn.apply(that, args);
+    }, delay);
+  };
+}
+
+function scrollbarFitSelector() {
   const {
     data, verticalScrollbar, horizontalScrollbar,
   } = this;
@@ -73,53 +93,31 @@ function selectorSet(multiple, ri, ci, indexesUpdated = true, moving = false) {
   const cell = data.getCell(ri, ci);
   if (multiple) {
     selector.setEnd(ri, ci, moving);
-    this.trigger('cells-selected', cell, selector.range);
+    const { range } = selector;
+    const view = [];
+    for (let row = range.sri; row <= range.eri; row += 1) {
+      view[row] = [];
+      for (let col = range.sci; col <= range.eci; col += 1) {
+        view[row][col] = new OperableCell(
+          row, col, data.getCell(row, col) || {}, {
+            setCellText: data.setCellText.bind(data, row, col),
+          }, table.render.bind(table),
+        );
+      }
+    }
+    this.trigger('cells-selected', view, range);
   } else {
     // trigger click event
     selector.set(ri, ci, indexesUpdated);
-    this.trigger('cell-selected', cell, ri, ci);
+    const dCell = new OperableCell(
+      ri, ci, cell || {}, {
+        setCellText: data.setCellText.bind(data, ri, ci),
+      }, table.render.bind(table),
+    );
+    this.trigger('cell-selected', dCell, ri, ci);
   }
   toolbar.reset();
   table.render();
-}
-
-// multiple: boolean
-// direction: left | right | up | down | row-first | row-last | col-first | col-last
-function selectorMove(multiple, direction) {
-  const {
-    selector, data,
-  } = this;
-  const { rows, cols } = data;
-  let [ri, ci] = selector.indexes;
-  const { eri, eci } = selector.range;
-  if (multiple) {
-    [ri, ci] = selector.moveIndexes;
-  }
-  // console.log('selector.move:', ri, ci);
-  if (direction === 'left') {
-    if (ci > 0) ci -= 1;
-  } else if (direction === 'right') {
-    if (eci !== ci) ci = eci;
-    if (ci < cols.len - 1) ci += 1;
-  } else if (direction === 'up') {
-    if (ri > 0) ri -= 1;
-  } else if (direction === 'down') {
-    if (eri !== ri) ri = eri;
-    if (ri < rows.len - 1) ri += 1;
-  } else if (direction === 'row-first') {
-    ci = 0;
-  } else if (direction === 'row-last') {
-    ci = cols.len - 1;
-  } else if (direction === 'col-first') {
-    ri = 0;
-  } else if (direction === 'col-last') {
-    ri = rows.len - 1;
-  }
-  if (multiple) {
-    selector.moveIndexes = [ri, ci];
-  }
-  selectorSet.call(this, multiple, ri, ci);
-  scrollbarMove.call(this);
 }
 
 // private methods
@@ -164,85 +162,6 @@ function overlayerMousemove(evt) {
     }
   } else {
     colResizer.hide();
-  }
-}
-
-function overlayerMousescroll(evt) {
-  const { verticalScrollbar, horizontalScrollbar, data } = this;
-  const { top } = verticalScrollbar.scroll();
-  const { left } = horizontalScrollbar.scroll();
-  // console.log('evt:::', evt.wheelDelta, evt.detail * 40);
-
-  const { rows, cols } = data;
-
-  // deltaY for vertical delta
-  const { deltaY, deltaX } = evt;
-  const loopValue = (ii, vFunc) => {
-    let i = ii;
-    let v = 0;
-    do {
-      v = vFunc(i);
-      i += 1;
-    } while (v <= 0);
-    return v;
-  };
-  // console.log('deltaX', deltaX, 'evt.detail', evt.detail);
-  // if (evt.detail) deltaY = evt.detail * 40;
-  const moveY = (vertical) => {
-    if (vertical > 0) {
-      // up
-      const ri = data.scroll.ri + 1;
-      if (ri < rows.len) {
-        const rh = loopValue(ri, i => rows.getHeight(i));
-        verticalScrollbar.move({ top: top + rh - 1 });
-      }
-    } else {
-      // down
-      const ri = data.scroll.ri - 1;
-      if (ri >= 0) {
-        const rh = loopValue(ri, i => rows.getHeight(i));
-        verticalScrollbar.move({ top: ri === 0 ? 0 : top - rh });
-      }
-    }
-  };
-
-  // deltaX for Mac horizontal scroll
-  const moveX = (horizontal) => {
-    if (horizontal > 0) {
-      // left
-      const ci = data.scroll.ci + 1;
-      if (ci < cols.len) {
-        const cw = loopValue(ci, i => cols.getWidth(i));
-        horizontalScrollbar.move({ left: left + cw - 1 });
-      }
-    } else {
-      // right
-      const ci = data.scroll.ci - 1;
-      if (ci >= 0) {
-        const cw = loopValue(ci, i => cols.getWidth(i));
-        horizontalScrollbar.move({ left: ci === 0 ? 0 : left - cw });
-      }
-    }
-  };
-  const tempY = Math.abs(deltaY);
-  const tempX = Math.abs(deltaX);
-  const temp = Math.max(tempY, tempX);
-
-  // detail for windows/mac firefox vertical scroll
-  if (/Firefox/i.test(window.navigator.userAgent)) throttle(moveY(evt.detail), 50);
-  if (temp === tempX) throttle(moveX(deltaX), 50);
-  if (temp === tempY) throttle(moveY(deltaY), 50);
-}
-
-function overlayerTouch(direction, distance) {
-  const { verticalScrollbar, horizontalScrollbar } = this;
-  const { top } = verticalScrollbar.scroll();
-  const { left } = horizontalScrollbar.scroll();
-
-  if (direction === 'left' || direction === 'right') {
-    horizontalScrollbar.move({ left: left - distance });
-  } else if (direction === 'up' || direction === 'down') {
-    verticalScrollbar.move({ top: top - distance });
   }
 }
 
@@ -299,32 +218,249 @@ function sheetReset() {
   selector.reset();
 }
 
+// 缩减行并匹配当前视窗
+const fitAvailableRow = (sheet, refresh = true) => {
+  if (sheet.data.settings.extensible.enableAll || sheet.data.settings.extensible.enableRow) {
+    const { data, verticalScrollbar, selector, table } = sheet;
+    const lr = data.rows.maxCell()[0] || 0;
+    const { eri } = selector.range;
+    const vh = verticalScrollbar.el.el.clientHeight + verticalScrollbar.scroll().top;
+    // eslint-disable-next-line no-unused-vars
+    const [index, axiosY, height] = helper.rangeReduceIf(
+      data.freeze[0], data.settings.extensible.maxRow - 1, data.freezeTotalHeight(), 0, vh,
+      i => data.rows.getHeight(i),
+    );
+    data.rows.len = Math.max(index, lr, eri) + 1;
+    if (refresh) {
+      verticalScrollbarSet.call(sheet);
+      table.render();
+    }
+  }
+};
+
+// 缩减列并匹配当前视窗
+const fitAvailableColumn = (sheet, refresh = true) => {
+  if (sheet.data.settings.extensible.enableAll || sheet.data.settings.extensible.enableCol) {
+    const { data, horizontalScrollbar, selector, table } = sheet;
+    const lc = data.rows.maxCell()[1] || 0;
+    const { eci } = selector.range;
+    const vw = horizontalScrollbar.el.el.clientWidth + horizontalScrollbar.scroll().left;
+    // eslint-disable-next-line no-unused-vars
+    const [index, axiosX, width] = helper.rangeReduceIf(
+      data.freeze[1], data.settings.extensible.maxCol - 1, data.freezeTotalWidth(), 0, vw,
+      i => data.cols.getWidth(i),
+    );
+    data.cols.len = Math.max(index, lc, eci) + 1;
+    if (refresh) {
+      horizontalScrollbarSet.call(sheet);
+      table.render();
+    }
+  }
+};
+// 增加行
+const extendRow = (sheet) => {
+  if (sheet.data.settings.extensible.enableAll || sheet.data.settings.extensible.enableRow) {
+    sheet.data.add('row', 1);
+    verticalScrollbarSet.call(sheet);
+    sheet.table.render();
+  }
+};
+// 增加列
+const extendColumn = (sheet) => {
+  if (sheet.data.settings.extensible.enableAll || sheet.data.settings.extensible.enableCol) {
+    sheet.data.add('column', 1);
+    horizontalScrollbarSet.call(sheet);
+    sheet.table.render();
+  }
+};
+
+const loopValue = (ii, vFunc) => {
+  let i = ii;
+  let v = 0;
+  do {
+    v = vFunc(i);
+    i += 1;
+  } while (v <= 0);
+  return v;
+};
+// deltaX for Mac horizontal scroll
+const moveX = throttle((horizontal, data, cols, horizontalScrollbar, left) => {
+  if (horizontal > 0) {
+    // left
+    const ci = data.scroll.ci + 1;
+    if (ci < cols.len) {
+      const cw = loopValue(ci, i => cols.getWidth(i));
+      horizontalScrollbar.move({ left: left + cw - 1 });
+    }
+  } else {
+    // right
+    const ci = data.scroll.ci - 1;
+    if (ci >= 0) {
+      const cw = loopValue(ci, i => cols.getWidth(i));
+      horizontalScrollbar.move({ left: ci === 0 ? 0 : left - cw });
+    }
+  }
+}, 30);
+// if (evt.detail) deltaY = evt.detail * 40;
+const moveY = throttle((vertical, data, rows, verticalScrollbar, top) => {
+  if (vertical > 0) {
+    // up
+    const ri = data.scroll.ri + 1;
+    if (ri < rows.len) {
+      const rh = loopValue(ri, i => rows.getHeight(i));
+      verticalScrollbar.move({ top: top + rh - 1 });
+    }
+  } else {
+    // down
+    const ri = data.scroll.ri - 1;
+    if (ri >= 0) {
+      const rh = loopValue(ri, i => rows.getHeight(i));
+      verticalScrollbar.move({ top: ri === 0 ? 0 : top - rh });
+    }
+  }
+}, 30);
+
+function overlayerMousescroll(evt) {
+  const { verticalScrollbar, horizontalScrollbar, data } = this;
+  const { top } = verticalScrollbar.scroll();
+  const { left } = horizontalScrollbar.scroll();
+
+  // console.log('evt:::', evt.wheelDelta, evt.detail * 40);
+  const { rows, cols } = data;
+
+  // deltaY for vertical delta
+  const { deltaY, deltaX } = evt;
+
+  if (verticalScrollbar.isBottomOrRight() && deltaY > 0) {
+    extendRow(this);
+  }
+  if (horizontalScrollbar.isBottomOrRight() && deltaX > 0) {
+    extendColumn(this);
+  }
+  if (top === 0 && deltaY < 0 && data.scroll.ri > 0) {
+    fitAvailableRow(this);
+  }
+  if (left === 0 && deltaX < 0 && data.scroll.ci > 0) {
+    fitAvailableColumn(this);
+  }
+  const tempY = Math.abs(deltaY);
+  const tempX = Math.abs(deltaX);
+  const temp = Math.max(tempY, tempX);
+
+  // detail for windows/mac firefox vertical scroll
+  if (/Firefox/i.test(window.navigator.userAgent)) throttle(moveY(evt.detail), 50);
+  // if (temp === tempX) throttle(moveX(deltaX, data, cols, horizontalScrollbar, left), 50);
+  if (temp === tempX) moveX(deltaX, data, cols, horizontalScrollbar, left);
+  // if (temp === tempY) throttle(moveY(deltaY, data, rows, verticalScrollbar, top), 50);
+  if (temp === tempY) moveY(deltaY, data, rows, verticalScrollbar, top);
+}
+
+function overlayerTouch(direction, distance) {
+  const { verticalScrollbar, horizontalScrollbar } = this;
+  const { top } = verticalScrollbar.scroll();
+  const { left } = horizontalScrollbar.scroll();
+
+  if (direction === 'left' || direction === 'right') {
+    horizontalScrollbar.move({ left: left - distance });
+  } else if (direction === 'up' || direction === 'down') {
+    verticalScrollbar.move({ top: top - distance });
+  }
+}
+
+// multiple: boolean
+// direction: left | right | up | down | row-first | row-last | col-first | col-last
+function selectorMove(multiple, direction) {
+  const {
+    selector, data,
+  } = this;
+  const { rows, cols } = data;
+  let [ri, ci] = selector.indexes;
+  const { eri, eci } = selector.range;
+  if (multiple) {
+    [ri, ci] = selector.moveIndexes;
+  }
+  // console.log('selector.move:', ri, ci);
+  if (direction === 'left') {
+    if (ci > 0) ci -= 1;
+    if (ci < data.scroll.ci) {
+      fitAvailableColumn(this);
+    }
+  } else if (direction === 'right') {
+    if (eci !== ci) ci = eci;
+    if (ci < cols.len - 1) {
+      ci += 1;
+    } else if (ci === cols.len - 1) {
+      extendColumn(this);
+      ci += 1;
+    }
+  } else if (direction === 'up') {
+    if (ri > 0) ri -= 1;
+    if (ri < data.scroll.ri) {
+      fitAvailableRow(this);
+    }
+  } else if (direction === 'down') {
+    if (eri !== ri) ri = eri;
+    if (ri < rows.len - 1) {
+      ri += 1;
+    } else if (ri === rows.len - 1) {
+      extendRow(this);
+      ri += 1;
+    }
+  } else if (direction === 'row-first') {
+    ci = 0;
+  } else if (direction === 'row-last') {
+    ci = cols.len - 1;
+  } else if (direction === 'col-first') {
+    ri = 0;
+  } else if (direction === 'col-last') {
+    ri = rows.len - 1;
+  }
+  if (multiple) {
+    selector.moveIndexes = [ri, ci];
+  }
+  selectorSet.call(this, multiple, ri, ci);
+  scrollbarFitSelector.call(this);
+}
+
 function clearClipboard() {
   const { data, selector } = this;
   data.clearClipboard();
   selector.hideClipboard();
 }
 
-function copy() {
-  const { data, selector } = this;
-  data.copy();
-  selector.showClipboard();
+function copy(evt) {
+  if (evt && evt.target.tagName !== 'TEXTAREA') {
+    const { data, selector } = this;
+    const clipboardData = evt.clipboardData || window.clipboardData;
+    data.copy(clipboardData);
+    evt.preventDefault();
+    selector.showClipboard();
+  }
 }
 
-function cut() {
-  const { data, selector } = this;
-  data.cut();
-  selector.showClipboard();
+function cut(evt) {
+  if (evt && evt.target.tagName !== 'TEXTAREA') {
+    const { data, selector } = this;
+    const clipboardData = evt.clipboardData || window.clipboardData;
+    data.cut(clipboardData);
+    evt.preventDefault();
+    selector.showClipboard();
+  }
 }
 
 function paste(what, evt) {
+  // todo 粘贴格式
+  // Array.prototype.map.call(
+  //   evt.clipboardData.types, type => console.log(evt.clipboardData.getData(type)),
+  // );
   const { data } = this;
-  if (data.paste(what, msg => message(locale('error.tip'), msg))) {
-    sheetReset.call(this);
-  } else if (evt) {
-    const cdata = evt.clipboardData.getData('text/plain');
-    this.data.pasteFromText(cdata);
-    sheetReset.call(this);
+  if (typeof evt === 'undefined' || evt.target.tagName !== 'TEXTAREA') {
+    if (data.paste(what, msg => message(locale('error.tip'), msg))) {
+      sheetReset.call(this);
+    }
+    if (evt) {
+      evt.preventDefault();
+    }
   }
 }
 
@@ -427,18 +563,31 @@ function editorSetOffset() {
 }
 
 function editorSet() {
-  const { editor, data } = this;
+  const { editor, data, selector } = this;
+  const { privileges } = data.settings;
+  // 禁止编辑freeze
+  // if (selector.range.sri < data.freeze[0] || selector.range.sci < data.freeze[1]) {
+  //   return false;
+  // }
   // 禁止编辑
+  if (privileges.editable === false) {
+    return false;
+  }
+  if (data.getSelectedCell() === null && privileges.dataEdit === false) {
+    return false;
+  }
   if (data.getSelectedCell() && data.getSelectedCell().editable === false) {
     return false;
   }
   editorSetOffset.call(this);
   editor.setCell(data.getSelectedCell(), data.getSelectedValidator());
   clearClipboard.call(this);
+  selector.hide();
   return true;
 }
 
-function verticalScrollbarMove(distance) {
+// eslint-disable-next-line no-unused-vars
+function verticalScrollbarMove(distance, evt) {
   const { data, table, selector } = this;
   data.scrolly(distance, () => {
     selector.resetBRLAreaOffset();
@@ -447,7 +596,8 @@ function verticalScrollbarMove(distance) {
   });
 }
 
-function horizontalScrollbarMove(distance) {
+// eslint-disable-next-line no-unused-vars
+function horizontalScrollbarMove(distance, evt) {
   const { data, table, selector } = this;
   data.scrollx(distance, () => {
     selector.resetBRTAreaOffset();
@@ -500,6 +650,8 @@ function dataSetCellText(text) {
 
 function insertDeleteRowColumn(type) {
   const { data } = this;
+  // const { privileges } = data.settings;
+  // const { editable, dataEdit, formatEdit } = privileges;
   if (type === 'insert-row') {
     data.insert('row');
   } else if (type === 'delete-row') {
@@ -649,11 +801,19 @@ function sheetInitEvents() {
     unhideRowsOrCols.call(this, 'col', index);
   };
   // scrollbar move callback
+  const debounceFitAvailableRow = debounce((sheet) => {
+    fitAvailableRow(sheet);
+  }, 500);
+  const debounceFitAvailableColumn = debounce((sheet) => {
+    fitAvailableColumn(sheet);
+  }, 500);
   verticalScrollbar.moveFn = (distance, evt) => {
     verticalScrollbarMove.call(this, distance, evt);
+    debounceFitAvailableRow(this);
   };
   horizontalScrollbar.moveFn = (distance, evt) => {
     horizontalScrollbarMove.call(this, distance, evt);
+    debounceFitAvailableColumn(this);
   };
   // editor
   // editor.change = (state, itext) => {
@@ -676,9 +836,9 @@ function sheetInitEvents() {
     if (type === 'validation') {
       modalValidation.setValue(this.data.getSelectedValidation());
     } else if (type === 'copy') {
-      copy.call(this);
+      window.document.execCommand('copy');
     } else if (type === 'cut') {
-      cut.call(this);
+      window.document.execCommand('cut');
     } else if (type === 'paste') {
       paste.call(this, 'all');
     } else if (type === 'paste-value') {
@@ -706,7 +866,13 @@ function sheetInitEvents() {
 
   bind(window, 'paste', (evt) => {
     paste.call(this, 'all', evt);
-    evt.preventDefault();
+  });
+
+  bind(window, 'beforecopy', (evt) => {
+    copy.call(this, evt);
+  });
+  bind(window, 'beforecut', (evt) => {
+    cut.call(this, evt);
   });
 
   // for selector
@@ -735,13 +901,13 @@ function sheetInitEvents() {
           break;
         case 67:
           // ctrl + c
-          copy.call(this);
-          evt.preventDefault();
+          // copy.call(this);
+          // evt.preventDefault();
           break;
         case 88:
           // ctrl + x
-          cut.call(this);
-          evt.preventDefault();
+          // cut.call(this);
+          // evt.preventDefault();
           break;
         case 85:
           // ctrl + u
@@ -898,7 +1064,7 @@ export default class Sheet {
     // data validation
     this.modalValidation = new ModalValidation();
     // contextMenu
-    this.contextMenu = new ContextMenu(() => this.getRect(), !showContextmenu);
+    this.contextMenu = new ContextMenu(() => this.getRect(), !showContextmenu, data.settings);
     // selector
     this.selector = new Selector(data);
     this.overlayerCEl = h('div', `${cssPrefix}-overlayer-content`)
@@ -943,11 +1109,15 @@ export default class Sheet {
   }
 
   reset(data) {
+    // store editing data before reset
+    this.editor.restore();
     this.data = data;
     this.toolbar.resetData(data);
     this.print.resetData(data);
     this.selector.resetData(data);
     this.table.resetData(data);
+    fitAvailableColumn(this, false);
+    fitAvailableRow(this, false);
     sheetReset.call(this);
   }
 
@@ -977,6 +1147,8 @@ export default class Sheet {
   }
 
   reload() {
+    fitAvailableColumn(this, false);
+    fitAvailableRow(this, false);
     sheetReset.call(this);
     return this;
   }

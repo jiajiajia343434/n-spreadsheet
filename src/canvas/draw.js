@@ -278,7 +278,7 @@ class Draw {
   border(style, color) {
     const { ctx } = this;
     ctx.lineWidth = thinLineWidth();
-    ctx.strokeStyle = color;
+    ctx.strokeStyle = color || '#000';
     // console.log('style:', style);
     if (style === 'medium') {
       ctx.lineWidth = npx(2) - 0.5;
@@ -395,16 +395,10 @@ class Draw {
 
   frozen(box) {
     const { ctx } = this;
-    const { x, y, width } = box;
-    const sx = x + width - 1;
+    const { x, y, width, height } = box;
     ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(npx(sx - 8), npx(y - 1));
-    ctx.lineTo(npx(sx), npx(y - 1));
-    ctx.lineTo(npx(sx), npx(y + 8));
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(0, 255, 0, .85)';
-    ctx.fill();
+    ctx.fillStyle = 'rgba(193,193,193,0.2)';
+    ctx.fillRect(npx(x), npx(y), npx(width), npx(height));
     ctx.restore();
   }
 

@@ -1,18 +1,14 @@
 // docs
 import './_.prototypes';
+import FontUtils from '../utils/FontUtils';
 
 /** default font list
  * @type {BaseFont[]}
  */
-const baseFonts = [
-  { key: 'Arial', title: 'Arial' },
-  { key: 'Helvetica', title: 'Helvetica' },
-  { key: 'Source Sans Pro', title: 'Source Sans Pro' },
-  { key: 'Comic Sans MS', title: 'Comic Sans MS' },
-  { key: 'Courier New', title: 'Courier New' },
-  { key: 'Verdana', title: 'Verdana' },
-  { key: 'Lato', title: 'Lato' },
-];
+const baseFonts = Object.values(FontUtils.fontMap).map(font => ({
+  key: font.en,
+  title: font.ch,
+}));
 
 /** default fontSize list
  * @type {FontSize[]}

@@ -5,7 +5,7 @@ const resolve = dir => path.join(__dirname, '..', dir);
 
 module.exports = {
   entry: {
-    xspreadsheet: './src/index.js',
+    nspreadsheet: './src/index.js',
   },
   module: {
     rules: [
@@ -18,6 +18,11 @@ module.exports = {
           }
         },
         include: [resolve('src'), resolve('test')],
+      },
+      {
+        test: /\.ts?$/,
+        loader: 'ts-loader',
+        exclude: /node_modules/,
       },
       {
         test: /\.css$/,
@@ -48,5 +53,8 @@ module.exports = {
         ],
       },
     ],
+  },
+  resolve: {
+    extensions: [".ts", ".js"]
   },
 };

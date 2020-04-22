@@ -4,37 +4,47 @@ import { cssPrefix } from '../config';
 import { tf } from '../locale/locale';
 
 const menuItems = [
-  { key: 'copy', title: tf('contextmenu.copy'), label: 'Ctrl+C' },
-  { key: 'cut', title: tf('contextmenu.cut'), label: 'Ctrl+X' },
-  { key: 'paste', title: tf('contextmenu.paste'), label: 'Ctrl+V' },
-  { key: 'paste-value', title: tf('contextmenu.pasteValue'), label: 'Ctrl+Shift+V' },
-  { key: 'paste-format', title: tf('contextmenu.pasteFormat'), label: 'Ctrl+Alt+V' },
+  { key: 'copy', title: tf('contextmenu.copy'), label: 'Ctrl+C', privileges: [] },
+  { key: 'cut', title: tf('contextmenu.cut'), label: 'Ctrl+X', privileges: [] },
+  { key: 'paste', title: tf('contextmenu.paste'), label: 'Ctrl+V', privileges: ['dataEdit', 'formatEdit'] },
+  { key: 'paste-value', title: tf('contextmenu.pasteValue'), privileges: ['dataEdit'] },
+  { key: 'paste-format', title: tf('contextmenu.pasteFormat'), privileges: ['formatEdit'] },
   { key: 'divider' },
-  { key: 'insert-row', title: tf('contextmenu.insertRow') },
-  { key: 'insert-column', title: tf('contextmenu.insertColumn') },
+  { key: 'insert-row', title: tf('contextmenu.insertRow'), privileges: ['dataEdit'] },
+  { key: 'insert-column', title: tf('contextmenu.insertColumn'), privileges: ['dataEdit'] },
   { key: 'divider' },
-  { key: 'delete-row', title: tf('contextmenu.deleteRow') },
-  { key: 'delete-column', title: tf('contextmenu.deleteColumn') },
-  { key: 'delete-cell-text', title: tf('contextmenu.deleteCellText') },
-  { key: 'hide', title: tf('contextmenu.hide') },
-  { key: 'divider' },
-  { key: 'validation', title: tf('contextmenu.validation') },
-  { key: 'divider' },
-  { key: 'cell-printable', title: tf('contextmenu.cellprintable') },
-  { key: 'cell-non-printable', title: tf('contextmenu.cellnonprintable') },
-  { key: 'divider' },
-  { key: 'cell-editable', title: tf('contextmenu.celleditable') },
-  { key: 'cell-non-editable', title: tf('contextmenu.cellnoneditable') },
+  { key: 'delete-row', title: tf('contextmenu.deleteRow'), privileges: ['dataEdit'] },
+  { key: 'delete-column', title: tf('contextmenu.deleteColumn'), privileges: ['dataEdit'] },
+  { key: 'delete-cell-text', title: tf('contextmenu.deleteCellText'), privileges: ['dataEdit'] },
+  { key: 'hide', title: tf('contextmenu.hide'), privileges: ['formatEdit'] },
+  // { key: 'divider' },
+  // { key: 'validation', title: tf('contextmenu.validation') },
+  // { key: 'divider' },
+  // { key: 'cell-printable', title: tf('contextmenu.cellprintable') },
+  // { key: 'cell-non-printable', title: tf('contextmenu.cellnonprintable') },
+  // { key: 'divider' },
+  // { key: 'cell-editable', title: tf('contextmenu.celleditable') },
+  // { key: 'cell-non-editable', title: tf('contextmenu.cellnoneditable') },
 ];
 
 function buildMenuItem(item) {
   if (item.key === 'divider') {
     return h('div', `${cssPrefix}-item divider`);
   }
-  return h('div', `${cssPrefix}-item`)
+  let hasPrivilege = true;
+  item.privileges.map((privilege) => {
+    if (this.settings.privileges[privilege] === false) {
+      hasPrivilege = false;
+      return '';
+    }
+    return '';
+  });
+  return h('div', `${cssPrefix}-item${hasPrivilege ? '' : ' disabled'}`)
     .on('click', () => {
-      this.itemClick(item.key);
-      this.hide();
+      if (hasPrivilege) {
+        this.itemClick(item.key);
+        this.hide();
+      }
     })
     .children(
       item.title(),
@@ -47,7 +57,8 @@ function buildMenu() {
 }
 
 export default class ContextMenu {
-  constructor(viewFn, isHide = false) {
+  constructor(viewFn, isHide = false, settings) {
+    this.settings = settings;
     this.menuItems = buildMenu.call(this);
     this.el = h('div', `${cssPrefix}-contextmenu`)
       .children(...buildMenu.call(this))

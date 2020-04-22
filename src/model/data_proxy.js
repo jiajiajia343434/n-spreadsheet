@@ -69,48 +69,13 @@ import { message } from '../ui/message';
  *  }
  * }
  */
-const defaultSettings = {
-  view: {
-    height: () => document.documentElement.clientHeight / 2,
-    width: () => document.documentElement.clientWidth / 2,
-  },
-  showGrid: true,
-  showToolbar: true,
-  showContextmenu: true,
-  row: {
-    len: 100,
-    height: 18,
-  },
-  col: {
-    len: 26,
-    width: 80,
-    indexWidth: 40,
-    minWidth: 1,
-  },
-  style: {
-    bgcolor: '#ffffff',
-    align: 'left',
-    valign: 'middle',
-    textwrap: false,
-    strike: false,
-    underline: false,
-    color: '#0a0a0a',
-    font: {
-      name: 'Arial',
-      size: 10,
-      bold: false,
-      italic: false,
-    },
-  },
-};
-
 const toolbarHeight = 41;
 const bottombarHeight = 41;
 
 function containsReadonly(range) {
   const { getCell } = this;
   const { sri, eri, sci, eci } = range;
-
+  // 判断editable
   for (let ri = sri; ri <= eri; ri += 1) {
     for (let ci = sci; ci <= eci; ci += 1) {
       const cell = getCell.call(this, ri, ci);
@@ -147,7 +112,25 @@ function canPaste(src, dst, error = () => {
   return true;
 }
 
+function checkPrivileges(type) {
+  if (type === 'all' && this.settings.privileges.editable === false) {
+    return false;
+  }
+  if (type === 'text' && this.settings.privileges.dataEdit === false) {
+    return false;
+  }
+  if (type === 'format' && this.settings.privileges.formatEdit === false) {
+    return false;
+  }
+  return !(type === 'all'
+    && (
+      this.settings.privileges.dataEdit === false
+      || this.settings.privileges.formatEdit === false
+    ));
+}
+
 function copyPaste(srcCellRange, dstCellRange, what, autofill = false) {
+  if (!checkPrivileges.call(this, what)) return;
   const { rows, merges } = this;
   // delete dest merge
   if (what === 'all' || what === 'format') {
@@ -165,6 +148,8 @@ function copyPaste(srcCellRange, dstCellRange, what, autofill = false) {
 }
 
 function cutPaste(srcCellRange, dstCellRange) {
+  if (!checkPrivileges.call(this, 'all')) return;
+  // if (!checkPrivileges.call(this, what)) return;
   const { clipboard, rows, merges } = this;
   rows.cutPaste(srcCellRange, dstCellRange);
   merges.move(srcCellRange,
@@ -407,16 +392,48 @@ function getCellColByX(x, scrollOffsetx) {
   return { ci: ci - 1, left, width };
 }
 
+function copyToSystemClipboard(clipboardData) {
+  const { range } = this.selector;
+  const merges = [];
+  let text = '';
+  for (let ri = range.sri; ri <= range.eri; ri += 1) {
+    for (let ci = range.sci; ci <= range.eci; ci += 1) {
+      const cell = this.getCell(ri, ci);
+      if (cell && cell.merge && Array.isArray(cell.merge) && cell.merge.length === 2) {
+        for (let mr = 0; mr <= cell.merge[0]; mr += 1) {
+          if (typeof merges[mr - range.sri] === 'undefined') {
+            merges[ri + mr - range.sri] = [];
+          }
+          for (let mc = 0; mc <= cell.merge[1]; mc += 1) {
+            merges[ri + mr - range.sri][ci + mc - range.sci] = true;
+          }
+        }
+        merges[ri - range.sri][ci - range.sci] = false;
+      }
+      if (cell && !((merges[ri - range.sri] && merges[ri - range.sri][ci - range.sci]))) {
+        text += cell.text || '';
+      }
+      if (ci !== range.eci) {
+        text += '\t';
+      }
+    }
+    if (ri !== range.eri) {
+      text += '\n';
+    }
+  }
+  clipboardData.setData('text', text);
+}
+
 export default class DataProxy {
   constructor(name, settings) {
-    this.settings = helper.merge(defaultSettings, settings || {});
+    this.settings = settings;
     // save data begin
     this.name = name || 'sheet';
     this.freeze = [0, 0];
     this.styles = []; // Array<Style>
     this.merges = new Merges(); // [CellRange, ...]
-    this.rows = new Rows(this.settings.row);
-    this.cols = new Cols(this.settings.col);
+    this.rows = new Rows(this.settings, this.settings.row);
+    this.cols = new Cols(this.settings, this.settings.col);
     this.validations = new Validations();
     this.hyperlinks = {};
     this.comments = {};
@@ -486,11 +503,13 @@ export default class DataProxy {
     });
   }
 
-  copy() {
+  copy(clipboardData) {
+    copyToSystemClipboard.call(this, clipboardData);
     this.clipboard.copy(this.selector.range);
   }
 
-  cut() {
+  cut(clipboardData) {
+    copyToSystemClipboard.call(this, clipboardData);
     this.clipboard.cut(this.selector.range);
   }
 
@@ -668,6 +687,8 @@ export default class DataProxy {
   setSelectedCellText(text) {
     const { autoFilter, selector, rows } = this;
     const { ri, ci } = selector;
+    // check privileges
+    if (!checkPrivileges.call(this, 'text')) return;
     let nri = ri;
     if (this.unsortedRowMap.has(ri)) {
       nri = this.unsortedRowMap.get(ri);
@@ -894,6 +915,7 @@ export default class DataProxy {
   }
 
   deleteCell(what = 'all') {
+    if (!checkPrivileges.call(this, what)) return;
     const { selector } = this;
     this.changeData(() => {
       this.rows.deleteCells(selector.range, what);
@@ -901,6 +923,17 @@ export default class DataProxy {
         this.merges.deleteWithin(selector.range);
       }
     });
+  }
+
+  add(type, n = 1) {
+    const { rows, cols } = this;
+    if (type === 'row') {
+      return rows.add(n);
+    }
+    if (type === 'column') {
+      return cols.add(n);
+    }
+    return false;
   }
 
   // type: row | column
@@ -1256,7 +1289,7 @@ export default class DataProxy {
     // console.log('old.styles:', styles, nstyle);
     for (let i = 0; i < styles.length; i += 1) {
       const style = styles[i];
-      if (helper.equals(style, nstyle)) return i;
+      if (helper.compareStyle(style, nstyle)) return i;
     }
     styles.push(nstyle);
     return styles.length - 1;

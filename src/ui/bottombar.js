@@ -1,10 +1,10 @@
-import {h} from './element';
-import {bindClickoutside, unbindClickoutside} from './event';
-import {cssPrefix} from '../config';
+import { h } from './element';
+import { bindClickoutside, unbindClickoutside } from './event';
+import { cssPrefix } from '../config';
 import Icon from './icon';
 import FormInput from './form_input';
 import Dropdown from './dropdown';
-import {message} from './message';
+import { message } from './message';
 import { t, tf } from '../locale/locale';
 
 class DropdownMore extends Dropdown {
@@ -26,11 +26,13 @@ class DropdownMore extends Dropdown {
     this.setContentChildren(...eles);
   }
 
-  setTitle() {}
+  setTitle() {
+  }
 }
 
 const menuItems = [
-  { key: 'delete', title: tf('contextmenu.deleteSheet') },
+  { key: 'rename', title: tf('contextmenu.deleteSheet') },
+  // { key: 'delete', title: tf('contextmenu.renameSheet') },
 ];
 
 function buildMenuItem(item) {
@@ -69,33 +71,43 @@ class ContextMenu {
   }
 }
 
-export default class Bottombar {
-  constructor(addFunc = () => {},
-              swapFunc = () => {},
-              deleteFunc = () => {},
-              updateFunc = () => {}) {
+export default class BottomBar {
+  constructor(addFunc = () => {
+              },
+              swapFunc = () => {
+              },
+              deleteFunc = () => {
+              },
+              updateFunc = () => {
+              },
+              privileges) {
+    this.privileges = privileges;
     this.swapFunc = swapFunc;
     this.updateFunc = updateFunc;
     this.dataNames = [];
     this.activeEl = null;
-    this.deleteEl = null;
+    this.focusEl = null;
     this.items = [];
     this.moreEl = new DropdownMore((i) => {
       this.clickSwap2(this.items[i]);
     });
     this.contextMenu = new ContextMenu();
-    this.contextMenu.itemClick = deleteFunc;
+    this.contextMenu.itemClick = (key) => {
+      if (key === 'delete') {
+        deleteFunc();
+      }
+    };
     this.el = h('div', `${cssPrefix}-bottombar`).children(
       this.contextMenu.el,
       this.menuEl = h('ul', `${cssPrefix}-menu`).child(
         h('li', '').children(
-          new Icon('add').on('click', () => {
-            if (this.dataNames.length < 10) {
+          privileges.editable && privileges.sheetEdit ? new Icon('add').on('click', () => {
+            if (this.dataNames.length < 100) {
               addFunc();
             } else {
-              message(t('error.tip'), 'it less than or equal to 10');
+              message(t('error.tip'), 'Sheet数量不能超过 100');
             }
-          }),
+          }) : '',
           h('span', '').child(this.moreEl),
         ),
       ),
@@ -110,24 +122,26 @@ export default class Bottombar {
     }).on('contextmenu', (evt) => {
       const { offsetLeft, offsetHeight } = evt.target;
       this.contextMenu.setOffset({ left: offsetLeft, bottom: offsetHeight + 1 });
-      this.deleteEl = item;
+      this.focusEl = item;
     }).on('dblclick', () => {
-      const v = item.html();
-      const input = new FormInput('auto', '');
-      input.val(v);
-      input.input.on('blur', ({ target }) => {
-        const { value } = target;
-        const nindex = this.dataNames.findIndex(it => it === v);
-        this.renameItem(nindex, value);
-        /*
-        this.dataNames.splice(nindex, 1, value);
-        this.moreEl.reset(this.dataNames);
-        item.html('').child(value);
-        this.updateFunc(nindex, value);
-        */
-      });
-      item.html('').child(input.el);
-      input.focus();
+      if (this.privileges.editable && this.privileges.sheetEdit) {
+        const v = item.html();
+        const input = new FormInput('auto', '');
+        input.val(v);
+        input.input.on('blur', ({ target }) => {
+          const { value } = target;
+          const nindex = this.dataNames.findIndex(it => it === v);
+          this.renameItem(nindex, value);
+          /*
+          this.dataNames.splice(nindex, 1, value);
+          this.moreEl.reset(this.dataNames);
+          item.html('').child(value);
+          this.updateFunc(nindex, value);
+          */
+        });
+        item.html('').child(input.el);
+        input.focus();
+      }
     });
     if (active) {
       this.clickSwap(item);
@@ -146,18 +160,18 @@ export default class Bottombar {
 
   deleteItem() {
     const { activeEl } = this;
-    let { deleteEl } = this;
-    this.deleteEl = null;
-    if (typeof deleteEl === 'undefined' || deleteEl === null) {
-      deleteEl = activeEl;
+    let { focusEl } = this;
+    this.focusEl = null;
+    if (typeof focusEl === 'undefined' || focusEl === null) {
+      focusEl = activeEl;
     }
     if (this.items.length > 1) {
-      const index = this.items.findIndex(it => it === deleteEl);
+      const index = this.items.findIndex(it => it === focusEl);
       this.items.splice(index, 1);
       this.dataNames.splice(index, 1);
-      this.menuEl.removeChild(deleteEl.el);
+      this.menuEl.removeChild(focusEl.el);
       this.moreEl.reset(this.dataNames);
-      if (activeEl === deleteEl) {
+      if (activeEl === focusEl) {
         const [f] = this.items;
         this.activeEl = f;
         this.activeEl.toggle();

@@ -1,15 +1,15 @@
 {
-  "name": "n-spreadsheet",
-  "version": "0.0.4",
+  "name": "@newhero/n-spreadsheet",
+  "version": "0.0.7",
   "description": "A excel-liked javaScript spreadsheet",
   "main": "src/index.js",
   "files": [
     "assets",
-    "dist",
     "src"
   ],
   "author": "gph",
   "license": "MIT",
+  "private": false,
   "repository": {
     "type": "git",
     "url": "http://192.168.1.173:10000/dongzhaoyang/n-spreadsheet.git"
@@ -17,7 +17,7 @@
   "nyc": {
     "all": true,
     "include": [
-      "src/core/*.js"
+      "src/model/*.js"
     ],
     "exclude": [
       "**/*.spec.js"
@@ -27,10 +27,7 @@
     "dev": "webpack-dev-server --open --config build/webpack.dev.js",
     "build": "webpack --config build/webpack.prod.js",
     "build-locale": "webpack --config build/webpack.locale.js",
-    "lint": "./node_modules/eslint/bin/eslint.js src",
-    "test": "nyc ./node_modules/mocha/bin/mocha --require @babel/register test/*",
-    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov -t 31ecdb12-8ecb-46f7-a486-65c2516307dd",
-    "postinstall": "opencollective-postinstall"
+    "lint": "./node_modules/eslint/bin/eslint.js src"
   },
   "keywords": [
     "javascript",
@@ -42,28 +39,31 @@
     "@babel/plugin-proposal-class-properties": "^7.4.4",
     "@babel/preset-env": "^7.3.4",
     "@babel/register": "^7.0.0",
+    "@typescript-eslint/eslint-plugin": "^2.29.0",
+    "@typescript-eslint/parser": "^2.29.0",
     "babel-loader": "^8.0.5",
     "clean-webpack-plugin": "^0.1.19",
-    "codecov": "^3.3.0",
     "css-loader": "^1.0.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-typescript": "^0.14.0",
     "file-loader": "^2.0.0",
     "html-webpack-plugin": "^3.2.0",
     "less": "^3.8.1",
     "less-loader": "^4.1.0",
     "mini-css-extract-plugin": "^0.4.4",
     "mocha": "^5.2.0",
-    "nyc": "^13.3.0",
     "style-loader": "^0.23.0",
+    "ts-loader": "^7.0.1",
+    "typescript": "^3.8.3",
+    "typescript-eslint-parser": "^22.0.0",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.1.0",
     "webpack-dev-server": "^3.10.2",
     "webpack-merge": "^4.1.4"
   },
   "dependencies": {
-    "exceljs": "^3.8.0",
-    "xlsx": "^0.15.5"
+    "exceljs": "^3.8.0"
   }
 }

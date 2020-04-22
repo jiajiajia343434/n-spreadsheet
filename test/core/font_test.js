@@ -5,7 +5,7 @@ import {
   fonts,
   baseFonts,
   getFontSizePxByPt,
-} from '../../src/core/font';
+} from '../../src/model/font';
 
 describe('baseFonts', () => {
   it('should be Array of "{ key: string, key: string }"', () => {

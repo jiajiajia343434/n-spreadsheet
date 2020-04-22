@@ -1,52 +1,60 @@
-/* global window, document */
 import { h } from './ui/element';
-import DataProxy from './core/data_proxy';
+import DataProxy from './model/data_proxy';
 import Sheet from './ui/sheet';
-import Bottombar from './ui/bottombar';
+import BottomBar from './ui/bottombar';
 import { cssPrefix } from './config';
 import { locale } from './locale/locale';
 import './index.less';
-import ExcelParser from './utils/parser/excel';
+import ExcelParser from './utils/excel/xlsx-importer';
+import ExcelExport from './utils/excel/xlsx-exporter';
+import helper from './model/helper';
+import DefaultSetting from './settings/default'
 
 class Spreadsheet {
-  constructor(selectors, options = {}) {
-    let targetEl = selectors;
+  constructor(selectors, settings = {}) {
+    let container = selectors;
     if (typeof selectors === 'string') {
-      targetEl = document.querySelector(selectors);
+      container = document.querySelector(selectors);
     }
-    options.view = {
-      height: () => targetEl.clientHeight,
-      width: () => targetEl.clientWidth,
+    settings.view = {
+      height: () => container.clientHeight,
+      width: () => container.clientWidth,
     };
-    this.options = options;
+    this.settings = helper.merge(DefaultSetting, settings || {});
     this.sheetIndex = 1;
     this.datas = [];
-    this.bottombar = new Bottombar(() => {
-      const d = this.addSheet();
-      this.sheet.reset(d);
-      this.sheet.trigger('change', d.getData(), this.datas.map(data => data.getData()));
+    this.bottombar = new BottomBar(() => {
+      if (this.data.settings.privileges.editable && this.data.settings.privileges.sheetEdit) {
+        const d = this.addSheet();
+        this.sheet.reset(d);
+        this.sheet.trigger('change', d.getData(), this.datas.map(data => data.getData()));
+      }
     }, (index) => {
       this.swapSheet(index);
       this.sheet.trigger('change', this.data.getData(), this.datas.map(data => data.getData()));
     }, () => {
-      this.deleteSheet();
-      this.sheet.trigger('change', this.data.getData(), this.datas.map(data => data.getData()));
+      if (this.data.settings.privileges.editable && this.data.settings.privileges.sheetEdit) {
+        this.deleteSheet();
+        this.sheet.trigger('change', this.data.getData(), this.datas.map(data => data.getData()));
+      }
     }, (index, value) => {
-      this.datas[index].name = value;
-      this.sheet.trigger('change', this.data.getData(), this.datas.map(data => data.getData()));
-    });
+      if (this.data.settings.privileges.editable && this.data.settings.privileges.sheetEdit) {
+        this.datas[index].name = value;
+        this.sheet.trigger('change', this.data.getData(), this.datas.map(data => data.getData()));
+      }
+    }, this.settings.privileges);
     this.data = this.addSheet();
     const rootEl = h('div', `${cssPrefix}`)
       .on('contextmenu', evt => evt.preventDefault());
     // create canvas element
-    targetEl.appendChild(rootEl.el);
+    container.appendChild(rootEl.el);
     this.sheet = new Sheet(rootEl, this.data);
     rootEl.child(this.bottombar.el);
   }
 
   addSheet(name, active = true) {
     const n = name || `sheet${this.sheetIndex}`;
-    const d = new DataProxy(n, this.options);
+    const d = new DataProxy(n, this.settings);
     d.change = (...args) => {
       this.sheet.trigger('change', ...args, this.datas.map(data => data.getData()));
     };
@@ -114,7 +122,6 @@ class Spreadsheet {
     el.click();
     const fileDom = document.getElementById('_file');
     fileDom.onchange = () => {
-      // eslint-disable-next-line
       const reader = new FileReader();
       reader.readAsArrayBuffer(fileDom.files[0]);
       fileDom.remove();
@@ -134,9 +141,13 @@ class Spreadsheet {
 const spreadsheet = (el, options = {}) => new Spreadsheet(el, options);
 
 if (window) {
-  window.x = window.x || {};
-  window.x.spreadsheet = spreadsheet;
-  window.x.spreadsheet.locale = (lang, message) => locale(lang, message);
+  window.$ = window.$ || {};
+  window.$.spreadsheet = spreadsheet;
+  window.$.excel = {
+    exporter: ExcelExport,
+    importer: ExcelParser,
+  };
+  window.$.spreadsheet.locale = (lang, message) => locale(lang, message);
 }
 
 export default Spreadsheet;

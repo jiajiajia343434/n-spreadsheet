@@ -1,4 +1,4 @@
-import {expr2xy, xy2expr} from '../core/alphabet';
+import { expr2xy, xy2expr } from '../model/alphabet';
 
 const base_operator = [
   ':',
@@ -7,7 +7,7 @@ const base_operator = [
   '*', '/',
   '+', '-',
   '&',
-  '=', '>', '<', '>=', '<=', '<>'
+  '=', '>', '<', '>=', '<=', '<>',
 ];
 const operatorMap = {
   ':': () => new Colon(),
@@ -47,7 +47,7 @@ const infixToSuffixExpr = src => {
         chars.push(ex.charAt(i));
         i += 1;
         if (i > ex.length) {
-          throw new Error("公式拼写错误");
+          throw new Error('公式拼写错误');
         }
       }
       result.push(`"${chars.join('')}`);
@@ -125,7 +125,7 @@ const infixToSuffixExpr = src => {
           result.push(fn);
           stack.pop();
           fn = stack[stack.length - 1];
-          if (typeof (fn) == "undefined") break;
+          if (typeof (fn) == 'undefined') break;
         }
       }
       stack.push(operator);
@@ -208,7 +208,7 @@ const infixToSuffixExpr = src => {
           result.push(fn);
           stack.pop();
           fn = stack[stack.length - 1];
-          if (typeof (fn) == "undefined") throw new Error('缺失左括号');
+          if (typeof (fn) == 'undefined') throw new Error('缺失左括号');
         }
       }
     }
@@ -296,7 +296,7 @@ const evalFormula = (srcText, formulaMap, cellRender, parentCell) => {
     return cellRender(result.x, result.y);
   }
   if (Array.isArray(result)) {
-    return result[0]
+    return result[0];
   }
   return result;
 };
@@ -307,7 +307,7 @@ class Cell {
     const [x, y] = expr2xy(name);
     this.x = x;
     this.y = y;
-    this.name = name
+    this.name = name;
   }
 }
 
@@ -540,10 +540,10 @@ class NotEqual extends Operator {
   }
 }
 
-export default {}
+export default {};
 export {
-  evalFormula
-}
+  evalFormula,
+};
 
 
 

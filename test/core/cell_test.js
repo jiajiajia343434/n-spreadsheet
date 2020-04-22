@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { describe, it } from 'mocha';
-import cell, { infixExprToSuffixExpr } from '../../src/core/cell';
-import { formulam } from '../../src/core/formula';
+import cell, { infixExprToSuffixExpr } from '../../src/model/cell';
+import { formulam } from '../../src/model/formula';
 
 describe('infixExprToSuffixExpr', () => {
   it('should return myname:A1 score:50 when the value is CONCAT("my name:", A1, " score:", 50)', () => {

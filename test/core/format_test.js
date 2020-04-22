@@ -3,7 +3,7 @@ import { describe, it } from 'mocha';
 import {
   formatm,
   baseFormats,
-} from '../../src/core/format';
+} from '../../src/model/format';
 
 const gformats = formatm;
 describe('formatm', () => {

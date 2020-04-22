@@ -2,7 +2,8 @@ import helper from './helper';
 import { expr2expr } from './alphabet';
 
 class Rows {
-  constructor({ len, height }) {
+  constructor(globalSettings, { len, height }) {
+    this.globalSettings = globalSettings;
     this._ = {};
     this.len = len;
     // default row height
@@ -111,7 +112,8 @@ class Rows {
   }
 
   // what: all | format | text
-  copyPaste(srcCellRange, dstCellRange, what, autofill = false, cb = () => {}) {
+  copyPaste(srcCellRange, dstCellRange, what, autofill = false, cb = () => {
+  }) {
     const {
       sri, sci, eri, eci,
     } = srcCellRange;
@@ -207,6 +209,18 @@ class Rows {
     });
   }
 
+  add(n) {
+    if (this.len === this.globalSettings.extensible.maxRow) {
+      return false;
+    }
+    if (this.len + n <= this.globalSettings.extensible.maxRow) {
+      this.len += n;
+    } else {
+      this.len = this.globalSettings.extensible.maxRow;
+    }
+    return true;
+  }
+
   insert(sri, n = 1) {
     const ndata = {};
     this.each((ri, row) => {
@@ -295,15 +309,17 @@ class Rows {
 
   maxCell() {
     const keys = Object.keys(this._);
-    const ri = keys[keys.length - 1];
-    const col = this._[ri];
-    if (col) {
-      const { cells } = col;
-      const ks = Object.keys(cells);
-      const ci = ks[ks.length - 1];
-      return [parseInt(ri, 10), parseInt(ci, 10)];
-    }
-    return [0, 0];
+    const rows = Object.values(this._);
+    const lri = keys[keys.length - 1] ? keys[keys.length - 1] : 0;
+    let lci = 0;
+    rows.forEach((row) => {
+      if (row) {
+        const { cells } = row;
+        const ks = Math.max(...Array.prototype.map.call(Object.keys(cells), k => parseInt(k, 10)));
+        lci = ks > lci ? ks : lci;
+      }
+    });
+    return [parseInt(lri, 10), parseInt(lci, 10)];
   }
 
   each(cb) {

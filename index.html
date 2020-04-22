@@ -4,24 +4,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <title>n-spreadsheet</title>
-
-    <link href="xspreadsheet.css" rel="stylesheet">
 </head>
-<body onload="load()">
-<div style="position: fixed; right: 0; top: .3em;">
-</div>
-<div style="width: 100%;height: 100vh;resize: both;overflow: auto">
+<body onload="load()" style="overflow: hidden;padding: 0;margin: 0">
+<div style="width: 100%;height: 100vh;resize: both;overflow: hidden">
     <div id="main" style="width: 100%;height: 100%"></div>
 </div>
 <script>
   var xs;
 
   function load() {
-    xs = x.spreadsheet('#main', {
-      showToolbar: true,
-      showGrid: true,
+    xs = $.spreadsheet('#main', {
     })
-      .loadData([{"name":"sheet1","freeze":"A1","styles":[{"bgcolor":"#f4f5f8","textwrap":true,"color":"#900b09","border":{"top":["thick","rgba(100,100,100,0.5)"],"bottom":["thick","#0366d6"],"right":["thick","#0366d6"],"left":["thick","#0366d6"]}},{"format":"percent"},{"format":"usd"},{"format":"date"},{"format":"time"},{"format":"datetime"},{"bgcolor":"#d5dce4"},{"border":{"bottom":["thick","#000"],"top":["thick","#000"],"left":["thick","#dd0024"],"right":["thick","#dd0024"]}},{"align":"center"}],"merges":["B13:D14"],"rows":{"0":{"cells":{"0":{},}},"1":{"cells":{"0":{},"2":{}}},"2":{"cells":{"0":{},"1":{"text":"1",'style':{
+      .loadData([{"name":"sheet1","freeze":"B1","styles":[{"bgcolor":"#f4f5f8","textwrap":true,"color":"#900b09","border":{"top":["thick","rgba(100,100,100,0.5)"],"bottom":["thick","#0366d6"],"right":["thick","#0366d6"],"left":["thick","#0366d6"]}},{"format":"percent"},{"format":"usd"},{"format":"date"},{"format":"time"},{"format":"datetime"},{"bgcolor":"#d5dce4"},{"border":{"bottom":["thick","#000"],"top":["thick","#000"],"left":["thick","#dd0024"],"right":["thick","#dd0024"]}},{"align":"center"}],"merges":["B13:D14"],"rows":{"0":{"cells":{"0":{},}},"1":{"cells":{"0":{},"2":{}}},"2":{"cells":{"0":{},"1":{"text":"1",'editable':false,'style':{
                   'border': {
                     'bottom': ['thin', '#000'],
                     'top': ['thin', '#000'],
@@ -200,11 +194,31 @@
       .change(function(cdata,datas){
         //cdata是当前sheet表格数据，再次可以根据数据做一些事情
         console.log(cdata,datas);
+        window.xe = () => {
+          const exporter = new window.$.excel.exporter();
+          exporter.setData(datas);
+          exporter.exportWithBuffer().then(data=>{
+            const blob = new Blob([data],{type : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+            const blobUrl = URL.createObjectURL(blob);
+            const eleLink = document.createElement('a')
+            eleLink.download = '1.xlsx'
+            eleLink.style.display = 'none'
+            eleLink.href = blobUrl
+            // 触发点击
+            document.body.appendChild(eleLink)
+            eleLink.click()
+            // 然后移除
+            document.body.removeChild(eleLink)
+          });
+        }
       }).on('cells-selected', function(cell, info){
+        console.log(cell , info);
+        window.cell = cell;
+      }).on('cell-selected', function(cell, info){
+        console.log(cell , info);
+        window.cell = cell;
       });
   }
 </script>
-<script type="text/javascript" src="xspreadsheet.js"></script>
-</body>
 </body>
 </html>

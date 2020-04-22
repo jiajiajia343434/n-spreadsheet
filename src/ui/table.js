@@ -1,8 +1,8 @@
-import { stringAt } from '../core/alphabet';
-import { getFontSizePxByPt } from '../core/font';
-import _cell from '../core/cell';
+import { stringAt } from '../model/alphabet';
+import { getFontSizePxByPt } from '../model/font';
+import _cell from '../model/cell';
 import { formulam } from '../formula/formula';
-import { formatm } from '../core/format';
+import { formatm } from '../model/format';
 
 import { Draw, DrawBox, npx, thinLineWidth } from '../canvas/draw';
 // gobal var
@@ -291,6 +291,21 @@ function renderFreezeHighlightLine(fw, fh, ftw, fth) {
   draw.restore();
 }
 
+function renderFreezeMask(fw, fh, ftw, fth) {
+  const { draw, data } = this;
+  const twidth = data.viewWidth() - fw;
+  const theight = data.viewHeight() - fh;
+  draw.save();
+  draw.attr({ fillStyle: 'rgba(75, 137, 255, .2)' });
+  // cross
+  draw.fillRect(data.cols.indexWidth, data.rows.height, ftw, fth);
+  // right
+  draw.fillRect(ftw + data.cols.indexWidth, data.rows.height, twidth, fth);
+  // bottom
+  draw.fillRect(data.cols.indexWidth, fth + data.rows.height, ftw, theight);
+  draw.restore();
+}
+
 /** end */
 class Table {
   constructor(el, data) {
@@ -355,6 +370,7 @@ class Table {
       renderContent.call(this, freezeViewRange, fw, fh, 0, 0);
       // 5
       renderFreezeHighlightLine.call(this, fw, fh, tx, ty);
+      renderFreezeMask.call(this, fw, fh, tx, ty);
     }
   }
 

@@ -22,26 +22,28 @@ const mergeDeep = (object = {}, ...sources) => {
   return object;
 };
 
-function equals(obj1, obj2) {
-  if (obj1 === obj2) return true;
-  if (obj1 === null || typeof obj1 === 'undefined') return false;
-  if (obj2 === null || typeof obj2 === 'undefined') return false;
-  const keys = Object.keys(obj1);
-  if (keys.length !== Object.keys(obj2).length) return false;
+function compareStyle(original, news) {
+  if (original === news) return true;
+  if (original === null || typeof original === 'undefined') return false;
+  if (news === null || typeof news === 'undefined') return false;
+  const keys = Object.keys(original);
+  if (keys.length !== Object.keys(news).length) return false;
   for (let i = 0; i < keys.length; i += 1) {
     const k = keys[i];
-    const v1 = obj1[k];
-    const v2 = obj2[k];
-    if (v2 === undefined) return false;
+    const v1 = original[k];
+    const v2 = news[k];
     if (typeof v1 === 'string' || typeof v1 === 'number' || typeof v1 === 'boolean') {
       if (v1 !== v2) return false;
     } else if (Array.isArray(v1)) {
+      if (typeof v2 === 'undefined') return false;
       if (v1.length !== v2.length) return false;
       for (let ai = 0; ai < v1.length; ai += 1) {
-        if (!equals(v1[ai], v2[ai])) return false;
+        if (!compareStyle(v1[ai], v2[ai])) return false;
       }
     } else if (typeof v1 !== 'function' && !Array.isArray(v1) && v1 instanceof Object) {
-      if (!equals(v1, v2)) return false;
+      if (!compareStyle(v1, v2)) return false;
+    } else if (typeof v1 === 'undefined') {
+      if (!compareStyle(v1, v2)) return false;
     }
   }
   return true;
@@ -67,6 +69,7 @@ function deleteProperty(obj, property) {
   return oldv;
 }
 
+// min 可移动的起始单元格, max 可移动的最后单元格, inits , initv , ifv 目标偏移量, getv
 function rangeReduceIf(min, max, inits, initv, ifv, getv) {
   let s = inits;
   let v = initv;
@@ -76,6 +79,7 @@ function rangeReduceIf(min, max, inits, initv, ifv, getv) {
     v = getv(i);
     s += v;
   }
+  // [index, X or Y axis, cell_height]
   return [i, s - v, v];
 }
 
@@ -105,7 +109,7 @@ function arrayEquals(a1, a2) {
 export default {
   cloneDeep,
   merge: (...sources) => mergeDeep({}, ...sources),
-  equals,
+  compareStyle,
   arrayEquals,
   sum,
   rangeEach,

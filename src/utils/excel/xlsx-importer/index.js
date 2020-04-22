@@ -1,15 +1,11 @@
 import Excel from 'exceljs';
 import Theme from './theme';
-import helper from '../../../core/helper';
-
-function transArgbToRgb(argb) {
-  return `#${argb.substring(2)}`;
-}
+import helper from '../../../model/helper';
+import Color from './color';
 
 function setMerges(source, target) {
   const info = [];
   target.merges = [];
-  // eslint-disable-next-line
   const merges = source._merges;
   Object.values(merges).forEach((merge) => {
     target.merges.push(merge.range);
@@ -20,11 +16,14 @@ function setMerges(source, target) {
 
 function setColsWidth(target, source, columnCount) {
   for (let i = 0; i < columnCount; i += 1) {
-    // eslint-disable-next-line
     const col = source['_columns'][i];
-    if (col.width) {
-      target.cols[i] = Object.assign(target.cols[i] || {},
-        { width: col.width * 8 });
+    if (typeof col.width !== 'undefined') {
+      if (col.width === 0) {
+        target.cols[i] = { hide: true };
+      } else {
+        target.cols[i] = Object.assign(target.cols[i] || {},
+          { width: col.width * 8 });
+      }
     }
   }
 }
@@ -34,22 +33,24 @@ function resolveColor(colorScheme) {
     return this.theme.getColor(colorScheme.theme, colorScheme.tint);
   }
   if (colorScheme.argb) {
-    return transArgbToRgb(colorScheme.argb);
+    return Color.transArgbToRgb(colorScheme.argb);
+  }
+  if (typeof colorScheme.indexed === 'number') {
+    return Color.getIndexColor(colorScheme.indexed);
   }
   return undefined;
 }
 
 function addStyle(nstyle, styles) {
-  // console.log('old.styles:', styles, nstyle);
   for (let i = 0; i < styles.length; i += 1) {
     const style = styles[i];
-    if (helper.equals(style, nstyle)) return i;
+    if (helper.compareStyle(style, nstyle)) return i;
   }
   styles.push(nstyle);
   return styles.length - 1;
 }
 
-class ExcelParser {
+export default class {
   constructor() {
     this.workbook = new Excel.Workbook();
   }
@@ -59,7 +60,6 @@ class ExcelParser {
       this.workbook.xlsx.load(arrayBuffer).then(() => {
         this.theme = new Theme(this.workbook);
         console.log(this.workbook);
-        window.workbook = this.workbook;
         const data = [];
         this.workbook.eachSheet((_sheet) => {
           const sheet = {};
@@ -72,7 +72,6 @@ class ExcelParser {
           sheet.styles = [];
           const mergeInfo = setMerges(_sheet, sheet);
           for (let i = 0; i < _sheet.rowCount; i += 1) {
-            // eslint-disable-next-line
             const _row = _sheet['_rows'][i];
             if (_row) {
               const rIdx = i + 1;
@@ -81,9 +80,7 @@ class ExcelParser {
               if (_row.height) {
                 row.height = _row.height * 1.2;
               }
-              // eslint-disable-next-line
               for (let j = 0; j < _row['_cells'].length; j += 1) {
-                // eslint-disable-next-line
                 const _cell = _row['_cells'][j];
                 const cIdx = j + 1;
                 if (_cell) {
@@ -91,7 +88,6 @@ class ExcelParser {
                     const cell = {};
                     cell.text = _cell.text;
                     if (_cell.style) {
-                      // eslint-disable-next-line
                       const _style = _cell.style;
                       const style = {};
                       // font
@@ -133,6 +129,9 @@ class ExcelParser {
                       if (_style.fill) {
                         if (_style.fill.fgColor) {
                           style.bgcolor = resolveColor.call(this, _style.fill.fgColor);
+                        } else if (_style.fill.pattern === 'solid') {
+                          // system default color
+                          style.bgcolor = resolveColor.call(this, { indexed: 64 });
                         }
                       }
                       cell.style = addStyle(style, sheet.styles);
@@ -149,13 +148,10 @@ class ExcelParser {
           }
           data.push(sheet);
         });
-        console.log(data);
         resolve(data);
-      }, () => {
-        reject();
+      }, (e) => {
+        reject(e);
       });
     });
   }
 }
-
-export default ExcelParser;

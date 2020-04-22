@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { describe, it } from 'mocha';
-import { CellRange } from '../../src/core/cell_range';
+import { CellRange } from '../../src/model/cell_range';
 
 describe('CellRange', () => {
   describe('#constructor()', () => {
@@ -23,7 +23,7 @@ describe('CellRange', () => {
       assert.equal(cr.h, 6);
     });
   });
-  
+
   describe('#set()', () => {
     it('should return { sri: 1, sci: 2, eri: 3, eci: 4 } when set(1, 2, 3, 4)', () => {
       const cr = new CellRange(0, 0, 0, 0);

@@ -1,9 +1,8 @@
 import helper from './helper';
 
 class Cols {
-  constructor({
-    len, width, indexWidth, minWidth,
-  }) {
+  constructor(globalSettings, { len, width, indexWidth, minWidth }) {
+    this.globalSettings = globalSettings;
     this._ = {};
     this.len = len;
     this.width = width;
@@ -75,6 +74,18 @@ class Cols {
 
   totalWidth() {
     return this.sumWidth(0, this.len);
+  }
+
+  add(n) {
+    if (this.len === this.globalSettings.extensible.maxCol) {
+      return false;
+    }
+    if (this.len + n <= this.globalSettings.extensible.maxCol) {
+      this.len += n;
+    } else {
+      this.len = this.globalSettings.extensible.maxCol;
+    }
+    return true;
   }
 }
 

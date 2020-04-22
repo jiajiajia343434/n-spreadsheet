@@ -52,9 +52,13 @@
     background-color: @primary-hover-color;
   }
 }
+//
+//body {
+//  margin: 0;
+//}
 
-body {
-  margin: 0;
+.@{css-prefix} *,.@{css-prefix} *::before,.@{css-prefix} *::after{
+  box-sizing: content-box;
 }
 
 .@{css-prefix} {
@@ -90,7 +94,7 @@ body {
   border-radius: 1px;
   background: rgba(0, 0, 0, 1);
   font-size: 12px;
-  z-index: 201;
+  z-index: 9999;
 
   &:before {
     pointer-events: none;
@@ -193,6 +197,8 @@ body {
   position: relative;
 
   .@{css-prefix}-dropdown-content {
+    overflow: auto;
+    max-height: 80vh;
     position: absolute;
     z-index: 200;
     background: #fff;
@@ -353,8 +359,12 @@ body {
     z-index: 0;
 
     input {
+      display: none;
+      margin: 0;
+      padding: 0;
       width: 0;
       border: none;
+      outline: none;
     }
   }
 
@@ -473,8 +483,8 @@ body {
   }
 }
 
-.x-spreadsheet-item,
-.x-spreadsheet-header {
+.n-spreadsheet-item,
+.n-spreadsheet-header {
 
   &.state {
     padding-left: 35px !important;

@@ -1,6 +1,6 @@
 import Dropdown from './dropdown';
 import { h } from './element';
-import { baseFormats } from '../core/format';
+import { baseFormats } from '../model/format';
 import { cssPrefix } from '../config';
 
 export default class DropdownFormat extends Dropdown {

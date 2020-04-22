@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { describe, it } from 'mocha';
-import { formulam } from '../../src/core/formula';
+import { formulam } from '../../src/model/formula';
 
 const gformulas = formulam;
 describe('formula', () => {
