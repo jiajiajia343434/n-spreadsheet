@@ -31,8 +31,8 @@ class DropdownMore extends Dropdown {
 }
 
 const menuItems = [
-  { key: 'rename', title: tf('contextmenu.deleteSheet') },
-  // { key: 'delete', title: tf('contextmenu.renameSheet') },
+  { key: 'delete', title: tf('contextmenu.deleteSheet') },
+  // { key: 'rename', title: tf('contextmenu.renameSheet') },
 ];
 
 function buildMenuItem(item) {

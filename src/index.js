@@ -8,7 +8,7 @@ import './index.less';
 import ExcelParser from './utils/excel/xlsx-importer';
 import ExcelExport from './utils/excel/xlsx-exporter';
 import helper from './model/helper';
-import DefaultSetting from './settings/default'
+import DefaultSetting from './settings/default';
 
 class Spreadsheet {
   constructor(selectors, settings = {}) {
@@ -96,6 +96,19 @@ class Spreadsheet {
 
   getData() {
     return this.datas.map(it => it.getData());
+  }
+
+  // use for set data from onchange callback
+  setData(sheets) {
+    this.datas.map((d, idx) => d.setData(sheets[idx]));
+    this.sheet.table.render();
+  }
+
+  setCustomMenu(menus) {
+    this.sheet.contextMenu.removeAllCustomMenu();
+    menus.forEach((menu) => {
+      this.sheet.contextMenu.addCustomMenu(menu);
+    });
   }
 
   validate() {

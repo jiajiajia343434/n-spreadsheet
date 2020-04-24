@@ -22,6 +22,7 @@ export default {
   row: {
     len: 100,
     height: 18,
+    minHeight: 5,
   },
   col: {
     len: 26,

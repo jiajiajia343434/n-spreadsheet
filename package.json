@@ -1,6 +1,6 @@
 {
   "name": "@newhero/n-spreadsheet",
-  "version": "0.0.8",
+  "version": "0.0.11",
   "description": "A excel-liked javaScript spreadsheet",
   "main": "src/index.js",
   "files": [
@@ -64,6 +64,7 @@
     "webpack-merge": "^4.1.4"
   },
   "dependencies": {
-    "exceljs": "^3.8.0"
+    "exceljs": "^3.8.0",
+    "jszip": "^3.4.0"
   }
 }

@@ -71,7 +71,7 @@ function transArgbToRgb(argb) {
   return `#${argb.substring(2)}`;
 }
 
-function getIndexColor(index) {
+function getDefaultIndexColor(index) {
   let i = index;
   // 0-7 are redundant of 8-15 to preserve backwards compatibility
   if (index >= 0 && index < 8) {
@@ -98,5 +98,5 @@ function transRgbToArgb(rgb) {
 }
 
 export default {
-  transArgbToRgb, getIndexColor, transRgbToArgb,
+  transArgbToRgb, getDefaultIndexColor, transRgbToArgb,
 };

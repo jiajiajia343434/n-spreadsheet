@@ -1,5 +1,3 @@
-/* global document */
-/* global window */
 class Element {
   constructor(tag, className = '') {
     if (typeof tag === 'string') {

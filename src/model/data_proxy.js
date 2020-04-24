@@ -1219,20 +1219,22 @@ export default class DataProxy {
   }
 
   hideRowsOrCols() {
-    const { rows, cols, selector } = this;
-    const [rlen, clen] = selector.size();
-    const {
-      sri, sci, eri, eci,
-    } = selector.range;
-    if (rlen === rows.len) {
-      for (let ci = sci; ci <= eci; ci += 1) {
-        cols.setHide(ci, true);
+    this.changeData(() => {
+      const { rows, cols, selector } = this;
+      const [rlen, clen] = selector.size();
+      const {
+        sri, sci, eri, eci,
+      } = selector.range;
+      if (rlen === rows.len) {
+        for (let ci = sci; ci <= eci; ci += 1) {
+          cols.setHide(ci, true);
+        }
+      } else if (clen === cols.len) {
+        for (let ri = sri; ri <= eri; ri += 1) {
+          rows.setHide(ri, true);
+        }
       }
-    } else if (clen === cols.len) {
-      for (let ri = sri; ri <= eri; ri += 1) {
-        rows.setHide(ri, true);
-      }
-    }
+    });
   }
 
   // type: row | col

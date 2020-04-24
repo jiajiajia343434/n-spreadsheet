@@ -13,7 +13,7 @@ function calTintColor([r, g, b], tint) {
 class Theme {
   constructor(workbook) {
     const parser = new DOMParser();
-    Object.values(workbook['_themes']).forEach((_theme) => {
+    Object.values(workbook._themes).forEach((_theme) => {
       this.theme = parser.parseFromString(_theme, 'text/xml');
       this.color = this.theme.getElementsByTagName('a:clrScheme')[0].childNodes;
     });

@@ -217,7 +217,15 @@
       }).on('cell-selected', function(cell, info){
         console.log(cell , info);
         window.cell = cell;
-      });
+      }).setCustomMenu([
+        {
+          key:'test',
+          title:'测试',
+          handler:(key,target,sheet)=>{
+            console.log(key,target,sheet)
+            }
+        }
+      ]);
   }
 </script>
 </body>

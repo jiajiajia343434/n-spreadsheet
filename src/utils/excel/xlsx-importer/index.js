@@ -1,4 +1,5 @@
 import Excel from 'exceljs';
+import JSZip from 'jszip';
 import Theme from './theme';
 import helper from '../../../model/helper';
 import Color from './color';
@@ -16,7 +17,7 @@ function setMerges(source, target) {
 
 function setColsWidth(target, source, columnCount) {
   for (let i = 0; i < columnCount; i += 1) {
-    const col = source['_columns'][i];
+    const col = source._columns[i];
     if (typeof col.width !== 'undefined') {
       if (col.width === 0) {
         target.cols[i] = { hide: true };
@@ -28,7 +29,7 @@ function setColsWidth(target, source, columnCount) {
   }
 }
 
-function resolveColor(colorScheme) {
+function resolveColor(colorScheme, indexedColors) {
   if (typeof colorScheme.theme !== 'undefined') {
     return this.theme.getColor(colorScheme.theme, colorScheme.tint);
   }
@@ -36,7 +37,10 @@ function resolveColor(colorScheme) {
     return Color.transArgbToRgb(colorScheme.argb);
   }
   if (typeof colorScheme.indexed === 'number') {
-    return Color.getIndexColor(colorScheme.indexed);
+    if (indexedColors.length > 0) {
+      return indexedColors[colorScheme.indexed];
+    }
+    return Color.getDefaultIndexColor(colorScheme.indexed);
   }
   return undefined;
 }
@@ -57,9 +61,22 @@ export default class {
 
   parse(arrayBuffer) {
     return new Promise((resolve, reject) => {
-      this.workbook.xlsx.load(arrayBuffer).then(() => {
+      this.workbook.xlsx.load(arrayBuffer).then(async () => {
+        const indexedColors = [];
+        try {
+          const jsZip = await new JSZip().loadAsync(arrayBuffer);
+          const xmlString = await jsZip.file('xl/styles.xml').async('text');
+          const nodes = new DOMParser().parseFromString(xmlString, 'application/xml');
+          const indexedColorTable = nodes.querySelectorAll('indexedColors');
+          if (indexedColorTable.length > 0) {
+            Array.prototype.map.call(indexedColorTable[0].children, (indexedColor, idx) => {
+              indexedColors[idx] = `#${indexedColor.getAttribute('rgb').substring(2)}`;
+            });
+          }
+        } catch (e) {
+          console.warn('文件格式似乎不完整，解析indexedColor错误！', e);
+        }
         this.theme = new Theme(this.workbook);
-        console.log(this.workbook);
         const data = [];
         this.workbook.eachSheet((_sheet) => {
           const sheet = {};
@@ -72,7 +89,7 @@ export default class {
           sheet.styles = [];
           const mergeInfo = setMerges(_sheet, sheet);
           for (let i = 0; i < _sheet.rowCount; i += 1) {
-            const _row = _sheet['_rows'][i];
+            const _row = _sheet._rows[i];
             if (_row) {
               const rIdx = i + 1;
               const row = {};
@@ -80,8 +97,8 @@ export default class {
               if (_row.height) {
                 row.height = _row.height * 1.2;
               }
-              for (let j = 0; j < _row['_cells'].length; j += 1) {
-                const _cell = _row['_cells'][j];
+              for (let j = 0; j < _row._cells.length; j += 1) {
+                const _cell = _row._cells[j];
                 const cIdx = j + 1;
                 if (_cell) {
                   if (_cell.master.address === _cell.address) {
@@ -100,7 +117,7 @@ export default class {
                           style.underline = _style.font.underline;
                         }
                         if (_style.font.color) {
-                          style.color = resolveColor.call(this, _style.font.color);
+                          style.color = resolveColor.call(this, _style.font.color, indexedColors);
                         }
                       }
                       // align and wrap
@@ -121,17 +138,18 @@ export default class {
                         Object.keys(border).forEach((key) => {
                           const s = border[key].style;
                           const c = border[key].color || {};
-                          border[key] = [s, resolveColor.call(this, c)];
+                          border[key] = [s, resolveColor.call(this, c, indexedColors)];
                         });
                         style.border = border;
                       }
                       // fill
                       if (_style.fill) {
                         if (_style.fill.fgColor) {
-                          style.bgcolor = resolveColor.call(this, _style.fill.fgColor);
+                          style.bgcolor = resolveColor.call(this,
+                            _style.fill.fgColor, indexedColors);
                         } else if (_style.fill.pattern === 'solid') {
                           // system default color
-                          style.bgcolor = resolveColor.call(this, { indexed: 64 });
+                          style.bgcolor = resolveColor.call(this, { indexed: 64 }, indexedColors);
                         }
                       }
                       cell.style = addStyle(style, sheet.styles);

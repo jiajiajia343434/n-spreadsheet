@@ -608,9 +608,12 @@ function horizontalScrollbarMove(distance, evt) {
 
 function rowResizerFinished(cRect, distance) {
   const { ri } = cRect;
-  const { table, selector, data } = this;
-  data.rows.setHeight(ri, distance);
+  const { table, selector, data, toolbar } = this;
+  data.changeData(() => {
+    data.rows.setHeight(ri, distance);
+  });
   table.render();
+  toolbar.reset();
   selector.resetAreaOffset();
   verticalScrollbarSet.call(this);
   editorSetOffset.call(this);
@@ -618,10 +621,12 @@ function rowResizerFinished(cRect, distance) {
 
 function colResizerFinished(cRect, distance) {
   const { ci } = cRect;
-  const { table, selector, data } = this;
-  data.cols.setWidth(ci, distance);
-  // console.log('data:', data);
+  const { table, selector, data, toolbar } = this;
+  data.changeData(() => {
+    data.cols.setWidth(ci, distance);
+  });
   table.render();
+  toolbar.reset();
   selector.resetAreaOffset();
   horizontalScrollbarSet.call(this);
   editorSetOffset.call(this);
@@ -650,8 +655,6 @@ function dataSetCellText(text) {
 
 function insertDeleteRowColumn(type) {
   const { data } = this;
-  // const { privileges } = data.settings;
-  // const { editable, dataEdit, formatEdit } = privileges;
   if (type === 'insert-row') {
     data.insert('row');
   } else if (type === 'delete-row') {
@@ -734,6 +737,7 @@ function sheetInitEvents() {
     toolbar,
     modalValidation,
     sortFilter,
+    data,
   } = this;
   // overlayer
   overlayerEl
@@ -746,12 +750,10 @@ function sheetInitEvents() {
       editor.restore();
       contextMenu.hide();
       if (evt.buttons === 2) {
-        if (this.data.xyInSelectedRect(evt.offsetX, evt.offsetY)) {
-          contextMenu.setPosition(evt.offsetX, evt.offsetY);
-        } else {
+        if (!this.data.xyInSelectedRect(evt.offsetX, evt.offsetY)) {
           overlayerMousedown.call(this, evt);
-          contextMenu.setPosition(evt.offsetX, evt.offsetY);
         }
+        contextMenu.show(evt.offsetX, evt.offsetY, selector.range, data);
         evt.stopPropagation();
       } else if (evt.detail === 2) {
         editorSet.call(this);
@@ -831,26 +833,116 @@ function sheetInitEvents() {
     }
   };
   // contextmenu
-  contextMenu.itemClick = (type) => {
-    // console.log('type:', type);
-    if (type === 'validation') {
-      modalValidation.setValue(this.data.getSelectedValidation());
-    } else if (type === 'copy') {
-      window.document.execCommand('copy');
-    } else if (type === 'cut') {
-      window.document.execCommand('cut');
-    } else if (type === 'paste') {
-      paste.call(this, 'all');
-    } else if (type === 'paste-value') {
-      paste.call(this, 'text');
-    } else if (type === 'paste-format') {
-      paste.call(this, 'format');
-    } else if (type === 'hide') {
-      hideRowsOrCols.call(this);
-    } else {
-      insertDeleteRowColumn.call(this, type);
-    }
-  };
+  contextMenu.innerEventObservers = [
+    {
+      key: 'validation',
+      handler: () => {
+        modalValidation.setValue(this.data.getSelectedValidation());
+      },
+    },
+    {
+      key: 'copy',
+      handler: () => {
+        window.document.execCommand('copy');
+      },
+    },
+    {
+      key: 'cut',
+      handler: () => {
+        window.document.execCommand('cut');
+      },
+    },
+    {
+      key: 'paste',
+      handler: () => {
+        paste.call(this, 'all');
+      },
+    },
+    {
+      key: 'paste-value',
+      handler: () => {
+        paste.call(this, 'text');
+      },
+    },
+    {
+      key: 'paste-format',
+      handler: () => {
+        paste.call(this, 'format');
+      },
+    },
+    {
+      key: 'hide',
+      handler: () => {
+        hideRowsOrCols.call(this);
+      },
+    },
+    {
+      key: 'insert-row',
+      handler: (key) => {
+        insertDeleteRowColumn.call(this, key);
+      },
+    },
+    {
+      key: 'delete-row',
+      handler: (key) => {
+        insertDeleteRowColumn.call(this, key);
+      },
+    },
+    {
+      key: 'insert-column',
+      handler: (key) => {
+        insertDeleteRowColumn.call(this, key);
+      },
+    },
+    {
+      key: 'delete-column',
+      handler: (key) => {
+        insertDeleteRowColumn.call(this, key);
+      },
+    },
+    {
+      key: 'delete-cell',
+      handler: (key) => {
+        insertDeleteRowColumn.call(this, key);
+      },
+    },
+    {
+      key: 'delete-cell-format',
+      handler: (key) => {
+        insertDeleteRowColumn.call(this, key);
+      },
+    },
+    {
+      key: 'delete-cell-text',
+      handler: (key) => {
+        insertDeleteRowColumn.call(this, key);
+      },
+    },
+    {
+      key: 'cell-printable',
+      handler: (key) => {
+        insertDeleteRowColumn.call(this, key);
+      },
+    },
+    {
+      key: 'cell-none-printable',
+      handler: (key) => {
+        insertDeleteRowColumn.call(this, key);
+      },
+    },
+    {
+      key: 'cell-editable',
+      handler: (key) => {
+        insertDeleteRowColumn.call(this, key);
+      },
+    },
+    {
+      key: 'cell-non-editable',
+      handler: (key) => {
+        insertDeleteRowColumn.call(this, key);
+      },
+    },
+  ];
 
   bind(window, 'resize', () => {
     this.reload();
@@ -1050,7 +1142,7 @@ export default class Sheet {
     // table
     this.tableEl = h('canvas', `${cssPrefix}-table`);
     // resizer
-    this.rowResizer = new Resizer(false, data.rows.height);
+    this.rowResizer = new Resizer(false, data.rows.minHeight);
     this.colResizer = new Resizer(true, data.cols.minWidth);
     // scrollbar
     this.verticalScrollbar = new Scrollbar(true);
