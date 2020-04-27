@@ -6,8 +6,10 @@ export default class Dropdown extends Element {
   constructor(title, width, showArrow, placement, ...children) {
     super('div', `${cssPrefix}-dropdown ${placement}`);
     this.title = title;
-    this.change = () => {};
-    this.headerClick = () => {};
+    this.change = () => {
+    };
+    this.headerClick = () => {
+    };
     if (typeof title === 'string') {
       this.title = h('div', `${cssPrefix}-dropdown-title`).child(title);
     } else if (showArrow) {
@@ -60,5 +62,9 @@ export default class Dropdown extends Element {
     this.parent().active(false);
     this.contentEl.hide();
     unbindClickoutside(this.parent());
+  }
+
+  setContainerClass(className) {
+    this.contentEl.addClass(className);
   }
 }

@@ -52,12 +52,13 @@
     background-color: @primary-hover-color;
   }
 }
+
 //
 //body {
 //  margin: 0;
 //}
 
-.@{css-prefix} *,.@{css-prefix} *::before,.@{css-prefix} *::after{
+.@{css-prefix} *, .@{css-prefix} *::before, .@{css-prefix} *::after {
   box-sizing: content-box;
 }
 
@@ -197,12 +198,15 @@
   position: relative;
 
   .@{css-prefix}-dropdown-content {
-    overflow: auto;
-    max-height: 80vh;
     position: absolute;
     z-index: 200;
     background: #fff;
     box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, .15);
+  }
+
+  .@{css-prefix}-dropdown-fonts, .@{css-prefix}-dropdown-formulas {
+    overflow: auto;
+    max-height: 80vh;
   }
 
   &.bottom-left {
@@ -555,6 +559,21 @@
   width: 260px;
   pointer-events: auto;
   overflow: auto;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.12);
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
 }
 
 .@{css-prefix}-suggest {
@@ -596,6 +615,21 @@
   text-align: left;
   background: #f5f6f7;
   display: flex;
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.12);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
 }
 
 .@{css-prefix}-bottombar {
@@ -626,7 +660,6 @@
   margin: 0;
   vertical-align: middle;
   text-align: left;
-  font-weight: 400;
   color: #80868b;
   white-space: nowrap;
   cursor: pointer;

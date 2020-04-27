@@ -737,7 +737,6 @@ function sheetInitEvents() {
     toolbar,
     modalValidation,
     sortFilter,
-    data,
   } = this;
   // overlayer
   overlayerEl
@@ -753,7 +752,7 @@ function sheetInitEvents() {
         if (!this.data.xyInSelectedRect(evt.offsetX, evt.offsetY)) {
           overlayerMousedown.call(this, evt);
         }
-        contextMenu.show(evt.offsetX, evt.offsetY, selector.range, data);
+        contextMenu.show(evt.offsetX, evt.offsetY, selector.range, this.data);
         evt.stopPropagation();
       } else if (evt.detail === 2) {
         editorSet.call(this);

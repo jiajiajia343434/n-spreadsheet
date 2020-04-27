@@ -1,5 +1,3 @@
-/* global document */
-
 import Selector from './selector';
 import Scroll from './scroll';
 import History from './history';
@@ -424,7 +422,7 @@ function copyToSystemClipboard(clipboardData) {
   clipboardData.setData('text', text);
 }
 
-export default class DataProxy {
+export default class DataAgent {
   constructor(name, settings) {
     this.settings = settings;
     // save data begin
@@ -1111,7 +1109,7 @@ export default class DataProxy {
     const { rows, history, validations } = this;
     history.add(this.getData());
     rows.setCellText(ri, ci, text);
-    this.change(this.getData());
+    this.change(this);
     // validator
     validations.validate(ri, ci, text);
   }
@@ -1300,7 +1298,7 @@ export default class DataProxy {
   changeData(cb) {
     this.history.add(this.getData());
     cb();
-    this.change(this.getData());
+    this.change(this);
   }
 
   setData(d) {
@@ -1322,15 +1320,23 @@ export default class DataProxy {
     const {
       name, freeze, styles, merges, rows, cols, validations, autoFilter,
     } = this;
-    return {
-      name,
-      freeze: xy2expr(freeze[1], freeze[0]),
-      styles,
-      merges: merges.getData(),
-      rows: rows.getData(),
-      cols: cols.getData(),
-      validations: validations.getData(),
-      autofilter: autoFilter.getData(),
-    };
+    const o = {};
+    const keys = Object.keys(this);
+    keys.forEach((key) => {
+      if (typeof this[key] !== 'function') {
+        o[key] = this[key];
+      }
+    });
+    return Object.assign(o,
+      {
+        name,
+        freeze: xy2expr(freeze[1], freeze[0]),
+        styles,
+        merges: merges.getData(),
+        rows: rows.getData(),
+        cols: cols.getData(),
+        validations: validations.getData(),
+        autofilter: autoFilter.getData(),
+      });
   }
 }

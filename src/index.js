@@ -1,5 +1,5 @@
 import { h } from './ui/element';
-import DataProxy from './model/data_proxy';
+import DataAgent from './model/data_agent';
 import Sheet from './ui/sheet';
 import BottomBar from './ui/bottombar';
 import { cssPrefix } from './config';
@@ -11,7 +11,8 @@ import helper from './model/helper';
 import DefaultSetting from './settings/default';
 
 class Spreadsheet {
-  constructor(selectors, settings = {}) {
+  constructor(selectors, settings = {}, initData = [], onLoad = () => {
+  }) {
     let container = selectors;
     if (typeof selectors === 'string') {
       container = document.querySelector(selectors);
@@ -22,44 +23,47 @@ class Spreadsheet {
     };
     this.settings = helper.merge(DefaultSetting, settings || {});
     this.sheetIndex = 1;
-    this.datas = [];
+    this.dataAgents = [];
     this.bottombar = new BottomBar(() => {
-      if (this.data.settings.privileges.editable && this.data.settings.privileges.sheetEdit) {
+      if (this.settings.privileges.editable && this.settings.privileges.sheetEdit) {
         const d = this.addSheet();
+        this.dataAgent = d;
         this.sheet.reset(d);
-        this.sheet.trigger('change', d.getData(), this.datas.map(data => data.getData()));
+        this.sheet.trigger('change', d, this.dataAgents);
       }
     }, (index) => {
       this.swapSheet(index);
-      this.sheet.trigger('change', this.data.getData(), this.datas.map(data => data.getData()));
+      this.sheet.trigger('change', this.dataAgent, this.dataAgents);
     }, () => {
-      if (this.data.settings.privileges.editable && this.data.settings.privileges.sheetEdit) {
+      if (this.settings.privileges.editable && this.settings.privileges.sheetEdit) {
         this.deleteSheet();
-        this.sheet.trigger('change', this.data.getData(), this.datas.map(data => data.getData()));
+        this.sheet.trigger('change', this.dataAgent, this.dataAgents);
       }
     }, (index, value) => {
-      if (this.data.settings.privileges.editable && this.data.settings.privileges.sheetEdit) {
-        this.datas[index].name = value;
-        this.sheet.trigger('change', this.data.getData(), this.datas.map(data => data.getData()));
+      if (this.settings.privileges.editable && this.settings.privileges.sheetEdit) {
+        this.dataAgents[index].name = value;
+        this.sheet.trigger('change', this.dataAgent, this.dataAgents);
       }
     }, this.settings.privileges);
-    this.data = this.addSheet();
+    this.dataAgent = this.addSheet();
     const rootEl = h('div', `${cssPrefix}`)
       .on('contextmenu', evt => evt.preventDefault());
     // create canvas element
     container.appendChild(rootEl.el);
-    this.sheet = new Sheet(rootEl, this.data);
+    this.sheet = new Sheet(rootEl, this.dataAgent);
     rootEl.child(this.bottombar.el);
+    this.loadData(initData);
+    onLoad.call(this, this, this.dataAgent, this.dataAgents);
   }
 
   addSheet(name, active = true) {
     const n = name || `sheet${this.sheetIndex}`;
-    const d = new DataProxy(n, this.settings);
-    d.change = (...args) => {
-      this.sheet.trigger('change', ...args, this.datas.map(data => data.getData()));
+    const d = new DataAgent(n, this.settings);
+    d.change = () => {
+      this.sheet.trigger('change', d, this.dataAgents);
     };
-    this.datas.push(d);
-    // console.log('d:', n, d, this.datas);
+    this.dataAgents.push(d);
+    // console.log('d:', n, d, this.dataAgents);
     this.bottombar.addItem(n, active);
     this.sheetIndex += 1;
     return d;
@@ -68,15 +72,15 @@ class Spreadsheet {
   deleteSheet() {
     const [oldIndex, nindex] = this.bottombar.deleteItem();
     if (oldIndex >= 0) {
-      this.datas.splice(oldIndex, 1);
-      if (nindex >= 0) this.sheet.reset(this.datas[nindex]);
+      this.dataAgents.splice(oldIndex, 1);
+      if (nindex >= 0) this.sheet.reset(this.dataAgents[nindex]);
     }
-    this.data = this.datas[nindex];
+    this.dataAgent = this.dataAgents[nindex];
   }
 
   swapSheet(index) {
-    const d = this.datas[index];
-    this.data = d;
+    const d = this.dataAgents[index];
+    this.dataAgent = d;
     this.sheet.reset(d);
   }
 
@@ -87,7 +91,7 @@ class Spreadsheet {
       const nd = this.addSheet(it.name, false);
       nd.setData(it);
     }
-    const oldCount = this.datas.length - ds.length;
+    const oldCount = this.dataAgents.length - ds.length;
     for (let i = 1; i <= oldCount; i += 1) {
       this.deleteSheet();
     }
@@ -95,12 +99,12 @@ class Spreadsheet {
   }
 
   getData() {
-    return this.datas.map(it => it.getData());
+    return this.dataAgents.map(dataAgent => dataAgent.getData());
   }
 
   // use for set data from onchange callback
-  setData(sheets) {
-    this.datas.map((d, idx) => d.setData(sheets[idx]));
+  setData(data) {
+    this.dataAgents.map((d, idx) => d.setData(data[idx]));
     this.sheet.table.render();
   }
 
@@ -112,7 +116,7 @@ class Spreadsheet {
   }
 
   validate() {
-    const { validations } = this.data;
+    const { validations } = this.dataAgent;
     return validations.errors.size <= 0;
   }
 

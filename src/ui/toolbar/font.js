@@ -7,7 +7,7 @@ export default class Font extends DropdownItem {
   }
 
   getValue(it) {
-    return it.key;
+    return it.title;
   }
 
   dropdown() {

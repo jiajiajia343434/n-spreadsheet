@@ -13,5 +13,6 @@ export default class DropdownFormula extends Dropdown {
       })
       .child(it.key));
     super(new Icon('formula'), '180px', true, 'bottom-left', ...nformulas);
+    super.setContainerClass(`${cssPrefix}-dropdown-formulas`);
   }
 }

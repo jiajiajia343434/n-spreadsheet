@@ -211,12 +211,10 @@
             document.body.removeChild(eleLink)
           });
         }
-      }).on('cells-selected', function(cell, info){
-        console.log(cell , info);
-        window.cell = cell;
-      }).on('cell-selected', function(cell, info){
-        console.log(cell , info);
-        window.cell = cell;
+      }).on('cells-selected', function(...args){
+        console.log(args);
+      }).on('cell-selected', function(...args){
+        console.log(...args);
       }).setCustomMenu([
         {
           key:'test',
