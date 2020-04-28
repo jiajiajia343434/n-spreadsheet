@@ -282,7 +282,7 @@ export default class Selector {
     this.resetOffset();
   }
 
-  set(ri, ci, indexesUpdated = true) {
+  set(ri, ci, indexesUpdated = true, mode) {
     const { data } = this;
     const cellRange = data.calSelectedRangeByStart(ri, ci);
     const { sri, sci } = cellRange;
@@ -297,20 +297,23 @@ export default class Selector {
     this.moveIndexes = [sri, sci];
     // this.sIndexes = sIndexes;
     // this.eIndexes = eIndexes;
+    cellRange.mode = mode;
     this.range = cellRange;
     this.resetAreaOffset();
     this.el.show();
   }
 
-  setEnd(ri, ci, moving = true) {
+  setEnd(ri, ci, moving = true, mode) {
     const { data, lastri, lastci } = this;
     if (moving) {
-      if (ri === lastri && ci === lastci) return;
+      if (ri === lastri && ci === lastci) return false;
       this.lastri = ri;
       this.lastci = ci;
     }
     this.range = data.calSelectedRangeByEnd(ri, ci);
+    this.range.mode = mode;
     setAllAreaOffset.call(this, this.data.getSelectedRect());
+    return true;
   }
 
   reset() {

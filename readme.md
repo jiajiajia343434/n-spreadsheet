@@ -76,3 +76,19 @@
 1. 修复若干bug
 2. 将'on***'等回调方法参数改为DataAgent对象，提供一些API，方便开发者操作表格
 3. 增加onLoad回调（表格初始化完成后回调）。
+
+0.0.14
+---
+1. 修复dataAgent.getData()导出过多属性导致history数据递归增加引发崩溃的bug
+
+0.0.15
+---
+1. 修复cells-selected事件疯狂触发的bug
+2. 为Range增加了mode属性
+    - 'range': 选中的区域为单元格区域  
+    - 'row': 选中的区域为行头  
+    - 'col': 选中的区域为列头  
+
+0.0.16
+---
+1. 改进并完善0.0.15修复的cells-selected事件

@@ -113,6 +113,7 @@ class Spreadsheet {
     menus.forEach((menu) => {
       this.sheet.contextMenu.addCustomMenu(menu);
     });
+    return this;
   }
 
   validate() {

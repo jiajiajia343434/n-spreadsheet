@@ -11,7 +11,6 @@
 </div>
 <script>
   var xs;
-
   function load() {
     xs = $.spreadsheet('#main', {
     })
@@ -194,6 +193,7 @@
       .change(function(cdata,datas){
         //cdata是当前sheet表格数据，再次可以根据数据做一些事情
         console.log(cdata,datas);
+        console.log(Object.keys(cdata.getData()));
         window.xe = () => {
           const exporter = new window.$.excel.exporter();
           exporter.setData(datas);

@@ -448,6 +448,7 @@ export default class DataAgent {
     this.exceptRowSet = new Set();
     this.sortedRowMap = new Map();
     this.unsortedRowMap = new Map();
+    this.innerPropsList = ['innerPropsList', 'settings', 'name', 'freeze', 'styles', 'merges', 'rows', 'cols', 'validations', 'hyperlinks', 'comments', 'selector', 'scroll', 'clipboard', 'autoFilter', 'exceptRowSet', 'sortedRowMap', 'unsortedRowMap', 'autofilter', 'history'];
   }
 
   addValidation(mode, ref, validator) {
@@ -1318,12 +1319,12 @@ export default class DataAgent {
 
   getData() {
     const {
-      name, freeze, styles, merges, rows, cols, validations, autoFilter,
+      name, freeze, styles, merges, rows, cols, validations, autoFilter, innerPropsList,
     } = this;
     const o = {};
     const keys = Object.keys(this);
     keys.forEach((key) => {
-      if (typeof this[key] !== 'function') {
+      if (typeof this[key] !== 'function' && innerPropsList.indexOf(key) === -1) {
         o[key] = this[key];
       }
     });

@@ -91,24 +91,32 @@ function selectorSet(multiple, ri, ci, indexesUpdated = true, moving = false) {
   } = this;
   contextMenu.setMode((ri === -1 || ci === -1) ? 'row-col' : 'range');
   const cell = data.getCell(ri, ci);
+  let selectType = 'range';
+  if (ri === -1) {
+    selectType = 'col';
+  }
+  if (ci === -1) {
+    selectType = 'row';
+  }
   if (multiple) {
-    selector.setEnd(ri, ci, moving);
-    const { range } = selector;
-    const view = [];
-    for (let row = range.sri; row <= range.eri; row += 1) {
-      view[row] = [];
-      for (let col = range.sci; col <= range.eci; col += 1) {
-        view[row][col] = new OperableCell(
-          row, col, data.getCell(row, col) || {}, {
-            setCellText: data.setCellText.bind(data, row, col),
-          }, table.render.bind(table),
-        );
+    if (selector.setEnd(ri, ci, moving, selectType)) {
+      const { range } = selector;
+      const view = [];
+      for (let row = range.sri; row <= range.eri; row += 1) {
+        view[row] = [];
+        for (let col = range.sci; col <= range.eci; col += 1) {
+          view[row][col] = new OperableCell(
+            row, col, data.getCell(row, col) || {}, {
+              setCellText: data.setCellText.bind(data, row, col),
+            }, table.render.bind(table),
+          );
+        }
       }
+      this.trigger('cells-selected', view, range);
     }
-    this.trigger('cells-selected', view, range);
   } else {
     // trigger click event
-    selector.set(ri, ci, indexesUpdated);
+    selector.set(ri, ci, indexesUpdated, selectType);
     const dCell = new OperableCell(
       ri, ci, cell || {}, {
         setCellText: data.setCellText.bind(data, ri, ci),

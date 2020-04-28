@@ -1,13 +1,14 @@
 import { xy2expr, expr2xy } from './alphabet';
 
 class CellRange {
-  constructor(sri, sci, eri, eci, w = 0, h = 0) {
+  constructor(sri, sci, eri, eci, w = 0, h = 0, mode = 'range') {
     this.sri = sri;
     this.sci = sci;
     this.eri = eri;
     this.eci = eci;
     this.w = w;
     this.h = h;
+    this.mode = mode;
   }
 
   set(sri, sci, eri, eci) {
