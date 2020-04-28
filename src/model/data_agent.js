@@ -493,12 +493,14 @@ export default class DataAgent {
   undo() {
     this.history.undo(this.getData(), (d) => {
       this.setData(d);
+      this.change(this);
     });
   }
 
   redo() {
     this.history.redo(this.getData(), (d) => {
       this.setData(d);
+      this.change(this);
     });
   }
 
