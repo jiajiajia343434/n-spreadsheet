@@ -63,6 +63,7 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
   if ('editable' in cell && cell.editable === false) {
     frozen = true;
   }
+  const comment = cell.comment;
 
   const style = data.getCellStyleOrDefault(nrindex, cindex);
   const dbox = getDrawBox(data, rindex, cindex, yoffset);
@@ -94,6 +95,9 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
     }
     if (frozen) {
       draw.frozen(dbox);
+    }
+    if (comment) {
+      draw.comment(dbox);
     }
   });
   if (style.border !== undefined) {

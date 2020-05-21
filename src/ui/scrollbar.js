@@ -55,7 +55,8 @@ export default class Scrollbar {
     this.el.css(cssKey, `${d - 15}px`).show();
     this.virtualContentEl
       .css(this.vertical ? 'width' : 'height', '1px')
-      .css(cssKey, `${contentDistance < d ? d - 14 : contentDistance}px`);
+      // .css(cssKey, `${contentDistance < d ? d - 14 : contentDistance}px`);
+      .css(cssKey, `${contentDistance}px`);
     // } else {
     //   this.el.hide();
     // }

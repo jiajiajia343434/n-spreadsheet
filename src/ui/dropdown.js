@@ -51,7 +51,13 @@ export default class Dropdown extends Element {
 
   show() {
     const { contentEl } = this;
+    contentEl.css('maxHeight', 'unset');
     contentEl.show();
+    const { bottom, height } = contentEl.box();
+    if (bottom >= window.innerHeight) {
+      const fixedHeight = height + window.innerHeight - bottom - 36;
+      contentEl.css('maxHeight', `${fixedHeight}px`);
+    }
     this.parent().active();
     bindClickoutside(this.parent(), () => {
       this.hide();
@@ -66,5 +72,9 @@ export default class Dropdown extends Element {
 
   setContainerClass(className) {
     this.contentEl.addClass(className);
+  }
+
+  setMaxHeight(maxHeight) {
+    this.contentEl.css('maxHeight', `${maxHeight - 10}px`);
   }
 }

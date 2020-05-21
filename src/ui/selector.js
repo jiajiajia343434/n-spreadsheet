@@ -1,6 +1,7 @@
 import { h } from './element';
 import { cssPrefix } from '../config';
 import { CellRange } from '../model/cell_range';
+import comment from './comment';
 
 const selectorHeightBorderWidth = 2 * 2 - 1;
 let startZIndex = 10;
@@ -8,7 +9,8 @@ let startZIndex = 10;
 class SelectorElement {
   constructor(useHideInput = false) {
     this.useHideInput = useHideInput;
-    this.inputChange = () => {};
+    this.inputChange = () => {
+    };
     this.cornerEl = h('div', `${cssPrefix}-selector-corner`);
     this.areaEl = h('div', `${cssPrefix}-selector-area`)
       .child(this.cornerEl).hide();
@@ -194,7 +196,8 @@ function setAllClipboardOffset(offset) {
 
 export default class Selector {
   constructor(data) {
-    this.inputChange = () => {};
+    this.inputChange = () => {
+    };
     this.data = data;
     this.br = new SelectorElement(true);
     this.t = new SelectorElement();
@@ -216,7 +219,10 @@ export default class Selector {
         this.l.el,
         this.br.el,
       ).hide();
-
+    // comment
+    this.comment = comment();
+    this.el.children(this.comment.el);
+    this.comment.hide();
     // for performance
     this.lastri = -1;
     this.lastci = -1;
@@ -293,6 +299,20 @@ export default class Selector {
       data.selector.setIndexes(cri, cci);
       this.indexes = [cri, cci];
     }
+    // fixed bug: trigger range selected when move in single cell
+    this.lastri = sri;
+    this.lastci = sci;
+    // comment
+    this.comment.hide();
+    if (mode === 'range') {
+      const cellData = data.getCell(sri, sci);
+      if (cellData && cellData.comment) {
+        const { top, left, width, height } = data.getSelectedRect();
+        this.comment
+          .position(`${left + width + 5}px`, `${top + height + 5}px`)
+          .show(cellData.comment);
+      }
+    }
 
     this.moveIndexes = [sri, sci];
     // this.sIndexes = sIndexes;
@@ -310,6 +330,7 @@ export default class Selector {
       this.lastri = ri;
       this.lastci = ci;
     }
+    this.comment.hide();
     this.range = data.calSelectedRangeByEnd(ri, ci);
     this.range.mode = mode;
     setAllAreaOffset.call(this, this.data.getSelectedRect());
@@ -319,6 +340,7 @@ export default class Selector {
   reset() {
     // console.log('::::', this.data);
     const { eri, eci } = this.data.selector.range;
+    this.set(eri, eci, true, 'range');
     this.setEnd(eri, eci);
   }
 

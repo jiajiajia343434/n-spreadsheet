@@ -29,7 +29,8 @@ export default class {
       workbook.created = new Date();
       workbook.modified = new Date();
       workbook.lastPrinted = new Date();
-      sheetsData.forEach((s) => {
+      sheetsData.forEach((dataAgent) => {
+        const s = dataAgent.getData();
         const options = {
           views: [],
         };

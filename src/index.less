@@ -87,6 +87,23 @@
   vertical-align: bottom;
 }
 
+.@{css-prefix}-comment {
+  position: absolute;
+  padding: 10px;
+  z-index: 9999;
+  &.@{css-prefix}-comment-show {
+    visibility: visible;
+    background-color: white;
+    box-shadow: 1px 2px 8px -4px #888888;
+    transition: all 0.3s ease-out;
+  }
+  &.@{css-prefix}-comment-hide {
+    visibility: hidden;
+    background: none;
+    box-shadow: none;
+  }
+}
+
 .@{css-prefix}-tooltip {
   font-family: inherit;
   position: absolute;
@@ -202,11 +219,7 @@
     z-index: 200;
     background: #fff;
     box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, .15);
-  }
-
-  .@{css-prefix}-dropdown-fonts, .@{css-prefix}-dropdown-formulas {
     overflow: auto;
-    max-height: 80vh;
   }
 
   &.bottom-left {

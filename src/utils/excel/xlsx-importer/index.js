@@ -76,6 +76,7 @@ export default class {
         } catch (e) {
           console.warn('文件格式似乎不完整，解析indexedColor错误！', e);
         }
+        window.e = this.workbook;
         this.theme = new Theme(this.workbook);
         const data = [];
         this.workbook.eachSheet((_sheet) => {
@@ -156,6 +157,19 @@ export default class {
                     }
                     if (_cell.isMerged) {
                       cell.merge = mergeInfo[_cell.address];
+                    }
+                    // comment
+                    if (_cell.note) {
+                      if (typeof _cell.note !== 'string' && Array.isArray(_cell.note.texts)) {
+                        _cell.note.texts.forEach((text) => {
+                          if (text.font && typeof text.font.color !== 'undefined') {
+                            text.font.hexColor = resolveColor.call(
+                              this, text.font.color, indexedColors,
+                            );
+                          }
+                        });
+                      }
+                      cell.comment = _cell.note;
                     }
                     row.cells[cIdx - 1] = cell;
                   }

@@ -8,7 +8,6 @@ import Strike from './strike';
 import Underline from './underline';
 import Border from './border';
 import Clearformat from './clearformat';
-import Paintformat from './paintformat';
 import TextColor from './text_color';
 import FillColor from './fill_color';
 import FontSize from './font_size';
@@ -17,7 +16,6 @@ import Format from './format';
 import Formula from './formula';
 import Freeze from './freeze';
 import Merge from './merge';
-import Print from './print';
 import Textwrap from './textwrap';
 import More from './more';
 
@@ -80,11 +78,12 @@ function moreResize() {
 }
 
 export default class Toolbar {
-  constructor(data, widthFn, isHide = false) {
+  constructor(data, isHide = false) {
     this.data = data;
+    const { width: viewWidth } = data.settings.view;
     this.change = () => {
     };
-    this.widthFn = widthFn;
+    this.widthFn = viewWidth;
     this.isHide = isHide;
     const style = data.defaultStyle();
     if (data.settings.privileges.formatEdit) {
@@ -127,7 +126,7 @@ export default class Toolbar {
         ],
         buildDivider(),
         [
-          // this.freezeEl = new Freeze(),
+          this.freezeEl = new Freeze(),
           // this.autofilterEl = new Autofilter(),
           this.formulaEl = new Formula(),
           this.moreEl = new More(),

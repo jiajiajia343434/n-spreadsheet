@@ -238,7 +238,9 @@ const fitAvailableRow = (sheet, refresh = true) => {
       data.freeze[0], data.settings.extensible.maxRow - 1, data.freezeTotalHeight(), 0, vh,
       i => data.rows.getHeight(i),
     );
-    data.rows.len = Math.max(index, lr, eri) + 1;
+    const ix = index
+      + Math.floor(sheet.data.settings.view.height() / sheet.data.settings.row.height / 2);
+    data.rows.len = Math.max(ix, lr, eri) + 1;
     if (refresh) {
       verticalScrollbarSet.call(sheet);
       table.render();
@@ -258,7 +260,9 @@ const fitAvailableColumn = (sheet, refresh = true) => {
       data.freeze[1], data.settings.extensible.maxCol - 1, data.freezeTotalWidth(), 0, vw,
       i => data.cols.getWidth(i),
     );
-    data.cols.len = Math.max(index, lc, eci) + 1;
+    const ix = index
+      + Math.floor(sheet.data.settings.view.width() / sheet.data.settings.col.width / 2);
+    data.cols.len = Math.max(ix, lc, eci) + 1;
     if (refresh) {
       horizontalScrollbarSet.call(sheet);
       table.render();
@@ -268,7 +272,7 @@ const fitAvailableColumn = (sheet, refresh = true) => {
 // 增加行
 const extendRow = (sheet) => {
   if (sheet.data.settings.extensible.enableAll || sheet.data.settings.extensible.enableRow) {
-    sheet.data.add('row', 1);
+    sheet.data.add('row', Math.floor(sheet.data.settings.view.width() / sheet.data.settings.row.height / 2));
     verticalScrollbarSet.call(sheet);
     sheet.table.render();
   }
@@ -276,7 +280,7 @@ const extendRow = (sheet) => {
 // 增加列
 const extendColumn = (sheet) => {
   if (sheet.data.settings.extensible.enableAll || sheet.data.settings.extensible.enableCol) {
-    sheet.data.add('column', 1);
+    sheet.data.add('column', Math.floor(sheet.data.settings.view.width() / sheet.data.settings.col.width / 2));
     horizontalScrollbarSet.call(sheet);
     sheet.table.render();
   }
@@ -1140,9 +1144,9 @@ function sheetInitEvents() {
 export default class Sheet {
   constructor(targetEl, data) {
     this.eventMap = new Map();
-    const { view, showToolbar, showContextmenu } = data.settings;
+    const { showToolbar, showContextmenu } = data.settings;
     this.el = h('div', `${cssPrefix}-sheet`);
-    this.toolbar = new Toolbar(data, view.width, !showToolbar);
+    this.toolbar = new Toolbar(data, !showToolbar);
     this.print = new Print(data);
     targetEl.children(this.toolbar.el, this.el, this.print.el);
     this.data = data;
