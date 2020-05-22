@@ -275,7 +275,9 @@ const extendRow = (sheet) => {
     sheet.data.add('row', Math.floor(sheet.data.settings.view.width() / sheet.data.settings.row.height / 2));
     verticalScrollbarSet.call(sheet);
     sheet.table.render();
+    return true;
   }
+  return false;
 };
 // 增加列
 const extendColumn = (sheet) => {
@@ -283,7 +285,9 @@ const extendColumn = (sheet) => {
     sheet.data.add('column', Math.floor(sheet.data.settings.view.width() / sheet.data.settings.col.width / 2));
     horizontalScrollbarSet.call(sheet);
     sheet.table.render();
+    return true;
   }
+  return false;
 };
 
 const loopValue = (ii, vFunc) => {
@@ -398,12 +402,11 @@ function selectorMove(multiple, direction) {
       fitAvailableColumn(this);
     }
   } else if (direction === 'right') {
-    if (eci !== ci) ci = eci;
+    if (eci !== ci && !multiple) ci = eci;
     if (ci < cols.len - 1) {
       ci += 1;
     } else if (ci === cols.len - 1) {
-      extendColumn(this);
-      ci += 1;
+      if (extendColumn(this)) ci += 1;
     }
   } else if (direction === 'up') {
     if (ri > 0) ri -= 1;
@@ -411,12 +414,11 @@ function selectorMove(multiple, direction) {
       fitAvailableRow(this);
     }
   } else if (direction === 'down') {
-    if (eri !== ri) ri = eri;
+    if (eri !== ri && !multiple) ri = eri;
     if (ri < rows.len - 1) {
       ri += 1;
     } else if (ri === rows.len - 1) {
-      extendRow(this);
-      ri += 1;
+      if (extendRow(this)) ri += 1;
     }
   } else if (direction === 'row-first') {
     ci = 0;

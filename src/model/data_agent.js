@@ -213,7 +213,7 @@ function setStyleBorders({ mode, style, color }) {
     }
   }
   // clear neighbor
-  if (mode === 'all' || mode === 'outside') {
+  if (mode === 'all' || mode === 'outside' || mode === 'none') {
     for (let i = sri; i <= eri; i += 1) {
       clearNeighborStyleBorder.call(this, 'left', i, sci);
       clearNeighborStyleBorder.call(this, 'right', i, eci);

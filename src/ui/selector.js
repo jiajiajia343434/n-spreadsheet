@@ -208,8 +208,9 @@ export default class Selector {
     };
     this.br.el.show();
     this.offset = null;
-    this.areaOffset = null;
+    // this.areaOffset = null;
     this.indexes = null;
+    this.moveIndexes = null;
     this.range = null;
     this.arange = null;
     this.el = h('div', `${cssPrefix}-selectors`)
@@ -314,7 +315,7 @@ export default class Selector {
       }
     }
 
-    this.moveIndexes = [sri, sci];
+    this.moveIndexes = [ri, ci];
     // this.sIndexes = sIndexes;
     // this.eIndexes = eIndexes;
     cellRange.mode = mode;
@@ -332,15 +333,17 @@ export default class Selector {
     }
     this.comment.hide();
     this.range = data.calSelectedRangeByEnd(ri, ci);
-    this.range.mode = mode;
+    if (mode) {
+      this.range.mode = mode;
+    }
     setAllAreaOffset.call(this, this.data.getSelectedRect());
     return true;
   }
 
   reset() {
     // console.log('::::', this.data);
-    const { eri, eci } = this.data.selector.range;
-    this.set(eri, eci, true, 'range');
+    const { sri, sci, eri, eci } = this.data.selector.range;
+    this.set(sri, sci, true, 'range');
     this.setEnd(eri, eci);
   }
 
