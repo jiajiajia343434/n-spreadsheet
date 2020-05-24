@@ -14,11 +14,11 @@ const tableGridStyle = {
   strokeStyle: '#d3d3d3',
 };
 
-function tableFixedHeaderStyle() {
+function tableFixedHeaderStyle(scale) {
   return {
     textAlign: 'center',
     textBaseline: 'middle',
-    font: `500 ${npx(12)}px Source Sans Pro`,
+    font: `500 ${scale * npx(12)}px Source Sans Pro`,
     fillStyle: '#585757',
     lineWidth: thinLineWidth(),
     strokeStyle: '#e6e6e6',
@@ -63,7 +63,7 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
   if ('editable' in cell && cell.editable === false) {
     frozen = true;
   }
-  const comment = cell.comment;
+  const { comment } = cell;
 
   const style = data.getCellStyleOrDefault(nrindex, cindex);
   const dbox = getDrawBox(data, rindex, cindex, yoffset);
@@ -202,7 +202,7 @@ function renderFixedHeaders(type, viewRange, w, h, tx, ty) {
   // console.log(data.selectIndexes);
   // draw text
   // text font, align...
-  draw.attr(tableFixedHeaderStyle());
+  draw.attr(tableFixedHeaderStyle(data.scale));
   // y-header-text
   if (type === 'all' || type === 'left') {
     data.rowEach(viewRange.sri, viewRange.eri, (i, y1, rowHeight) => {
@@ -258,7 +258,6 @@ function renderFixedLeftTopCell(fw, fh) {
 function renderContentGrid({ sri, sci, eri, eci, w, h }, fw, fh, tx, ty) {
   const { draw, data } = this;
   const { settings } = data;
-
   draw.save();
   draw.attr(tableGridStyle)
     .translate(fw + tx, fh + ty);
@@ -285,8 +284,8 @@ function renderContentGrid({ sri, sci, eri, eci, w, h }, fw, fh, tx, ty) {
 
 function renderFreezeHighlightLine(fw, fh, ftw, fth) {
   const { draw, data } = this;
-  const twidth = data.viewWidth() - fw;
-  const theight = data.viewHeight() - fh;
+  const twidth = data.viewWidth() / data.scale - fw;
+  const theight = data.viewHeight() / data.scale - fh;
   draw.save()
     .translate(fw, fh)
     .attr({ strokeStyle: 'rgba(75, 137, 255, .6)' });
@@ -297,8 +296,8 @@ function renderFreezeHighlightLine(fw, fh, ftw, fth) {
 
 function renderFreezeMask(fw, fh, ftw, fth) {
   const { draw, data } = this;
-  const twidth = data.viewWidth() - fw;
-  const theight = data.viewHeight() - fh;
+  const twidth = data.viewWidth() / data.scale - fw;
+  const theight = data.viewHeight() / data.scale - fh;
   draw.save();
   draw.attr({ fillStyle: 'rgba(75, 137, 255, .2)' });
   // cross
@@ -314,8 +313,8 @@ function renderFreezeMask(fw, fh, ftw, fth) {
 class Table {
   constructor(el, data) {
     this.el = el;
-    this.draw = new Draw(el, data.viewWidth(), data.viewHeight());
     this.data = data;
+    this.draw = new Draw(el, data.viewWidth(), data.viewHeight(), () => this.data.scale);
   }
 
   resetData(data) {
@@ -326,7 +325,7 @@ class Table {
   render() {
     // resize canvas
     const { data } = this;
-    const { rows, cols } = data;
+    const { rows, cols, scale } = data;
     // fixed width of header
     const fw = cols.indexWidth;
     // fixed height of header
@@ -339,7 +338,9 @@ class Table {
     // renderAll.call(this, viewRange, data.scroll);
     const tx = data.freezeTotalWidth();
     const ty = data.freezeTotalHeight();
-    const { x, y } = data.scroll;
+    let { x, y } = data.scroll;
+    x /= scale;
+    y /= scale;
     // 1
     renderContentGrid.call(this, viewRange, fw, fh, tx, ty);
     renderContent.call(this, viewRange, fw, fh, -x, -y);

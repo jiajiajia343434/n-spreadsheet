@@ -342,10 +342,10 @@ function setStyleBorders({ mode, style, color }) {
 }
 
 function getCellRowByY(y, scrollOffsety) {
-  const { rows } = this;
+  const { rows, scale } = this;
   const fsh = this.freezeTotalHeight();
   // console.log('y:', y, ', fsh:', fsh);
-  let inits = rows.height;
+  let inits = rows.height * scale;
   if (fsh + rows.height < y) inits -= scrollOffsety;
 
   // handle ri in autofilter
@@ -357,7 +357,7 @@ function getCellRowByY(y, scrollOffsety) {
   for (; ri < rows.len; ri += 1) {
     if (top > y) break;
     if (!frset.has(ri)) {
-      height = rows.getHeight(ri);
+      height = rows.getHeight(ri) * scale;
       top += height;
     }
   }
@@ -372,9 +372,9 @@ function getCellRowByY(y, scrollOffsety) {
 }
 
 function getCellColByX(x, scrollOffsetx) {
-  const { cols } = this;
+  const { cols, scale } = this;
   const fsw = this.freezeTotalWidth();
-  let inits = cols.indexWidth;
+  let inits = cols.indexWidth * scale;
   if (fsw + cols.indexWidth < x) inits -= scrollOffsetx;
   const [ci, left, width] = helper.rangeReduceIf(
     0,
@@ -382,7 +382,7 @@ function getCellColByX(x, scrollOffsetx) {
     inits,
     cols.indexWidth,
     x,
-    i => cols.getWidth(i),
+    i => cols.getWidth(i) * scale,
   );
   if (left <= 0) {
     return { ci: -1, left: 0, width: cols.indexWidth };
@@ -435,6 +435,7 @@ export default class DataAgent {
     this.validations = new Validations();
     this.hyperlinks = {};
     this.comments = {};
+    this.scale = 1;
     // save data end
 
     // don't save object
@@ -745,7 +746,7 @@ export default class DataAgent {
 
   getRect(cellRange) {
     const {
-      scroll, rows, cols, exceptRowSet,
+      scroll, rows, cols, exceptRowSet, scale,
     } = this;
     const {
       sri, sci, eri, eci,
@@ -757,10 +758,10 @@ export default class DataAgent {
         left: 0, l: 0, top: 0, t: 0, scroll,
       };
     }
-    const left = cols.sumWidth(0, sci);
-    const top = rows.sumHeight(0, sri, exceptRowSet);
-    const height = rows.sumHeight(sri, eri + 1, exceptRowSet);
-    const width = cols.sumWidth(sci, eci + 1);
+    const left = cols.sumWidth(0, sci) * scale;
+    const top = rows.sumHeight(0, sri, exceptRowSet) * scale;
+    const height = rows.sumHeight(sri, eri + 1, exceptRowSet) * scale;
+    const width = cols.sumWidth(sci, eci + 1) * scale;
     // console.log('sri:', sri, ', sci:', sci, ', eri:', eri, ', eci:', eci);
     let left0 = left - scroll.x;
     let top0 = top - scroll.y;
@@ -993,11 +994,11 @@ export default class DataAgent {
   }
 
   scrollx(x, cb) {
-    const { scroll, freeze, cols } = this;
+    const { scroll, freeze, cols, scale } = this;
     const [, fci] = freeze;
     const [
       ci, left, width,
-    ] = helper.rangeReduceIf(fci, cols.len, 0, 0, x, i => cols.getWidth(i));
+    ] = helper.rangeReduceIf(fci, cols.len, 0, 0, x, i => cols.getWidth(i) * scale);
     // console.log('fci:', fci, ', ci:', ci);
     let x1 = left;
     if (x > 0) x1 += width;
@@ -1009,11 +1010,11 @@ export default class DataAgent {
   }
 
   scrolly(y, cb) {
-    const { scroll, freeze, rows } = this;
+    const { scroll, freeze, rows, scale } = this;
     const [fri] = freeze;
     const [
       ri, top, height,
-    ] = helper.rangeReduceIf(fri, rows.len, 0, 0, y, i => rows.getHeight(i));
+    ] = helper.rangeReduceIf(fri, rows.len, 0, 0, y, i => rows.getHeight(i) * scale);
     let y1 = top;
     if (y > 0) y1 += height;
     // console.log('ri:', ri, ' ,y:', y1);
@@ -1176,12 +1177,12 @@ export default class DataAgent {
   }
 
   exceptRowTotalHeight(sri, eri) {
-    const { exceptRowSet, rows } = this;
+    const { exceptRowSet, rows, scale } = this;
     const exceptRows = Array.from(exceptRowSet);
     let exceptRowTH = 0;
     exceptRows.forEach((ri) => {
       if (ri < sri || ri > eri) {
-        const height = rows.getHeight(ri);
+        const height = rows.getHeight(ri) * scale;
         exceptRowTH += height;
       }
     });
@@ -1190,7 +1191,7 @@ export default class DataAgent {
 
   viewRange() {
     const {
-      scroll, rows, cols, freeze, exceptRowSet,
+      scroll, rows, cols, freeze, exceptRowSet, scale,
     } = this;
     let { ri, ci } = scroll;
     if (ri <= 0) [ri] = freeze;
@@ -1203,12 +1204,12 @@ export default class DataAgent {
         y += rows.getHeight(i);
         eri = i;
       }
-      if (y > this.viewHeight()) break;
+      if (y > this.viewHeight() / scale) break;
     }
     for (let j = ci; j < cols.len; j += 1) {
       x += cols.getWidth(j);
       eci = j;
-      if (x > this.viewWidth()) break;
+      if (x > this.viewWidth() / scale) break;
     }
     // console.log(ri, ci, eri, eci, x, y);
     return new CellRange(ri, ci, eri, eci, x, y);
@@ -1246,7 +1247,7 @@ export default class DataAgent {
 
   rowEach(min, max, cb) {
     let y = 0;
-    const { rows } = this;
+    const { rows, scale } = this;
     const frset = this.exceptRowSet;
     const frary = [...frset];
     let offset = 0;
@@ -1256,6 +1257,7 @@ export default class DataAgent {
       }
     }
     // console.log('min:', min, ', max:', max, ', scroll:', scroll);
+    const viewHeight = this.viewHeight() / scale;
     for (let i = min + offset; i <= max + offset; i += 1) {
       if (frset.has(i)) {
         offset += 1;
@@ -1264,7 +1266,7 @@ export default class DataAgent {
         if (rowHeight > 0) {
           cb(i, y, rowHeight);
           y += rowHeight;
-          if (y > this.viewHeight()) break;
+          if (y > viewHeight) break;
         }
       }
     }
@@ -1272,13 +1274,14 @@ export default class DataAgent {
 
   colEach(min, max, cb) {
     let x = 0;
-    const { cols } = this;
+    const { cols, scale } = this;
+    const viewWidth = this.viewWidth() / scale;
     for (let i = min; i <= max; i += 1) {
       const colWidth = cols.getWidth(i);
       if (colWidth > 0) {
         cb(i, x, colWidth);
         x += colWidth;
-        if (x > this.viewWidth()) break;
+        if (x > viewWidth) break;
       }
     }
   }
@@ -1296,6 +1299,10 @@ export default class DataAgent {
     }
     styles.push(nstyle);
     return styles.length - 1;
+  }
+
+  setScale(scale) {
+    this.scale = scale;
   }
 
   changeData(cb) {

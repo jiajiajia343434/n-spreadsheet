@@ -29,10 +29,12 @@ class Spreadsheet {
         const d = this.addSheet();
         this.dataAgent = d;
         this.sheet.reset(d);
+        this.bottombar.setScale(this.dataAgent.scale);
         this.sheet.trigger('change', d, this.dataAgents);
       }
     }, (index) => {
       this.swapSheet(index);
+      this.bottombar.setScale(this.dataAgent.scale);
       this.sheet.trigger('change', this.dataAgent, this.dataAgents);
     }, () => {
       if (this.settings.privileges.editable && this.settings.privileges.sheetEdit) {
@@ -44,8 +46,25 @@ class Spreadsheet {
         this.dataAgents[index].name = value;
         this.sheet.trigger('change', this.dataAgent, this.dataAgents);
       }
-    }, this.settings.privileges);
+    }, () => {
+      const { scale } = this.dataAgent;
+      if (scale < 2) {
+        this.dataAgent.setScale(scale + 0.1);
+        this.sheet.reload();
+      }
+      return this.dataAgent.scale;
+    },
+    () => {
+      const { scale } = this.dataAgent;
+      if (scale > 0.55) {
+        this.dataAgent.setScale(scale - 0.1);
+        this.sheet.reload();
+      }
+      return this.dataAgent.scale;
+    },
+    this.settings.privileges);
     this.dataAgent = this.addSheet();
+    this.bottombar.setScale(this.dataAgent.scale);
     const rootEl = h('div', `${cssPrefix}`)
       .on('contextmenu', evt => evt.preventDefault());
     // create canvas element
@@ -57,7 +76,7 @@ class Spreadsheet {
   }
 
   addSheet(name, active = true) {
-    const n = name || `sheet${this.sheetIndex}`;
+    const n = name || `Sheet${this.sheetIndex}`;
     const d = new DataAgent(n, this.settings);
     d.change = () => {
       this.sheet.trigger('change', d, this.dataAgents);
@@ -70,12 +89,19 @@ class Spreadsheet {
   }
 
   deleteSheet() {
-    const [oldIndex, nindex] = this.bottombar.deleteItem();
-    if (oldIndex >= 0) {
-      this.dataAgents.splice(oldIndex, 1);
-      if (nindex >= 0) this.sheet.reset(this.dataAgents[nindex]);
+    const [deleted, pos] = this.bottombar.deleteItem();
+    if (deleted >= 0) {
+      this.dataAgents.splice(deleted, 1);
+      if (pos >= 0) {
+        const newIndex = deleted >= this.dataAgents.length - 1
+          ? this.dataAgents.length - 1
+          : deleted;
+        this.sheet.reset(
+          this.dataAgents[newIndex],
+        );
+        this.dataAgent = this.dataAgents[newIndex];
+      }
     }
-    this.dataAgent = this.dataAgents[nindex];
   }
 
   swapSheet(index) {
@@ -85,6 +111,7 @@ class Spreadsheet {
   }
 
   loadData(data) {
+    this.sheetIndex = 1; // 重新从1开始计数
     const ds = Array.isArray(data) ? data : [data];
     for (let i = 0; i < ds.length; i += 1) {
       const it = ds[i];

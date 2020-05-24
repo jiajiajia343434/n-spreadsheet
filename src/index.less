@@ -80,6 +80,21 @@
 .@{css-prefix}-sheet {
   position: relative;
   overflow: hidden;
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.12);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
 }
 
 .@{css-prefix}-table {
@@ -91,12 +106,14 @@
   position: absolute;
   padding: 10px;
   z-index: 9999;
+
   &.@{css-prefix}-comment-show {
     visibility: visible;
     background-color: white;
     box-shadow: 1px 2px 8px -4px #888888;
     transition: all 0.3s ease-out;
   }
+
   &.@{css-prefix}-comment-hide {
     visibility: hidden;
     background: none;
@@ -627,9 +644,9 @@
   }
 }
 
-.@{css-prefix}-toolbar, .@{css-prefix}-bottombar {
+.@{css-prefix}-toolbar, .@{css-prefix}-bottom-bar {
   height: 40px;
-  padding: 0 30px;
+  padding: 0 40px;
   text-align: left;
   background: #f5f6f7;
   display: flex;
@@ -650,58 +667,207 @@
   }
 }
 
-.@{css-prefix}-bottombar {
+.@{css-prefix}-bottom-bar {
   position: relative;
   border-top: 1px solid #e0e2e4;
+  display: flex;
+  flex-flow: row nowrap;
 
-  .@{css-prefix}-menu > li {
-    line-height: 40px;
+  .@{css-prefix}-bottom-list {
+    flex: auto;
+    display: flex;
+    flex-flow: row nowrap;
+    overflow: hidden;
     height: 40px;
-    padding-top: 0;
-    padding-bottom: 0;
-    vertical-align: middle;
-    border-right: 1px solid #e8eaed;
-  }
-}
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    scroll-behavior: smooth;
 
-.@{css-prefix}-menu {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  user-select: none;
-}
+    & > li {
+      line-height: 40px;
+      height: 40px;
+      padding: 0 1em;
+      vertical-align: middle;
+      border-right: 1px solid #e8eaed;
+      margin: 0;
+      text-align: left;
+      color: #80868b;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all .3s;
+      font-weight: bold;
 
-.@{css-prefix}-menu > li {
-  float: left;
-  line-height: 1.25em;
-  padding: .785em 1em;
-  margin: 0;
-  vertical-align: middle;
-  text-align: left;
-  color: #80868b;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: all .3s;
-  font-weight: bold;
+      &.active {
+        background-color: #fff;
+        color: rgba(0, 0, 0, .65);
+      }
 
-  &.active {
-    background-color: #fff;
-    color: rgba(0, 0, 0, .65);
-  }
+      .@{css-prefix}-icon {
+        margin: 0 6px;
 
-  .@{css-prefix}-icon {
-    margin: 0 6px;
+        .@{css-prefix}-icon-img {
+          &:hover {
+            opacity: .85;
+          }
+        }
+      }
 
-    .@{css-prefix}-icon-img {
-      &:hover {
-        opacity: .85;
+      .@{css-prefix}-dropdown {
+        display: inline-block;
       }
     }
   }
 
-  .@{css-prefix}-dropdown {
-    display: inline-block;
+  .@{css-prefix}-bottom-btn-group {
+    flex: none;
+    display: flex;
+    flex-flow: row nowrap;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-right: 4px;
+    vertical-align: middle;
+    border-right: 1px solid #e8eaed;
+
+    & > * {
+      padding: 0 4px;
+      cursor: pointer;
+      display: flex;
+      flex-flow: row nowrap;
+      width: 20px;
+      justify-content: center;
+      align-items: center;
+
+      &:hover {
+        background-color: #ffffff;
+      }
+    }
+
+    .@{css-prefix}-bottom-btn-infos {
+    }
+
+    .@{css-prefix}-bottom-btn-add {
+    }
+
+    .@{css-prefix}-bottom-btn-forward {
+      pointer-events: none;
+
+      & > span {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        border-width: 4px 6px 4px 0;
+        border-style: solid;
+        border-color: transparent #d4d4d4 transparent transparent;
+      }
+
+      &.active {
+        pointer-events: all;
+
+        & > span {
+          border-color: transparent #6d6d6d transparent transparent;
+        }
+      }
+    }
+
+    .@{css-prefix}-bottom-btn-backward {
+      pointer-events: none;
+
+      & > span {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        border-width: 4px 0 4px 6px;
+        border-style: solid;
+        border-color: transparent transparent transparent #d4d4d4;
+      }
+
+      &.active {
+        pointer-events: all;
+
+        & > span {
+          border-color: transparent transparent transparent #6d6d6d;
+        }
+      }
+    }
   }
+
+  .@{css-prefix}-bottom-zoom-group {
+    flex: none;
+    display: flex;
+    flex-flow: row nowrap;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-right: 4px;
+    vertical-align: middle;
+    border-left: 1px solid #e8eaed;
+
+    & > * {
+      padding: 0 8px;
+      cursor: pointer;
+      display: flex;
+      flex-flow: row nowrap;
+      width: 20px;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+
+      &:hover {
+        background-color: #ffffff;
+      }
+    }
+
+    .@{css-prefix}-bottom-zoomOut {
+      &::before {
+        content: '';
+        position: absolute;
+        top: calc(50% - 6px);
+        left: calc(50% - 6px);
+        width: 12px;
+        height: 2px;
+        background-color: #6d6d6d;
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        background-clip: padding-box;
+      }
+    }
+    .@{css-prefix}-bottom-scale {
+      margin: 0 4px;
+      cursor: auto;
+      &:hover {
+        background-color: transparent;
+      }
+    }
+
+    .@{css-prefix}-bottom-zoomIn {
+      &::before {
+        content: '';
+        position: absolute;
+        top: calc(50% - 6px);
+        left: calc(50% - 6px);
+        width: 12px;
+        height: 2px;
+        background-color: #6d6d6d;
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        background-clip: padding-box;
+      }
+      &::after {
+        content: '';
+        position: absolute;
+        top: calc(50% - 6px);
+        left: calc(50% - 6px);
+        width: 2px;
+        height: 12px;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        background-clip: padding-box;
+        background-color: #6d6d6d;
+      }
+    }
+  }
+
 }
 
 .@{css-prefix}-toolbar {
@@ -748,8 +914,8 @@
   border-right: 1px solid #e0e2e4;
   width: 0;
   vertical-align: middle;
-  height: 18px;
-  margin: 12px 3px 0;
+  height: 24px;
+  margin: 8px 8px 0;
 }
 
 .@{css-prefix}-print {

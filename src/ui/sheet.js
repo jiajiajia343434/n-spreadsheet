@@ -175,17 +175,19 @@ function overlayerMousemove(evt) {
 
 function verticalScrollbarSet() {
   const { data, verticalScrollbar } = this;
+  const { scale } = data;
   const { height } = this.getTableOffset();
   const erth = data.exceptRowTotalHeight(0, -1);
   // console.log('erth:', erth);
-  verticalScrollbar.set(height, data.rows.totalHeight() - erth);
+  verticalScrollbar.set(height, data.rows.totalHeight() * scale - erth);
 }
 
 function horizontalScrollbarSet() {
   const { data, horizontalScrollbar } = this;
+  const { scale } = data;
   const { width } = this.getTableOffset();
   if (data) {
-    horizontalScrollbar.set(width, data.cols.totalWidth());
+    horizontalScrollbar.set(width, data.cols.totalWidth() * scale);
   }
 }
 
@@ -236,7 +238,7 @@ const fitAvailableRow = (sheet, refresh = true) => {
     // eslint-disable-next-line no-unused-vars
     const [index, axiosY, height] = helper.rangeReduceIf(
       data.freeze[0], data.settings.extensible.maxRow - 1, data.freezeTotalHeight(), 0, vh,
-      i => data.rows.getHeight(i),
+      i => data.rows.getHeight(i) * data.scale,
     );
     const ix = index
       + Math.floor(sheet.data.settings.view.height() / sheet.data.settings.row.height / 2);
@@ -258,7 +260,7 @@ const fitAvailableColumn = (sheet, refresh = true) => {
     // eslint-disable-next-line no-unused-vars
     const [index, axiosX, width] = helper.rangeReduceIf(
       data.freeze[1], data.settings.extensible.maxCol - 1, data.freezeTotalWidth(), 0, vw,
-      i => data.cols.getWidth(i),
+      i => data.cols.getWidth(i) * data.scale,
     );
     const ix = index
       + Math.floor(sheet.data.settings.view.width() / sheet.data.settings.col.width / 2);
@@ -1264,13 +1266,13 @@ export default class Sheet {
   }
 
   getTableOffset() {
-    const { rows, cols } = this.data;
+    const { rows, cols, scale } = this.data;
     const { width, height } = this.getRect();
     return {
-      width: width - cols.indexWidth,
-      height: height - rows.height,
-      left: cols.indexWidth,
-      top: rows.height,
+      width: width - cols.indexWidth * scale,
+      height: height - rows.height * scale,
+      left: cols.indexWidth * scale,
+      top: rows.height * scale,
     };
   }
 }
