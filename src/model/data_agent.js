@@ -1307,6 +1307,7 @@ export default class DataAgent {
 
   setScale(scale) {
     this.scale = scale;
+    this.change(this);
   }
 
   changeData(cb) {
