@@ -49,16 +49,14 @@ class Spreadsheet {
     }, () => {
       const { scale } = this.dataAgent;
       if (scale < 2) {
-        this.dataAgent.setScale(scale + 0.1);
-        this.sheet.reload();
+        this.sheet.setScale(scale + 0.1);
       }
       return this.dataAgent.scale;
     },
     () => {
       const { scale } = this.dataAgent;
       if (scale > 0.55) {
-        this.dataAgent.setScale(scale - 0.1);
-        this.sheet.reload();
+        this.sheet.setScale(scale - 0.1);
       }
       return this.dataAgent.scale;
     },

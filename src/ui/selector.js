@@ -261,7 +261,7 @@ export default class Selector {
   }
 
   resetAreaOffset() {
-    // console.log('offset:', offset);
+    const { data } = this;
     const offset = this.data.getSelectedRect();
     const coffset = this.data.getClipboardRect();
     setAllAreaOffset.call(this, offset);

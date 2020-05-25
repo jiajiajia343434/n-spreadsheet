@@ -204,6 +204,38 @@ function sheetFreeze() {
   selector.resetAreaOffset();
 }
 
+function editorSetOffset() {
+  const { editor, data } = this;
+  const sOffset = data.getSelectedRect();
+  const tOffset = this.getTableOffset();
+  let sPosition = 'top';
+  // console.log('sOffset:', sOffset, ':', tOffset);
+  if (sOffset.top > tOffset.height / 2) {
+    sPosition = 'bottom';
+  }
+  editor.setOffset(sOffset, sPosition);
+}
+
+// eslint-disable-next-line no-unused-vars
+function verticalScrollbarMove(distance, evt) {
+  const { data, table, selector } = this;
+  data.scrolly(distance, () => {
+    selector.resetBRLAreaOffset();
+    editorSetOffset.call(this);
+    table.render();
+  });
+}
+
+// eslint-disable-next-line no-unused-vars
+function horizontalScrollbarMove(distance, evt) {
+  const { data, table, selector } = this;
+  data.scrollx(distance, () => {
+    selector.resetBRTAreaOffset();
+    editorSetOffset.call(this);
+    table.render();
+  });
+}
+
 function sheetReset() {
   const {
     tableEl,
@@ -229,7 +261,7 @@ function sheetReset() {
 }
 
 // 缩减行并匹配当前视窗
-const fitAvailableRow = (sheet, refresh = true) => {
+const fitAvailableRow = (sheet, shouldRefresh = true) => {
   if (sheet.data.settings.extensible.enableAll || sheet.data.settings.extensible.enableRow) {
     const { data, verticalScrollbar, selector, table } = sheet;
     const lr = data.rows.maxCell()[0] || 0;
@@ -243,7 +275,7 @@ const fitAvailableRow = (sheet, refresh = true) => {
     const ix = index
       + Math.floor(sheet.data.settings.view.height() / sheet.data.settings.row.height / 2);
     data.rows.len = Math.max(ix, lr, eri) + 1;
-    if (refresh) {
+    if (shouldRefresh) {
       verticalScrollbarSet.call(sheet);
       table.render();
     }
@@ -251,7 +283,7 @@ const fitAvailableRow = (sheet, refresh = true) => {
 };
 
 // 缩减列并匹配当前视窗
-const fitAvailableColumn = (sheet, refresh = true) => {
+const fitAvailableColumn = (sheet, shouldRefresh = true) => {
   if (sheet.data.settings.extensible.enableAll || sheet.data.settings.extensible.enableCol) {
     const { data, horizontalScrollbar, selector, table } = sheet;
     const lc = data.rows.maxCell()[1] || 0;
@@ -265,7 +297,7 @@ const fitAvailableColumn = (sheet, refresh = true) => {
     const ix = index
       + Math.floor(sheet.data.settings.view.width() / sheet.data.settings.col.width / 2);
     data.cols.len = Math.max(ix, lc, eci) + 1;
-    if (refresh) {
+    if (shouldRefresh) {
       horizontalScrollbarSet.call(sheet);
       table.render();
     }
@@ -566,18 +598,6 @@ function overlayerMousedown(evt) {
   }
 }
 
-function editorSetOffset() {
-  const { editor, data } = this;
-  const sOffset = data.getSelectedRect();
-  const tOffset = this.getTableOffset();
-  let sPosition = 'top';
-  // console.log('sOffset:', sOffset, ':', tOffset);
-  if (sOffset.top > tOffset.height / 2) {
-    sPosition = 'bottom';
-  }
-  editor.setOffset(sOffset, sPosition);
-}
-
 function editorSet() {
   const { editor, data, selector } = this;
   const { privileges } = data.settings;
@@ -600,26 +620,6 @@ function editorSet() {
   clearClipboard.call(this);
   selector.hide();
   return true;
-}
-
-// eslint-disable-next-line no-unused-vars
-function verticalScrollbarMove(distance, evt) {
-  const { data, table, selector } = this;
-  data.scrolly(distance, () => {
-    selector.resetBRLAreaOffset();
-    editorSetOffset.call(this);
-    table.render();
-  });
-}
-
-// eslint-disable-next-line no-unused-vars
-function horizontalScrollbarMove(distance, evt) {
-  const { data, table, selector } = this;
-  data.scrollx(distance, () => {
-    selector.resetBRTAreaOffset();
-    editorSetOffset.call(this);
-    table.render();
-  });
 }
 
 function rowResizerFinished(cRect, distance) {
@@ -1258,6 +1258,29 @@ export default class Sheet {
     fitAvailableRow(this, false);
     sheetReset.call(this);
     return this;
+  }
+
+  setScale(scale) {
+    const {
+      overlayerCEl,
+      table,
+      toolbar,
+      selector,
+      verticalScrollbar,
+      horizontalScrollbar,
+      data,
+    } = this;
+    data.setScale(scale);
+    const tOffset = this.getTableOffset();
+    overlayerCEl.offset(tOffset);
+    verticalScrollbarSet.call(this);
+    horizontalScrollbarSet.call(this);
+    verticalScrollbarMove.call(this, verticalScrollbar.scroll().top * data.scale);
+    horizontalScrollbarMove.call(this, horizontalScrollbar.scroll().left * data.scale);
+    sheetFreeze.call(this);
+    table.render();
+    toolbar.reset();
+    selector.reset();
   }
 
   getRect() {

@@ -346,7 +346,7 @@ function getCellRowByY(y, scrollOffsety) {
   const fsh = this.freezeTotalHeight();
   // console.log('y:', y, ', fsh:', fsh);
   let inits = rows.height * scale;
-  if (fsh + rows.height < y) inits -= scrollOffsety;
+  if (fsh + inits < y) inits -= scrollOffsety;
 
   // handle ri in autofilter
   const frset = this.exceptRowSet;
@@ -375,7 +375,7 @@ function getCellColByX(x, scrollOffsetx) {
   const { cols, scale } = this;
   const fsw = this.freezeTotalWidth();
   let inits = cols.indexWidth * scale;
-  if (fsw + cols.indexWidth < x) inits -= scrollOffsetx;
+  if (fsw + inits < x) inits -= scrollOffsetx;
   const [ci, left, width] = helper.rangeReduceIf(
     0,
     cols.len,
@@ -790,6 +790,7 @@ export default class DataAgent {
     } = this;
     let { ri, top, height } = getCellRowByY.call(this, y, scroll.y);
     let { ci, left, width } = getCellColByX.call(this, x, scroll.x);
+
     if (ci === -1) {
       width = cols.totalWidth();
     }
@@ -1130,11 +1131,11 @@ export default class DataAgent {
   }
 
   freezeTotalWidth() {
-    return this.cols.sumWidth(0, this.freeze[1]);
+    return this.cols.sumWidth(0, this.freeze[1]) * this.scale;
   }
 
   freezeTotalHeight() {
-    return this.rows.sumHeight(0, this.freeze[0]);
+    return this.rows.sumHeight(0, this.freeze[0]) * this.scale;
   }
 
   setRowHeight(ri, height) {
@@ -1165,7 +1166,10 @@ export default class DataAgent {
 
   freezeViewRange() {
     const [ri, ci] = this.freeze;
-    return new CellRange(0, 0, ri - 1, ci - 1, this.freezeTotalWidth(), this.freezeTotalHeight());
+    return new CellRange(0, 0, ri - 1, ci - 1,
+      this.freezeTotalWidth() / this.scale,
+      this.freezeTotalHeight() / this.scale,
+    );
   }
 
   contentRange() {

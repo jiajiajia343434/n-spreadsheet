@@ -10,9 +10,9 @@ function npx(px) {
   return parseInt(px * dpr(), 10);
 }
 
-function npxLine(px, scale = 1) {
-  return scale * npx(px) - 0.5;
-  // const n = this.scale() * npx(px);
+function npxLine(px) {
+  return npx(px) - 0.25;
+  // const n = npx(px);
   // return n > 0 ? n - 0.5 : 0.5;
 }
 
@@ -132,12 +132,11 @@ function drawFontLine(type, tx, ty, align, valign, blheight, blwidth) {
 }
 
 class Draw {
-  constructor(el, width, height, scale = () => 1) {
+  constructor(el, width, height) {
     this.el = el;
     this.ctx = el.getContext('2d');
     this.resize(width, height);
     this.ctx.scale(dpr(), dpr());
-    this.scale = scale;
   }
 
   resize(width, height) {
@@ -146,12 +145,6 @@ class Draw {
     this.el.style.height = `${height}px`;
     this.el.width = npx(width);
     this.el.height = npx(height);
-  }
-
-  clear() {
-    const { width, height } = this.el;
-    this.ctx.clearRect(0, 0, width, height);
-    return this;
   }
 
   attr(options) {
@@ -176,27 +169,27 @@ class Draw {
   }
 
   translate(x, y) {
-    this.ctx.translate(this.scale() * npx(x), this.scale() * npx(y));
+    this.ctx.translate(npx(x), npx(y));
     return this;
   }
 
   clearRect(x, y, w, h) {
-    this.ctx.clearRect(x, y, w, h);
+    this.ctx.clearRect(x, y, npx(w), npx(h));
     return this;
   }
 
   fillRect(x, y, w, h) {
     this.ctx.fillRect(
-      this.scale() * npx(x) - 0.5,
-      this.scale() * npx(y) - 0.5,
-      this.scale() * npx(w),
-      this.scale() * npx(h),
+      npx(x) - 0.5,
+      npx(y) - 0.5,
+      npx(w),
+      npx(h),
     );
     return this;
   }
 
   fillText(text, x, y) {
-    this.ctx.fillText(text, this.scale() * npx(x), this.scale() * npx(y));
+    this.ctx.fillText(text, npx(x), npx(y));
     return this;
   }
 
@@ -228,12 +221,12 @@ class Draw {
     this.attr({
       textAlign: align,
       textBaseline: valign,
-      font: `${font.italic ? 'italic' : ''} ${font.bold ? 'bold' : ''} ${this.scale() * npx(font.size)}px ${font.name}`,
+      font: `${font.italic ? 'italic' : ''} ${font.bold ? 'bold' : ''} ${npx(font.size)}px ${font.name}`,
       fillStyle: color,
       strokeStyle: color,
     });
     const txts = `${mtxt}`.split('\n');
-    const biw = this.scale() * npx(box.innerWidth());
+    const biw = npx(box.innerWidth());
     const ntxts = [];
     txts.forEach((it) => {
       // console.log(it, it.length, ctx.font, ctx.measureText(it).width, biw);
@@ -286,15 +279,15 @@ class Draw {
     ctx.strokeStyle = color || '#000';
     // console.log('style:', style);
     if (style === 'medium') {
-      ctx.lineWidth = this.scale() * npx(2) - 0.5;
+      ctx.lineWidth = npx(2) - 0.5;
     } else if (style === 'thick') {
-      ctx.lineWidth = this.scale() * npx(3);
+      ctx.lineWidth = npx(3);
     } else if (style === 'dashed') {
-      ctx.setLineDash([this.scale() * npx(3), this.scale() * npx(2)]);
+      ctx.setLineDash([npx(3), npx(2)]);
     } else if (style === 'dotted') {
-      ctx.setLineDash([this.scale() * npx(1), this.scale() * npx(1)]);
+      ctx.setLineDash([npx(1), npx(1)]);
     } else if (style === 'double') {
-      ctx.setLineDash([this.scale() * npx(2), 0]);
+      ctx.setLineDash([npx(2), 0]);
     }
     return this;
   }
@@ -304,10 +297,10 @@ class Draw {
     if (xys.length > 1) {
       const [x, y] = xys[0];
       ctx.beginPath();
-      ctx.moveTo(npxLine(x, this.scale()), npxLine(y, this.scale()));
+      ctx.moveTo(npxLine(x), npxLine(y));
       for (let i = 1; i < xys.length; i += 1) {
         const [x1, y1] = xys[i];
-        ctx.lineTo(npxLine(x1, this.scale()), npxLine(y1, this.scale()));
+        ctx.lineTo(npxLine(x1), npxLine(y1));
       }
       ctx.stroke();
     }
@@ -354,9 +347,9 @@ class Draw {
     const sy = y + height - 15;
     ctx.save();
     ctx.beginPath();
-    ctx.moveTo(this.scale() * npx(sx), this.scale() * npx(sy));
-    ctx.lineTo(this.scale() * npx(sx + 8), this.scale() * npx(sy));
-    ctx.lineTo(this.scale() * npx(sx + 4), this.scale() * npx(sy + 6));
+    ctx.moveTo(npx(sx), npx(sy));
+    ctx.lineTo(npx(sx + 8), npx(sy));
+    ctx.lineTo(npx(sx + 4), npx(sy + 6));
     ctx.closePath();
     ctx.fillStyle = 'rgba(0, 0, 0, .45)';
     ctx.fill();
@@ -369,9 +362,9 @@ class Draw {
     const sx = x + width - 1;
     ctx.save();
     ctx.beginPath();
-    ctx.moveTo(this.scale() * npx(sx - 8), this.scale() * npx(y - 1));
-    ctx.lineTo(this.scale() * npx(sx), this.scale() * npx(y - 1));
-    ctx.lineTo(this.scale() * npx(sx), this.scale() * npx(y + 8));
+    ctx.moveTo(npx(sx - 8), npx(y - 1));
+    ctx.lineTo(npx(sx), npx(y - 1));
+    ctx.lineTo(npx(sx), npx(y + 8));
     ctx.closePath();
     ctx.fillStyle = 'rgba(255, 0, 0, .65)';
     ctx.fill();
@@ -385,14 +378,14 @@ class Draw {
     const sy = y + height - 1;
     ctx.save();
     ctx.beginPath();
-    ctx.moveTo(this.scale() * npx(x + 2), this.scale() * npx(sy - 1));
+    ctx.moveTo(npx(x + 2), npx(sy - 1));
 
     for (let i = 0; i < width - 2; i += 2) {
       const fix = (i / 2) % 2;
-      ctx.lineTo(this.scale() * npx(x + 2 + i), this.scale() * npx(sy - 1 - fix * 2));
+      ctx.lineTo(npx(x + 2 + i), npx(sy - 1 - fix * 2));
     }
 
-    ctx.lineWidth = this.scale() * npx(1) - 0.5;
+    ctx.lineWidth = npx(1) - 0.5;
     ctx.strokeStyle = 'rgba(255, 0, 0, .65)';
     ctx.stroke();
     ctx.restore();
@@ -404,10 +397,10 @@ class Draw {
     ctx.save();
     ctx.fillStyle = 'rgba(193,193,193,0.2)';
     ctx.fillRect(
-      this.scale() * npx(x),
-      this.scale() * npx(y),
-      this.scale() * npx(width),
-      this.scale() * npx(height),
+      npx(x),
+      npx(y),
+      npx(width),
+      npx(height),
     );
     ctx.restore();
   }
@@ -421,9 +414,9 @@ class Draw {
     ctx.beginPath();
     ctx.fillStyle = bgcolor || '#fff';
     ctx.rect(
-      npxLine(x, this.scale()) + 0.5, npxLine(y, this.scale()) + 0.5,
-      this.scale() * npx(width) - 1,
-      this.scale() * npx(height) - 1,
+      npx(x), npx(y),
+      npx(width) - 1.5,
+      npx(height) - 1.5,
     );
     ctx.clip();
     ctx.fill();

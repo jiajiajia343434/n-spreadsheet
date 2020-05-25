@@ -14,11 +14,11 @@ const tableGridStyle = {
   strokeStyle: '#d3d3d3',
 };
 
-function tableFixedHeaderStyle(scale) {
+function tableFixedHeaderStyle() {
   return {
     textAlign: 'center',
     textBaseline: 'middle',
-    font: `500 ${scale * npx(12)}px Source Sans Pro`,
+    font: `500 ${npx(12)}px Source Sans Pro`,
     fillStyle: '#585757',
     lineWidth: thinLineWidth(),
     strokeStyle: '#e6e6e6',
@@ -202,7 +202,7 @@ function renderFixedHeaders(type, viewRange, w, h, tx, ty) {
   // console.log(data.selectIndexes);
   // draw text
   // text font, align...
-  draw.attr(tableFixedHeaderStyle(data.scale));
+  draw.attr(tableFixedHeaderStyle());
   // y-header-text
   if (type === 'all' || type === 'left') {
     data.rowEach(viewRange.sri, viewRange.eri, (i, y1, rowHeight) => {
@@ -314,7 +314,7 @@ class Table {
   constructor(el, data) {
     this.el = el;
     this.data = data;
-    this.draw = new Draw(el, data.viewWidth(), data.viewHeight(), () => this.data.scale);
+    this.draw = new Draw(el, data.viewWidth(), data.viewHeight());
   }
 
   resetData(data) {
@@ -331,16 +331,19 @@ class Table {
     // fixed height of header
     const fh = rows.height;
 
+    // resize and clear
     this.draw.resize(data.viewWidth(), data.viewHeight());
-    this.clear();
+
+    this.draw.ctx.scale(scale, scale);
 
     const viewRange = data.viewRange();
-    // renderAll.call(this, viewRange, data.scroll);
-    const tx = data.freezeTotalWidth();
-    const ty = data.freezeTotalHeight();
+    const tx = data.freezeTotalWidth() / scale;
+    const ty = data.freezeTotalHeight() / scale;
+
     let { x, y } = data.scroll;
     x /= scale;
     y /= scale;
+
     // 1
     renderContentGrid.call(this, viewRange, fw, fh, tx, ty);
     renderContent.call(this, viewRange, fw, fh, -x, -y);
@@ -377,10 +380,6 @@ class Table {
       renderFreezeHighlightLine.call(this, fw, fh, tx, ty);
       renderFreezeMask.call(this, fw, fh, tx, ty);
     }
-  }
-
-  clear() {
-    this.draw.clear();
   }
 }
 
