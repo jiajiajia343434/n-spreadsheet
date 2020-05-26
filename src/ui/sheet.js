@@ -817,13 +817,14 @@ function sheetInitEvents() {
   colResizer.unhideFn = (index) => {
     unhideRowsOrCols.call(this, 'col', index);
   };
-  // scrollbar move callback
+  // debounce wrapper fit available callback
   const debounceFitAvailableRow = debounce((sheet) => {
     fitAvailableRow(sheet);
   }, 500);
   const debounceFitAvailableColumn = debounce((sheet) => {
     fitAvailableColumn(sheet);
   }, 500);
+  // scrollbar move callback
   verticalScrollbar.moveFn = (distance, evt) => {
     verticalScrollbarMove.call(this, distance, evt);
     debounceFitAvailableRow(this);
@@ -1270,13 +1271,19 @@ export default class Sheet {
       horizontalScrollbar,
       data,
     } = this;
+    const prev = data.scale;
     data.setScale(scale);
     const tOffset = this.getTableOffset();
     overlayerCEl.offset(tOffset);
     verticalScrollbarSet.call(this);
     horizontalScrollbarSet.call(this);
-    verticalScrollbarMove.call(this, verticalScrollbar.scroll().top * data.scale);
-    horizontalScrollbarMove.call(this, horizontalScrollbar.scroll().left * data.scale);
+    // verticalScrollbarMove.call(this, verticalScrollbar.scroll().top * data.scale);
+    // horizontalScrollbarMove.call(this, horizontalScrollbar.scroll().left * data.scale);
+    // console.log(verticalScrollbar.scroll(), horizontalScrollbar.scroll(), data.scroll);
+    verticalScrollbar.el.el.scroll({ top: verticalScrollbar.scroll().top / prev * data.scale });
+    horizontalScrollbar.el.el.scroll(
+      { left: horizontalScrollbar.scroll().left / prev * data.scale },
+    );
     sheetFreeze.call(this);
     table.render();
     toolbar.reset();
