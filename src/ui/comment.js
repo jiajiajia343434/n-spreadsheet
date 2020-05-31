@@ -20,7 +20,12 @@ export default function comment() {
           t.css('font-size', `${font.size}px`);
           t.css('color', `${font.hexColor}`);
           t.css('font-family', `${font.name}`);
-          t.html(rich.text.replace('\r\n', '<br />'));
+          t.html(
+            rich.text
+              .replace(/\r\n/g, '<br />')
+              .replace(/\r/g, '<br />')
+              .replace(/\n/g, '<br />'),
+          );
           childs.push(t);
         });
         el.children(...childs);

@@ -329,6 +329,50 @@
 }
 
 /* scrollbar */
+.@{css-prefix}-scroll-y-wrapper {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 12;
+  width: 10px;
+  padding: 0 2px;
+
+  >.@{css-prefix}-scroll-y-block {
+    position: absolute;
+    right: 2px;
+    width: 8px;
+    background-color: #ababab;
+    filter: opacity(0.6);
+    border-radius: 5px;
+    &:hover,&:active {
+      width: 10px;
+      transition: width 0.18s ease-out;
+      background-color: #888888;
+    }
+  }
+}
+.@{css-prefix}-scroll-x-wrapper {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 12;
+  height: 10px;
+  padding: 2px 0;
+
+  >.@{css-prefix}-scroll-x-block {
+    position: absolute;
+    bottom: 2px;
+    height: 8px;
+    background-color: #ababab;
+    filter: opacity(0.6);
+    border-radius: 5px;
+    &:hover,&:active{
+      height: 10px;
+      transition: height 0.18s ease-out;
+      background-color: #888888;
+    }
+  }
+}
 .@{css-prefix}-scrollbar {
   position: absolute;
   bottom: 0;
@@ -360,7 +404,7 @@
   }
 
   &:hover {
-    // opacity: .85;
+     opacity: .5;
   }
 }
 
@@ -412,7 +456,7 @@
     border: 2px solid rgb(75, 137, 255);
     background: rgba(75, 137, 255, .1);
     z-index: 5;
-    transition: all .05s;
+    transition: all .05s cubic-bezier(.75,.3,.25,.7);
   }
 
   .@{css-prefix}-selector-clipboard, .@{css-prefix}-selector-autofill {

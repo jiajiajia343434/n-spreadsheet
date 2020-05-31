@@ -2,7 +2,7 @@
 import { h } from './element';
 import { bind, bindTouch, mouseMoveUp } from './event';
 import Resizer from './resizer';
-import Scrollbar from './scrollbar';
+import Scrollbar from './scroll';
 import Selector from './selector';
 import Editor from './editor';
 import Print from './print';
@@ -65,20 +65,20 @@ function scrollbarFitSelector() {
   const tableOffset = this.getTableOffset();
   // console.log(',l:', l, ', left:', left, ', tOffset.left:', tableOffset.width);
   if (Math.abs(left) + width > tableOffset.width) {
-    horizontalScrollbar.move({ left: l + width - tableOffset.width });
+    horizontalScrollbar.moveTo(l + width - tableOffset.width);
   } else {
     const fsw = data.freezeTotalWidth();
     if (left < fsw) {
-      horizontalScrollbar.move({ left: l - 1 - fsw });
+      horizontalScrollbar.moveTo(l - 1 - fsw);
     }
   }
   // console.log('top:', top, ', height:', height, ', tof.height:', tableOffset.height);
   if (Math.abs(top) + height > tableOffset.height) {
-    verticalScrollbar.move({ top: t + height - tableOffset.height - 1 });
+    verticalScrollbar.moveTo(t + height - tableOffset.height - 1);
   } else {
     const fsh = data.freezeTotalHeight();
     if (top < fsh) {
-      verticalScrollbar.move({ top: t - 1 - fsh });
+      verticalScrollbar.moveTo(t - 1 - fsh);
     }
   }
 }
@@ -179,7 +179,7 @@ function verticalScrollbarSet() {
   const { height } = this.getTableOffset();
   const erth = data.exceptRowTotalHeight(0, -1);
   // console.log('erth:', erth);
-  verticalScrollbar.set(height, data.rows.totalHeight() * scale - erth);
+  verticalScrollbar.setLength(height, data.rows.totalHeight() * scale - erth);
 }
 
 function horizontalScrollbarSet() {
@@ -187,7 +187,7 @@ function horizontalScrollbarSet() {
   const { scale } = data;
   const { width } = this.getTableOffset();
   if (data) {
-    horizontalScrollbar.set(width, data.cols.totalWidth() * scale);
+    horizontalScrollbar.setLength(width, data.cols.totalWidth() * scale);
   }
 }
 
@@ -266,7 +266,7 @@ const fitAvailableRow = (sheet, shouldRefresh = true) => {
     const { data, verticalScrollbar, selector, table } = sheet;
     const lr = data.rows.maxCell()[0] || 0;
     const { eri } = selector.range;
-    const vh = verticalScrollbar.el.el.clientHeight + verticalScrollbar.scroll().top;
+    const vh = verticalScrollbar.el.el.clientHeight + verticalScrollbar.offset();
     // eslint-disable-next-line no-unused-vars
     const [index, axiosY, height] = helper.rangeReduceIf(
       data.freeze[0], data.settings.extensible.maxRow - 1, data.freezeTotalHeight(), 0, vh,
@@ -288,7 +288,7 @@ const fitAvailableColumn = (sheet, shouldRefresh = true) => {
     const { data, horizontalScrollbar, selector, table } = sheet;
     const lc = data.rows.maxCell()[1] || 0;
     const { eci } = selector.range;
-    const vw = horizontalScrollbar.el.el.clientWidth + horizontalScrollbar.scroll().left;
+    const vw = horizontalScrollbar.el.el.clientWidth + horizontalScrollbar.offset();
     // eslint-disable-next-line no-unused-vars
     const [index, axiosX, width] = helper.rangeReduceIf(
       data.freeze[1], data.settings.extensible.maxCol - 1, data.freezeTotalWidth(), 0, vw,
@@ -340,14 +340,14 @@ const moveX = throttle((horizontal, data, cols, horizontalScrollbar, left) => {
     const ci = data.scroll.ci + 1;
     if (ci < cols.len) {
       const cw = loopValue(ci, i => cols.getWidth(i));
-      horizontalScrollbar.move({ left: left + cw - 1 });
+      horizontalScrollbar.moveTo(left + cw - 1);
     }
   } else {
     // right
     const ci = data.scroll.ci - 1;
     if (ci >= 0) {
       const cw = loopValue(ci, i => cols.getWidth(i));
-      horizontalScrollbar.move({ left: ci === 0 ? 0 : left - cw });
+      horizontalScrollbar.moveTo(ci === 0 ? 0 : left - cw);
     }
   }
 }, 30);
@@ -358,28 +358,30 @@ const moveY = throttle((vertical, data, rows, verticalScrollbar, top) => {
     const ri = data.scroll.ri + 1;
     if (ri < rows.len) {
       const rh = loopValue(ri, i => rows.getHeight(i));
-      verticalScrollbar.move({ top: top + rh - 1 });
+      verticalScrollbar.moveTo(top + rh - 1);
     }
   } else {
     // down
     const ri = data.scroll.ri - 1;
     if (ri >= 0) {
       const rh = loopValue(ri, i => rows.getHeight(i));
-      verticalScrollbar.move({ top: ri === 0 ? 0 : top - rh });
+      verticalScrollbar.moveTo(ri === 0 ? 0 : top - rh);
     }
   }
 }, 30);
 
 function overlayerMousescroll(evt) {
   const { verticalScrollbar, horizontalScrollbar, data } = this;
-  const { top } = verticalScrollbar.scroll();
-  const { left } = horizontalScrollbar.scroll();
+  const top = verticalScrollbar.offset();
+  const left = horizontalScrollbar.offset();
 
   // console.log('evt:::', evt.wheelDelta, evt.detail * 40);
   const { rows, cols } = data;
 
   // deltaY for vertical delta
   const { deltaY, deltaX } = evt;
+  // deltaY *= 5;
+  // deltaX *= 5;
 
   if (verticalScrollbar.isBottomOrRight() && deltaY > 0) {
     extendRow(this);
@@ -407,13 +409,13 @@ function overlayerMousescroll(evt) {
 
 function overlayerTouch(direction, distance) {
   const { verticalScrollbar, horizontalScrollbar } = this;
-  const { top } = verticalScrollbar.scroll();
-  const { left } = horizontalScrollbar.scroll();
+  const top = verticalScrollbar.offset();
+  const left = horizontalScrollbar.offset();
 
   if (direction === 'left' || direction === 'right') {
-    horizontalScrollbar.move({ left: left - distance });
+    horizontalScrollbar.moveTo(left - distance);
   } else if (direction === 'up' || direction === 'down') {
-    verticalScrollbar.move({ top: top - distance });
+    verticalScrollbar.moveTo(top - distance);
   }
 }
 
@@ -425,12 +427,13 @@ function selectorMove(multiple, direction) {
   } = this;
   const { rows, cols } = data;
   let [ri, ci] = selector.indexes;
-  const { eri, eci } = selector.range;
+  const { sri, sci, eri, eci } = selector.range;
   if (multiple) {
     [ri, ci] = selector.moveIndexes;
   }
   // console.log('selector.move:', ri, ci);
   if (direction === 'left') {
+    if (sci !== ci && !multiple) ci = sci;
     if (ci > 0) ci -= 1;
     if (ci < data.scroll.ci) {
       fitAvailableColumn(this);
@@ -443,6 +446,7 @@ function selectorMove(multiple, direction) {
       if (extendColumn(this)) ci += 1;
     }
   } else if (direction === 'up') {
+    if (sri !== ri && !multiple) ri = sri;
     if (ri > 0) ri -= 1;
     if (ri < data.scroll.ri) {
       fitAvailableRow(this);
@@ -825,12 +829,12 @@ function sheetInitEvents() {
     fitAvailableColumn(sheet);
   }, 500);
   // scrollbar move callback
-  verticalScrollbar.moveFn = (distance, evt) => {
-    verticalScrollbarMove.call(this, distance, evt);
+  verticalScrollbar.onscroll = (distance) => {
+    verticalScrollbarMove.call(this, distance);
     debounceFitAvailableRow(this);
   };
-  horizontalScrollbar.moveFn = (distance, evt) => {
-    horizontalScrollbarMove.call(this, distance, evt);
+  horizontalScrollbar.onscroll = (distance) => {
+    horizontalScrollbarMove.call(this, distance);
     debounceFitAvailableColumn(this);
   };
   // editor
@@ -1277,13 +1281,8 @@ export default class Sheet {
     overlayerCEl.offset(tOffset);
     verticalScrollbarSet.call(this);
     horizontalScrollbarSet.call(this);
-    // verticalScrollbarMove.call(this, verticalScrollbar.scroll().top * data.scale);
-    // horizontalScrollbarMove.call(this, horizontalScrollbar.scroll().left * data.scale);
-    // console.log(verticalScrollbar.scroll(), horizontalScrollbar.scroll(), data.scroll);
-    verticalScrollbar.el.el.scroll({ top: verticalScrollbar.scroll().top / prev * data.scale });
-    horizontalScrollbar.el.el.scroll(
-      { left: horizontalScrollbar.scroll().left / prev * data.scale },
-    );
+    verticalScrollbar.moveTo(verticalScrollbar.offset() / prev * data.scale);
+    horizontalScrollbar.moveTo(horizontalScrollbar.offset() / prev * data.scale);
     sheetFreeze.call(this);
     table.render();
     toolbar.reset();

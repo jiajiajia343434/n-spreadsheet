@@ -123,3 +123,9 @@
 1. 使缩放触发onchange回调
 2. 修复FireFox不能滚动页面的bug
 3. 临时性优化缩放后单元格位置，下个版本准备重写scrollbar
+
+0.0.23
+---
+1. 重写scrollbar
+2. 修复comment换行问题
+3. 修复其他一些小问题
