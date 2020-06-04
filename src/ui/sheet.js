@@ -629,8 +629,9 @@ function editorSet() {
 function rowResizerFinished(cRect, distance) {
   const { ri } = cRect;
   const { table, selector, data, toolbar } = this;
+  const { scale } = data;
   data.changeData(() => {
-    data.rows.setHeight(ri, distance);
+    data.rows.setHeight(ri, Math.floor(distance / scale));
   });
   table.render();
   toolbar.reset();
@@ -642,8 +643,9 @@ function rowResizerFinished(cRect, distance) {
 function colResizerFinished(cRect, distance) {
   const { ci } = cRect;
   const { table, selector, data, toolbar } = this;
+  const { scale } = data;
   data.changeData(() => {
-    data.cols.setWidth(ci, distance);
+    data.cols.setWidth(ci, Math.floor(distance / scale));
   });
   table.render();
   toolbar.reset();
@@ -1170,8 +1172,8 @@ export default class Sheet {
     // table
     this.tableEl = h('canvas', `${cssPrefix}-table`);
     // resizer
-    this.rowResizer = new Resizer(false, data.rows.minHeight);
-    this.colResizer = new Resizer(true, data.cols.minWidth);
+    this.rowResizer = new Resizer(false, data.rows.minHeight, size => this.data.scale * size);
+    this.colResizer = new Resizer(true, data.cols.minWidth, size => this.data.scale * size);
     // scrollbar
     this.verticalScrollbar = new Scrollbar(true);
     this.horizontalScrollbar = new Scrollbar(false);

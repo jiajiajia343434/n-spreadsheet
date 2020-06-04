@@ -4,8 +4,9 @@ import { mouseMoveUp } from './event';
 import { cssPrefix } from '../config';
 
 export default class Resizer {
-  constructor(vertical = false, minDistance) {
+  constructor(vertical = false, minDistance, scaleFn = size => size) {
     this.moving = false;
+    this.scaleFn = scaleFn;
     this.vertical = vertical;
     this.el = h('div', `${cssPrefix}-resizer ${vertical ? 'vertical' : 'horizontal'}`).children(
       this.unhideHoverEl = h('div', `${cssPrefix}-resizer-hover`)
@@ -39,7 +40,7 @@ export default class Resizer {
   // line : {width, height}
   show(rect, line) {
     const {
-      moving, vertical, hoverEl, lineEl, el, unhideHoverEl,
+      moving, vertical, hoverEl, lineEl, el, unhideHoverEl, scaleFn,
     } = this;
     if (moving) return;
     this.cRect = rect;
@@ -47,22 +48,22 @@ export default class Resizer {
       left, top, width, height,
     } = rect;
     el.offset({
-      left: vertical ? left + width - 5 : left,
-      top: vertical ? top : top + height - 5,
+      left: vertical ? left + width - scaleFn(5) : 0,
+      top: vertical ? 0 : top + height - scaleFn(5),
     }).show();
     hoverEl.offset({
-      width: vertical ? 5 : width,
-      height: vertical ? height : 5,
+      width: vertical ? scaleFn(5) : scaleFn(width),
+      height: vertical ? scaleFn(height) : scaleFn(5),
     });
     lineEl.offset({
       width: vertical ? 0 : line.width,
       height: vertical ? line.height : 0,
     });
     unhideHoverEl.offset({
-      left: vertical ? 5 - width : left,
-      top: vertical ? top : 5 - height,
-      width: vertical ? 5 : width,
-      height: vertical ? height : 5,
+      left: vertical ? scaleFn(5 - width) : left,
+      top: vertical ? top : scaleFn(5 - height),
+      width: vertical ? scaleFn(5) : scaleFn(width),
+      height: vertical ? scaleFn(height) : scaleFn(5),
     });
   }
 
@@ -91,13 +92,13 @@ export default class Resizer {
       } else {
         this.dbClickCallback(this.cRect.ri);
       }
-      // this.hide();
+      this.hide();
       this.clickCount = 0;
       return;
     }
     let startEvt = evt;
     const {
-      el, lineEl, cRect, vertical, minDistance,
+      el, lineEl, cRect, vertical, minDistance, scaleFn,
     } = this;
     let distance = vertical ? cRect.width : cRect.height;
     // console.log('distance:', distance);
@@ -109,12 +110,12 @@ export default class Resizer {
         if (vertical) {
           distance += e.movementX;
           if (distance > minDistance) {
-            el.css('left', `${cRect.left + distance}px`);
+            el.css('left', `${cRect.left + distance - scaleFn(5)}px`);
           }
         } else {
           distance += e.movementY;
           if (distance > minDistance) {
-            el.css('top', `${cRect.top + distance}px`);
+            el.css('top', `${cRect.top + distance - scaleFn(5)}px`);
           }
         }
         startEvt = e;
