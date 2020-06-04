@@ -690,26 +690,30 @@ export default class DataAgent {
     const { autoFilter, selector, rows } = this;
     const { ri, ci } = selector;
     // check privileges
-    if (!checkPrivileges.call(this, 'text')) return;
-    let nri = ri;
-    if (this.unsortedRowMap.has(ri)) {
-      nri = this.unsortedRowMap.get(ri);
-    }
-    const oldCell = rows.getCell(nri, ci);
-    const oldText = oldCell ? oldCell.text : '';
-    this.setCellText(nri, ci, text);
-    // replace filter.value
-    if (autoFilter.active()) {
-      const filter = autoFilter.getFilter(ci);
-      if (filter) {
-        const vIndex = filter.value.findIndex(v => v === oldText);
-        if (vIndex >= 0) {
-          filter.value.splice(vIndex, 1, text);
-        }
-        // console.log('filter:', filter, oldCell);
+    if (text === '') {
+      this.deleteCell('text');
+    } else {
+      if (!checkPrivileges.call(this, 'text')) return;
+      let nri = ri;
+      if (this.unsortedRowMap.has(ri)) {
+        nri = this.unsortedRowMap.get(ri);
       }
+      const oldCell = rows.getCell(nri, ci);
+      const oldText = oldCell ? oldCell.text : '';
+      this.setCellText(nri, ci, text);
+      // replace filter.value
+      if (autoFilter.active()) {
+        const filter = autoFilter.getFilter(ci);
+        if (filter) {
+          const vIndex = filter.value.findIndex(v => v === oldText);
+          if (vIndex >= 0) {
+            filter.value.splice(vIndex, 1, text);
+          }
+          // console.log('filter:', filter, oldCell);
+        }
+      }
+      // this.resetAutoFilter();
     }
-    // this.resetAutoFilter();
   }
 
   getSelectedCell() {

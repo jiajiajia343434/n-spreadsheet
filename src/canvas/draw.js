@@ -139,6 +139,10 @@ class Draw {
     this.ctx.scale(dpr(), dpr());
   }
 
+  npx(px) {
+    return npx(px);
+  }
+
   resize(width, height) {
     // console.log('dpr:', dpr);
     this.el.style.width = `${width}px`;

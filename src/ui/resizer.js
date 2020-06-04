@@ -15,11 +15,15 @@ export default class Resizer {
         .on('mousedown.stop', evt => this.mousedownHandler(evt)),
       this.lineEl = h('div', `${cssPrefix}-resizer-line`).hide(),
     ).hide();
+    this.clickCount = 0;
     // cell rect
     this.cRect = null;
     this.finishedFn = null;
     this.minDistance = minDistance;
-    this.unhideFn = () => {};
+    this.dbClickCallback = () => {
+    };
+    this.unHideFn = () => {
+    };
   }
 
   showUnhide(index) {
@@ -71,10 +75,26 @@ export default class Resizer {
   }
 
   mousedblclickHandler() {
-    if (this.unhideIndex) this.unhideFn(this.unhideIndex);
+    if (this.unhideIndex) {
+      this.unHideFn(this.unhideIndex);
+    }
   }
 
   mousedownHandler(evt) {
+    this.clickCount += 1;
+    setTimeout(() => {
+      this.clickCount = 0;
+    }, 200);
+    if (this.clickCount >= 2) {
+      if (this.vertical) {
+        this.dbClickCallback(this.cRect.ci);
+      } else {
+        this.dbClickCallback(this.cRect.ri);
+      }
+      // this.hide();
+      this.clickCount = 0;
+      return;
+    }
     let startEvt = evt;
     const {
       el, lineEl, cRect, vertical, minDistance,
@@ -103,7 +123,6 @@ export default class Resizer {
       startEvt = null;
       lineEl.hide();
       this.moving = false;
-      this.hide();
       if (this.finishedFn) {
         if (distance < minDistance) distance = minDistance;
         this.finishedFn(cRect, distance);

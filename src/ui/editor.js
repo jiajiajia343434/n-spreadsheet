@@ -185,10 +185,7 @@ export default class Editor {
   }
 
   restore() {
-    // const { cell } = this;
-    // const cellText = (cell && cell.text) || '';
-    if (this.inputText !== '') {
-      // this.change('finished', this.inputText);
+    if (this.isEditing()) {
       this.change(this.inputText);
     }
     this.cell = null;

@@ -7,6 +7,9 @@ function setBlock() {
   if (l < 15) {
     l = 15;
   }
+  if (l > viewLength) {
+    l = viewLength;
+  }
   const y = scrollOffset * (viewLength - l) / scrollLength;
   block.css(wOrh, `${l}px`);
   block.css('transform', `${txOrty}(${y}px)`);

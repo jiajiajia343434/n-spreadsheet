@@ -815,11 +815,19 @@ function sheetInitEvents() {
     colResizerFinished.call(this, cRect, distance);
   };
   // resizer unhide callback
-  rowResizer.unhideFn = (index) => {
+  rowResizer.unHideFn = (index) => {
     unhideRowsOrCols.call(this, 'row', index);
   };
-  colResizer.unhideFn = (index) => {
+  colResizer.unHideFn = (index) => {
+    const { table } = this;
     unhideRowsOrCols.call(this, 'col', index);
+    table.calFitColWidth(index);
+    this.reload();
+  };
+  colResizer.dbClickCallback = (index) => {
+    const { table } = this;
+    table.calFitColWidth(index);
+    this.reload();
   };
   // debounce wrapper fit available callback
   const debounceFitAvailableRow = debounce((sheet) => {

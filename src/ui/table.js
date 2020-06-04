@@ -322,6 +322,48 @@ class Table {
     this.render();
   }
 
+  calFitColWidth(colIdx) {
+    const { rows } = this.data;
+    let maxWidth = 0;
+    rows.each((ri, row) => {
+      if (row.cells && row.cells[colIdx] && typeof row.cells[colIdx].merge === 'undefined') {
+        const cell = row.cells[colIdx];
+        if (cell.text) {
+          let { size, name } = this.data.settings.style.font;
+          if (Number.isInteger(cell.style)) {
+            const style = this.data.styles[cell.style];
+            if (style.font) {
+              if (style.font.name) {
+                // eslint-disable-next-line prefer-destructuring
+                name = style.font.name;
+              }
+              if (style.font.size) {
+                // eslint-disable-next-line prefer-destructuring
+                size = style.font.size;
+              }
+            }
+          }
+          let width = 0;
+          cell.text.split('\n').forEach((line) => {
+            this.draw.ctx.save();
+            this.draw.ctx.font = `${getFontSizePxByPt(size)}px ${name}`;
+            const lineWidth = this.draw.ctx.measureText(line).width;
+            width = lineWidth > width ? lineWidth : width;
+            this.draw.ctx.restore();
+          });
+          // const nWidth = this.draw.npx(width);
+          const nWidth = width;
+          if (nWidth > maxWidth) {
+            maxWidth = nWidth;
+          }
+        }
+      }
+    });
+    if (maxWidth !== 0) {
+      this.data.cols.setWidth(colIdx, maxWidth + 10);
+    }
+  }
+
   render() {
     // resize canvas
     const { data } = this;
