@@ -501,17 +501,36 @@ function cut(evt) {
 }
 
 function paste(what, evt) {
-  // todo 粘贴格式
-  // Array.prototype.map.call(
-  //   evt.clipboardData.types, type => console.log(evt.clipboardData.getData(type)),
-  // );
   const { data } = this;
-  if (typeof evt === 'undefined' || evt.target.tagName !== 'TEXTAREA') {
+  if (evt) {
+    // todo 粘贴格式
+    // Array.prototype.map.call(
+    //   evt.clipboardData.types, (type) => {
+    //     if (type === 'text/html') {
+    //       const parser = new DOMParser();
+    //       const doc = parser.parseFromString(evt.clipboardData.getData(type), 'text/html');
+    //       if (doc.getElementsByTagName('html')[0]
+    //         && doc.getElementsByTagName('html')[0]
+    //           .getAttribute('xmlns:v').indexOf('excel') > -1) {
+    //
+    //       }
+    //     }
+    //     // console.log(type, evt.clipboardData.getData(type));
+    //   },
+    // );
+    Array.prototype.map.call(
+      evt.clipboardData.types, (type) => {
+        if (type === 'text/plain') {
+          const text = evt.clipboardData.getData(type);
+          data.pasteFromText(text);
+          sheetReset.call(this);
+        }
+      },
+    );
+    evt.preventDefault();
+  } else if (typeof evt === 'undefined' || evt.target.tagName !== 'TEXTAREA') {
     if (data.paste(what, msg => message(locale('error.tip'), msg))) {
       sheetReset.call(this);
-    }
-    if (evt) {
-      evt.preventDefault();
     }
   }
 }

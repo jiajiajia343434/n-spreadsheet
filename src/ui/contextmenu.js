@@ -4,11 +4,11 @@ import { cssPrefix } from '../config';
 import { tf } from '../locale/locale';
 
 const sysMenuItems = [
-  { key: 'copy', title: tf('contextmenu.copy'), label: 'Ctrl+C', privileges: [] },
   { key: 'cut', title: tf('contextmenu.cut'), label: 'Ctrl+X', privileges: [] },
-  { key: 'paste', title: tf('contextmenu.paste'), label: 'Ctrl+V', privileges: ['dataEdit', 'formatEdit'] },
-  { key: 'paste-value', title: tf('contextmenu.pasteValue'), privileges: ['dataEdit'] },
-  { key: 'paste-format', title: tf('contextmenu.pasteFormat'), privileges: ['formatEdit'] },
+  { key: 'copy', title: tf('contextmenu.copy'), label: 'Ctrl+C', privileges: [] },
+  // { key: 'paste', title: tf('contextmenu.paste'), label: 'Ctrl+V', privileges: ['dataEdit', 'formatEdit'] },
+  // { key: 'paste-value', title: tf('contextmenu.pasteValue'), privileges: ['dataEdit'] },
+  // { key: 'paste-format', title: tf('contextmenu.pasteFormat'), privileges: ['formatEdit'] },
   { key: 'divider' },
   { key: 'insert-row', title: tf('contextmenu.insertRow'), privileges: ['dataEdit'] },
   { key: 'insert-column', title: tf('contextmenu.insertColumn'), privileges: ['dataEdit'] },
