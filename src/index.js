@@ -9,6 +9,7 @@ import ExcelParser from './utils/excel/xlsx-importer';
 import ExcelExport from './utils/excel/xlsx-exporter';
 import helper from './model/helper';
 import DefaultSetting from './settings/default';
+import { clearEventListeners } from './ui/event';
 
 class Spreadsheet {
   constructor(selectors, settings = {}, initData = [], onLoad = () => {
@@ -174,6 +175,10 @@ class Spreadsheet {
         parser.parse(result).then(data => this.loadData(data));
       };
     };
+  }
+
+  unMountEventListener() {
+    clearEventListeners();
   }
 
   static locale(lang, message) {

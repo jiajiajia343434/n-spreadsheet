@@ -1,10 +1,25 @@
-/* global window */
+let eventListeners = [];
+
 export function bind(target, name, fn) {
   target.addEventListener(name, fn);
+  eventListeners.push({ name, target, fn });
 }
+
 export function unbind(target, name, fn) {
   target.removeEventListener(name, fn);
+  eventListeners = eventListeners.filter(eventListener => !(
+    eventListener.target === target
+    && eventListener.name === name
+    && eventListener.fn === fn
+  ));
 }
+
+export function clearEventListeners() {
+  eventListeners.forEach(({ target, name, fn }) => {
+    target.removeEventListener(name, fn);
+  });
+}
+
 export function unbindClickoutside(el) {
   if (el.xclickoutside) {
     unbind(window.document.body, 'click', el.xclickoutside);
@@ -28,6 +43,7 @@ export function bindClickoutside(el, cb) {
   };
   bind(window.document.body, 'click', el.xclickoutside);
 }
+
 export function mouseMoveUp(target, movefunc, upfunc) {
   bind(target, 'mousemove', movefunc);
   const t = target;
@@ -53,6 +69,7 @@ function calTouchDirection(spanx, spany, evt, cb) {
     cb(direction, spany, evt);
   }
 }
+
 // cb = (direction, distance) => {}
 export function bindTouch(target, { move, end }) {
   let startx = 0;

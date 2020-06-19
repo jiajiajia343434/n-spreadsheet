@@ -1,6 +1,6 @@
 /* global window */
 import { h } from './element';
-import { bind, bindTouch, mouseMoveUp } from './event';
+import { bind, bindTouch, mouseMoveUp, unbind } from './event';
 import Resizer from './resizer';
 import Scrollbar from './scroll';
 import Selector from './selector';
@@ -509,10 +509,10 @@ function paste(what, evt) {
     //     if (type === 'text/html') {
     //       const parser = new DOMParser();
     //       const doc = parser.parseFromString(evt.clipboardData.getData(type), 'text/html');
+    //       window.doc = doc;
     //       if (doc.getElementsByTagName('html')[0]
     //         && doc.getElementsByTagName('html')[0]
     //           .getAttribute('xmlns:v').indexOf('excel') > -1) {
-    //
     //       }
     //     }
     //     // console.log(type, evt.clipboardData.getData(type));
@@ -527,7 +527,7 @@ function paste(what, evt) {
         }
       },
     );
-    evt.preventDefault();
+    // evt.preventDefault();
   } else if (typeof evt === 'undefined' || evt.target.tagName !== 'TEXTAREA') {
     if (data.paste(what, msg => message(locale('error.tip'), msg))) {
       sheetReset.call(this);
@@ -1005,10 +1005,6 @@ function sheetInitEvents() {
     this.focusing = overlayerEl.contains(evt.target);
   });
 
-  bind(window, 'paste', (evt) => {
-    paste.call(this, 'all', evt);
-  });
-
   bind(window, 'beforecopy', (evt) => {
     copy.call(this, evt);
   });
@@ -1235,6 +1231,13 @@ export default class Sheet {
     sheetReset.call(this);
     // init selector [0, 0]
     selectorSet.call(this, false, 0, 0);
+
+    this.pasteCB = (evt) => {
+      if (document.activeElement.contains(targetEl.el)) {
+        paste.call(this, 'all', evt);
+      }
+    };
+    bind(window, 'paste', this.pasteCB);
   }
 
   on(eventName, func) {
