@@ -510,11 +510,17 @@ const evalSuffixExpr = (suffixExpr, formulaMap, cellRender, deps) => {
         }));
         stack.push(r);
       } else {
-        stack.push(op.cal(params.reverse()));
+        const n = params.map((p) => {
+          if (p instanceof Cell) {
+            return cellRender(p.x, p.y);
+          }
+          return p;
+        });
+        stack.push(op.cal(n.reverse()));
       }
     } else if (op instanceof Cell) {
       deps.add(op.name);
-      stack.push(cellRender(op.x, op.y));
+      stack.push(op);
     } else {
       if ((op[0] >= '0' && op[0] <= '9') || op[0] === '-') {
         stack.push(Number(op));

@@ -252,8 +252,15 @@ const Formula = [
                 throw new Error("参数不符");
             } else {
                 let sum = new Number(0);
-                for (let i = 0; i < args[0].length; i++) {
-                    sum += Number(args[0][i]);
+                for (let i = 0; i < args.length; i++) {
+                    const v = args[i];
+                    if(v instanceof Array){
+                        for(let j = 0; j < v.length; j++){
+                            sum += Number(v[j]);
+                        }
+                    }else{
+                        sum += Number(v);
+                    }
                 }
                 return sum;
             }
