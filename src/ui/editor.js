@@ -12,7 +12,7 @@ function resetTextareaSize() {
     const {
       textlineEl, textEl, areaOffset,
     } = this;
-    const txts = inputText.split('\n');
+    const txts = (`${inputText}`).split('\n');
     const maxTxtSize = Math.max(...txts.map(it => it.length));
     const tlOffset = textlineEl.offset();
     const fontWidth = tlOffset.width / inputText.length;
@@ -236,7 +236,12 @@ export default class Editor {
     const { el, datepicker, suggest } = this;
     el.show();
     this.cell = cell;
-    const text = (cell && cell.text) || '';
+    let text;
+    if (cell && cell.formula) {
+      text = `=${cell.formula}`;
+    } else {
+      text = (cell && cell.text) || '';
+    }
     this.setText(text);
 
     this.validator = validator;

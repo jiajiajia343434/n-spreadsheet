@@ -80,6 +80,7 @@ export default class {
         this.theme = new Theme(this.workbook);
         const data = [];
         this.workbook.eachSheet((_sheet) => {
+          console.log(_sheet);
           const sheet = {};
           sheet.name = _sheet.name;
           sheet.rows = {};
@@ -104,7 +105,14 @@ export default class {
                 if (_cell) {
                   if (_cell.master.address === _cell.address) {
                     const cell = {};
-                    cell.text = _cell.text;
+                    if (typeof _cell.value === 'object') {
+                      if (_cell.formula) {
+                        cell.formula = _cell.formula;
+                        cell.text = _cell.value.result;
+                      }
+                    } else {
+                      cell.text = _cell.value;
+                    }
                     if (_cell.style) {
                       const _style = _cell.style;
                       const style = {};

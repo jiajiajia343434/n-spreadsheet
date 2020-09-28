@@ -214,7 +214,7 @@ class Draw {
     }
     textWrap: text wrapping
   */
-  text(mtxt, box, attr = {}, textWrap = true) {
+  text(mtxt = '', box, attr = {}, textWrap = true) {
     const { ctx } = this;
     const {
       align, valign, font, color, strike, underline,

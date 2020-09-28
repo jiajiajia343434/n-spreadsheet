@@ -1,10 +1,10 @@
 import { stringAt } from '../model/alphabet';
 import { getFontSizePxByPt } from '../model/font';
-import _cell from '../model/cell';
-import { formulam } from '../formula/formula';
 import { formatm } from '../model/format';
 
 import { Draw, DrawBox, npx, thinLineWidth } from '../canvas/draw';
+import cellModel from '../model/cell';
+import { formulam } from '../formula/formula';
 // gobal var
 const cellPaddingWidth = 5;
 const tableFixedHeaderCleanStyle = { fillStyle: '#f4f5f8' };
@@ -71,7 +71,14 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
   // console.log('cell:', rindex, cindex);
   draw.rect(dbox, () => {
     // render text
-    let cellText = _cell.render(cell.text || '', formulam, (y, x) => (data.getCellTextOrDefault(x, y)));
+    let cellText;
+    if (cell.formula) {
+      const deps = new Set();
+      cellText = cellModel.calFormula(`=${cell.formula}`, formulam, (y, x) => (data.getCellTextOrDefault(x, y)), deps);
+    } else {
+      cellText = cell.text || '';
+    }
+    // render format
     if (style.format) {
       // console.log(data.formatm, '>>', cell.format);
       cellText = formatm[style.format].render(cellText);

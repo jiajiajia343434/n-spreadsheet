@@ -1,15 +1,16 @@
-import {evalFormula} from '../formula/interpreter';
+import { evalFormula } from '../formula/interpreter';
 
-const cellRender = (src, formulaMap, getCellText, cellList = []) => {
+const calFormula = (src, formulaMap, getCellText, deps) => {
   if (src[0] === '=') {
-    if(src.trim().length===1){
+    if (src.trim().length === 1) {
       return '=';
     }
-    return evalFormula(src.substring(1), formulaMap, (x, y) => cellRender(getCellText(x, y), formulaMap, getCellText, cellList), cellList);
+    return evalFormula(src.substring(1), formulaMap,
+      (x, y) => calFormula(getCellText(x, y), formulaMap, getCellText, deps), deps);
   }
   return src;
 };
 
 export default {
-  render: cellRender,
+  calFormula,
 };

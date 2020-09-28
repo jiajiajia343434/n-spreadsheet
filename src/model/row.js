@@ -107,8 +107,11 @@ class Rows {
     }
   }
 
-  setCellText(ri, ci, text) {
+  setCellText(ri, ci, text, formulaText) {
     const cell = this.getCellOrNew(ri, ci);
+    if (formulaText) {
+      cell.formula = formulaText;
+    }
     cell.text = text;
   }
 

@@ -88,6 +88,9 @@ export default class {
                     const cell = row.getCell(ci + 1);
                     // resolve value, todo resolve formula
                     cell.value = c.text;
+                    if (c.formula) {
+                      cell.value = { formula: c.formula, result: c.text };
+                    }
                     // resolve comment
                     if (c.comment) {
                       cell.note = c.comment;

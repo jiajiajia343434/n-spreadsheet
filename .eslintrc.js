@@ -12,7 +12,8 @@ module.exports = {
     "no-param-reassign": ["error", { "props": false }],
     "class-methods-use-this": "off",
     "object-curly-newline": 'off',
-    "no-underscore-dangle": 'off'
+    "no-underscore-dangle": 'off',
+    "no-continue": 'off',
   },
   settings: {
     "import/resolver": {

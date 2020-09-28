@@ -12,6 +12,8 @@ import { CellRange } from './cell_range';
 import { expr2xy, xy2expr } from './alphabet';
 import { t } from '../locale/locale';
 import { message } from '../ui/message';
+import cellModel from './cell';
+import { formulam } from '../formula/formula';
 
 // private methods
 /*
@@ -449,7 +451,8 @@ export default class DataAgent {
     this.exceptRowSet = new Set();
     this.sortedRowMap = new Map();
     this.unsortedRowMap = new Map();
-    this.innerPropsList = ['innerPropsList', 'settings', 'name', 'freeze', 'styles', 'merges', 'rows', 'cols', 'validations', 'hyperlinks', 'comments', 'selector', 'scroll', 'clipboard', 'autoFilter', 'exceptRowSet', 'sortedRowMap', 'unsortedRowMap', 'autofilter', 'history'];
+    this.innerPropsList = ['innerPropsList', 'settings', 'name', 'freeze', 'styles', 'merges', 'rows', 'cols', 'validations', 'hyperlinks', 'comments', 'selector', 'scroll', 'clipboard', 'autoFilter', 'exceptRowSet', 'sortedRowMap', 'unsortedRowMap', 'autofilter', 'history', 'cellDepsList'];
+    this.cellDepsList = {};
   }
 
   addValidation(mode, ref, validator) {
@@ -1116,8 +1119,46 @@ export default class DataAgent {
   // state: input | finished
   setCellText(ri, ci, text) {
     const { rows, history, validations } = this;
+    // cal formula
+    const i = `${text}`.indexOf('=');
+    let formulaText;
+    let result = text;
+    const name = xy2expr(ci, ri);
+    if (i === 0) {
+      formulaText = text.substr(1);
+      const deps = new Set();
+      result = cellModel.calFormula(text || '', formulam, (y, x) => (this.getCellTextOrDefault(x, y)), deps);
+      if (deps.has(name)) {
+        // 循环引用 todo 优化提醒
+        alert('循环引用');
+        return;
+      }
+      // set dependence
+      this.cellDepsList[name] = deps;
+    }
+    // add history
     history.add(this.getData());
-    rows.setCellText(ri, ci, text);
+    // set text and formula
+    if (typeof formulaText === 'undefined') {
+      delete this.cellDepsList[name];
+    }
+    rows.setCellText(ri, ci, result, formulaText);
+    // update dependent cell
+    Object.keys(this.cellDepsList).forEach((cellName) => {
+      let updated = false;
+      this.cellDepsList[cellName].forEach((k) => {
+        if (k === name && !updated) {
+          updated = true;
+          const xy = expr2xy(cellName);
+          const cell = this.getCell(xy[1], xy[0]);
+          const deps = new Set();
+          const s = cellModel.calFormula(`=${cell.formula}`, formulam, (y, x) => (this.getCellTextOrDefault(x, y)), deps);
+          console.log(s);
+          rows.setCellText(xy[1], xy[0], s, cell.formula);
+        }
+      });
+    });
+
     this.change(this);
     // validator
     validations.validate(ri, ci, text);
