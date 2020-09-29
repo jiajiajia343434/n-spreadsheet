@@ -1,6 +1,6 @@
 {
   "name": "@newhero/n-spreadsheet",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "description": "A excel-liked javaScript spreadsheet",
   "main": "src/index.js",
   "files": [

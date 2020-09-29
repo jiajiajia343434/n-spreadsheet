@@ -115,7 +115,7 @@ class Multiple extends Operator {
   }
 
   cal(params) {
-    return Number(params[0]) * Number(params[1]);
+    return Number(params[0]).multiply(Number(params[1]));
   }
 }
 
@@ -128,7 +128,7 @@ class Div extends Operator {
   }
 
   cal(params) {
-    return Number(params[0]) / Number(params[1]);
+    return Number(params[0]).divide(Number(params[1]));
   }
 }
 
@@ -141,7 +141,7 @@ class Add extends Operator {
   }
 
   cal(params) {
-    return Number(params[0]) + Number(params[1]);
+    return Number(params[0]).add(Number(params[1]));
   }
 }
 
@@ -154,7 +154,7 @@ class Sub extends Operator {
   }
 
   cal(params) {
-    return Number(params[0]) - Number(params[1]);
+    return Number(params[0]).subtract(Number(params[1]));
   }
 }
 
