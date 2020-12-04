@@ -5,7 +5,9 @@
   "main": "src/index.js",
   "files": [
     "assets",
-    "src"
+    "src",
+    "LICENSE",
+    "README.md"
   ],
   "author": "gph",
   "license": "MIT",
