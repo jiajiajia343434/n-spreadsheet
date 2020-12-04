@@ -1,6 +1,6 @@
 {
-  "name": "@newhero/n-spreadsheet",
-  "version": "0.0.32",
+  "name": "n-spreadsheet",
+  "version": "0.0.33",
   "description": "A excel-liked javaScript spreadsheet",
   "main": "src/index.js",
   "files": [
@@ -12,7 +12,7 @@
   "private": false,
   "repository": {
     "type": "git",
-    "url": "http://192.168.1.173:10000/dongzhaoyang/n-spreadsheet.git"
+    "url": "https://github.com/jiajiajia343434/n-spreadsheet"
   },
   "nyc": {
     "all": true,
