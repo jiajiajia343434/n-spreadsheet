@@ -109,9 +109,7 @@ class Rows {
 
   setCellText(ri, ci, text, formulaText) {
     const cell = this.getCellOrNew(ri, ci);
-    if (formulaText) {
-      cell.formula = formulaText;
-    }
+    cell.formula = formulaText;
     cell.text = text;
   }
 
@@ -301,6 +299,7 @@ class Rows {
         } else if (what === 'text') {
           if (cell.text) delete cell.text;
           if (cell.value) delete cell.value;
+          if (cell.formula) delete cell.formula;
         } else if (what === 'format') {
           if (cell.style !== undefined) delete cell.style;
           if (cell.merge) delete cell.merge;

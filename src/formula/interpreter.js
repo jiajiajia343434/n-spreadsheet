@@ -265,7 +265,6 @@ const operatorMap = {
   '<=': () => new LessEqual(),
   '<>': () => new NotEqual(),
   ' ': () => new Space(),
-
 };
 // eg: -1 + SUM(A1:A5 A2:B2,NUMBER(-1),(1+B2)*3+B6)
 // 中缀表达式 => 后缀表达式 + 公式树的形式 , 即公式作为子表达式处理，在后缀表达式里一个公式当做普通操作数看待

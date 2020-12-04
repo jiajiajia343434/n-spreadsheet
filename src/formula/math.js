@@ -4,31 +4,28 @@
  */
 import { tf } from '../locale/locale';
 
-const floatCalc = (a, b) => {
-  a = a + '', b = b + '';
-  let aNum = a.indexOf('.'),
-    bNum = b.indexOf('.'),
-    aSum,
-    bSum,
-    resultNum,
-    inta,
-    intb;
+// 修复四则运算小数不准确
+const floatCalc = (x, y) => {
+  let a = `${x}`;
+  let b = `${y}`;
+  const aNum = a.indexOf('.');
+  const bNum = b.indexOf('.');
 
-  aSum = aNum < 0 ? 0 : a.split('.')[1].length;
-  bSum = bNum < 0 ? 0 : b.split('.')[1].length;
-  resultNum = aSum > bSum ? aSum : bSum;
+  const aSum = aNum < 0 ? 0 : a.split('.')[1].length;
+  const bSum = bNum < 0 ? 0 : b.split('.')[1].length;
+  const resultNum = aSum > bSum ? aSum : bSum;
 
-  inta = aNum < 0 ? Number(a + (Math.pow(10, resultNum) + '').replace('1', '')) : (function () {
+  const inta = aNum < 0 ? Number(a + (`${10 ** resultNum}`).replace('1', '')) : ((() => {
     a = a.replace('.', '');
-    a = resultNum == aSum ? a : a + (Math.pow(10, resultNum - aSum) + '').replace('1', '');
+    a = resultNum === aSum ? a : a + (`${10 ** (resultNum - aSum)}`).replace('1', '');
     return Number(a);
-  }());
+  })());
 
-  intb = bNum < 0 ? Number(b + (Math.pow(10, resultNum) + '').replace('1', '')) : (function () {
+  const intb = bNum < 0 ? Number(b + (`${10 ** resultNum}`).replace('1', '')) : ((() => {
     b = b.replace('.', '');
-    b = resultNum == bSum ? b : b + (Math.pow(10, resultNum - bSum) + '').replace('1', '');
+    b = resultNum === bSum ? b : b + (`${10 ** (resultNum - bSum)}`).replace('1', '');
     return Number(b);
-  }());
+  })());
 
   return {
     a: inta,
@@ -36,24 +33,28 @@ const floatCalc = (a, b) => {
     num: resultNum,
   };
 };
-//加法
+// 加法
+// eslint-disable-next-line no-extend-native,func-names
 Number.prototype.add = function (n) {
-  var o = floatCalc(this, n);
-  return (o.a + o.b) / Math.pow(10, o.num);
+  const o = floatCalc(this, n);
+  return (o.a + o.b) / (10 ** o.num);
 };
-//减法
+// 减法
+// eslint-disable-next-line no-extend-native,func-names
 Number.prototype.subtract = function (n) {
-  var o = floatCalc(this, n);
-  return (o.a - o.b) / Math.pow(10, o.num);
+  const o = floatCalc(this, n);
+  return (o.a - o.b) / (10 ** o.num);
 };
-//乘法
+// 乘法
+// eslint-disable-next-line no-extend-native,func-names
 Number.prototype.multiply = function (n) {
-  var o = floatCalc(this, n);
-  return (o.a * o.b) / Math.pow(10, o.num * 2);
+  const o = floatCalc(this, n);
+  return (o.a * o.b) / (10 ** (o.num * 2));
 };
-//除法
+// 除法
+// eslint-disable-next-line no-extend-native,func-names
 Number.prototype.divide = function (n) {
-  var o = floatCalc(this, n);
+  const o = floatCalc(this, n);
   return (o.a / o.b);
 };
 
@@ -76,8 +77,8 @@ const Formula = [
       if (args.length != 2) {
         throw new Error('参数不符');
       } else if (Number(args[1]) >= 0) {
-        //参数2为正
-        //return Number(args[0]).toFixed(Number(args[1]));
+        // 参数2为正
+        // return Number(args[0]).toFixed(Number(args[1]));
         if (args[0] >= 0) {
           let times = Math.pow(10, Number(args[1]));
           let des = Number(args[0]) * times + 0.5;
@@ -210,7 +211,7 @@ const Formula = [
     key: 'ROUNDDOWN',
     title: tf('formula.math._roundfdown'),
     render: function (args) {
-      if (args.length != 2) {
+      if (args.length !== 2) {
         throw new Error('参数不符');
       } else if (Number(args[1]) >= 0) {
         let power = Number(args[1]);//要舍弃的位数
@@ -303,7 +304,6 @@ const Formula = [
       if (args.length == 0) {
         throw new Error('参数不符');
       } else {
-          console.log(1);
         let sum = new Number(0);
         for (let i = 0; i < args.length; i++) {
           const v = args[i];
