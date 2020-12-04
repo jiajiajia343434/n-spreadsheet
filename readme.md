@@ -1,5 +1,8 @@
-# n-spreadsheet 更新文档
+# n-spreadsheet 说明文档
 
+> 本项目原始版本从 [x-spreadsheet](https://github.com/myliang/x-spreadsheet) 而来，以可以在浏览器中操作Excel文件为方向进行修改。
+> 
+> 致敬x-spreadsheet
 ---
 ## 更新日志
   
