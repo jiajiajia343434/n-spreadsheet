@@ -17,6 +17,36 @@ function transBorder(source, target, position) {
   }
 }
 
+function transFont(oStyle) {
+  const font = {};
+  // todo numFmt
+  // resolve font
+  if (oStyle.font) {
+    if (oStyle.font.name) {
+      font.name = oStyle.font.name;
+    }
+    if (oStyle.font.size) {
+      font.size = oStyle.font.size;
+    }
+    if (typeof oStyle.font.bold === 'boolean') {
+      font.bold = oStyle.font.bold;
+    }
+    if (typeof oStyle.font.italic === 'boolean') {
+      font.italic = oStyle.font.italic;
+    }
+  }
+  if (oStyle.color) {
+    font.color = { argb: Color.transRgbToArgb(oStyle.color) };
+  }
+  if (oStyle.underline) {
+    font.underline = oStyle.underline;
+  }
+  if (typeof oStyle.strike === 'boolean') {
+    font.strike = oStyle.strike;
+  }
+  return font;
+}
+
 export default class {
   constructor() {
     this.workbook = new Excel.Workbook();
@@ -86,10 +116,24 @@ export default class {
                     const c = r.cells[cellKey];
                     // add target cell, 1-based
                     const cell = row.getCell(ci + 1);
-                    // resolve value, todo resolve formula
+                    // resolve value
                     cell.value = c.text;
+                    // resolve formula
                     if (c.formula) {
                       cell.value = { formula: c.formula, result: c.text };
+                    }
+                    // resolve richText
+                    if (c.richText) {
+                      const richText = [];
+                      c.richText.forEach((rt) => {
+                        const info = {
+                          text: rt.text,
+                        };
+                        info.font = transFont(rt);
+                      });
+                      cell.value = {
+                        richText,
+                      };
                     }
                     // resolve comment
                     if (c.comment) {
@@ -100,33 +144,7 @@ export default class {
                       // origin cell style
                       const oStyle = styleSheet[c.style];
                       // target font object
-                      const font = {};
-                      // todo numFmt
-                      // resolve font
-                      if (oStyle.font) {
-                        if (oStyle.font.name) {
-                          font.name = oStyle.font.name;
-                        }
-                        if (oStyle.font.size) {
-                          font.size = oStyle.font.size;
-                        }
-                        if (typeof oStyle.font.bold === 'boolean') {
-                          font.bold = oStyle.font.bold;
-                        }
-                        if (typeof oStyle.font.italic === 'boolean') {
-                          font.italic = oStyle.font.italic;
-                        }
-                      }
-                      if (oStyle.color) {
-                        font.color = { argb: Color.transRgbToArgb(oStyle.color) };
-                      }
-                      if (oStyle.underline) {
-                        font.underline = oStyle.underline;
-                      }
-                      if (typeof oStyle.strike === 'boolean') {
-                        font.strike = oStyle.strike;
-                      }
-                      cell.font = font;
+                      cell.font = transFont(oStyle);
                       // resolve alignment
                       if (oStyle.align || oStyle.valign || typeof oStyle.textwrap === 'boolean') {
                         const alignment = {};

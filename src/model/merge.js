@@ -55,6 +55,7 @@ class Merges {
 
   // type: row | column
   shift(type, index, n, cbWithin) {
+    const _new = [];
     this._.forEach((cellRange) => {
       const {
         sri, sci, eri, eci,
@@ -62,6 +63,10 @@ class Merges {
       const range = cellRange;
       if (type === 'row') {
         if (sri >= index) {
+          // fix bug: 删除行时，合并信息没有删除
+          if (eri < index - n) {
+            return;
+          }
           range.sri += n;
           range.eri += n;
         } else if (sri < index && index <= eri) {
@@ -70,6 +75,10 @@ class Merges {
         }
       } else if (type === 'column') {
         if (sci >= index) {
+          // fix bug: 删除行时，合并信息没有删除
+          if (eci < index - n) {
+            return;
+          }
           range.sci += n;
           range.eci += n;
         } else if (sci < index && index <= eci) {
@@ -77,7 +86,9 @@ class Merges {
           cbWithin(sri, sci, 0, n);
         }
       }
+      _new.push(range);
     });
+    this._ = _new;
   }
 
   move(cellRange, rn, cn) {
