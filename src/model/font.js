@@ -23,7 +23,7 @@ const fontSizes = [
   { pt: 12, px: 16 },
   { pt: 14, px: 18.7 },
   { pt: 15, px: 20 },
-  { pt: 16, px: 21.3 },
+  { pt: 16, px: 21.4 },
   { pt: 18, px: 24 },
   { pt: 22, px: 29.3 },
   { pt: 24, px: 32 },

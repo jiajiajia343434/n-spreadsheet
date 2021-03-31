@@ -111,6 +111,10 @@ class Rows {
     const cell = this.getCellOrNew(ri, ci);
     cell.formula = formulaText;
     cell.text = text;
+    // todo: edit richText. only delete the richText attribute now
+    if (cell.richText) {
+      delete cell.richText;
+    }
   }
 
   // what: all | format | text
