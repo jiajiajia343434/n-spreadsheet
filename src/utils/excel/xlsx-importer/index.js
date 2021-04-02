@@ -75,7 +75,7 @@ export default class {
   parse(arrayBuffer) {
     return new Promise((resolve, reject) => {
       this.workbook.xlsx.load(arrayBuffer).then(async () => {
-        console.log(window.xx = this.workbook);
+        // console.log(window.xx = this.workbook);
         const indexedColors = [];
         try {
           const jsZip = await new JSZip().loadAsync(arrayBuffer);

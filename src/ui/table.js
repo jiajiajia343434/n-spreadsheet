@@ -6,7 +6,7 @@ import { Draw, DrawBox, npx, thinLineWidth } from '../canvas/draw';
 import cellModel from '../model/cell';
 import { formulam } from '../formula/formula';
 // gobal var
-const cellPaddingWidth = 5;
+const cellPaddingWidth = 2;
 const tableFixedHeaderCleanStyle = { fillStyle: '#f4f5f8' };
 const tableGridStyle = {
   fillStyle: '#fff',

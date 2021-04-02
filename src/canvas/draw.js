@@ -105,25 +105,13 @@ class DrawBox {
   }
 }
 
-function drawFontLine(type, tx, ty, align, valign, blheight, blwidth) {
+function drawFontLine(type, tx, ty, align, blheight, blwidth, isDouble = false) {
   const floffset = {
     x: 0,
     y: 0,
   };
   if (type === 'underline') {
-    if (valign === 'bottom') {
-      floffset.y = 0;
-    } else if (valign === 'top') {
-      floffset.y = -(blheight + 2);
-    } else {
-      floffset.y = -blheight / 2;
-    }
-  } else if (type === 'strike') {
-    if (valign === 'bottom') {
-      floffset.y = blheight / 2;
-    } else if (valign === 'top') {
-      floffset.y = -((blheight / 2) + 2);
-    }
+    floffset.y = -blheight / 2;
   }
 
   if (align === 'center') {
@@ -135,6 +123,12 @@ function drawFontLine(type, tx, ty, align, valign, blheight, blwidth) {
     [tx - floffset.x, ty - floffset.y],
     [tx - floffset.x + blwidth, ty - floffset.y],
   );
+  if (isDouble) {
+    this.line(
+      [tx - floffset.x, ty - floffset.y - npx(1)],
+      [tx - floffset.x + blwidth, ty - floffset.y - npx(1)],
+    );
+  }
 }
 
 function combineFontStyle(partialStyle, mainFont) {
@@ -286,7 +280,7 @@ class Draw {
     ctx.beginPath();
     this.attr({
       textAlign: align,
-      textBaseline: valign,
+      textBaseline: 'middle',
       font: `${font.italic ? 'italic' : ''} ${font.bold ? 'bold' : ''} ${npx(getFontSizePxByPt(font.size))}px ${font.name}`,
       fillStyle: color,
       strokeStyle: color,
@@ -321,19 +315,11 @@ class Draw {
         maxFontSize: getFontSizePxByPt(font.size),
         width: 0,
       });
-      for (let idx = temp.startPos; idx < texts.length; idx += 1) {
+      for (let idx = 0; idx < texts.length; idx += 1) {
         let isSnippetEnd = false;
         // set snippet style
         if (richText[temp.snippetIdxNow].style) {
           const style = combineFontStyle(richText[temp.snippetIdxNow].style, font);
-          if (richText[temp.snippetIdxNow].style.font) {
-            if (getFontSizePxByPt(richText[temp.snippetIdxNow].style.font.size || 0)
-              > temp.rowObjCache.maxFontSize) {
-              temp.rowObjCache.maxFontSize = getFontSizePxByPt(
-                richText[temp.snippetIdxNow].style.font.size,
-              );
-            }
-          }
           this.attr(style);
         }
         // measure char width
@@ -350,7 +336,27 @@ class Draw {
         }
         // calculate row wrap
         if ((textWrap && temp.rowObjCache.width >= biw) || linePosInfo.indexOf(idx) > -1) {
-          if (!isSnippetEnd) {
+          if ((textWrap && temp.rowObjCache.width >= biw) && temp.rowObjCache.width !== charWidth) {
+            idx -= 1;
+            temp.rowObjCache.width -= charWidth;
+            if (!isSnippetEnd) {
+              temp.snippetCache.width -= charWidth;
+              resolveSnippet(temp, texts, idx, richText);
+              const lastSnippet = temp.rowObjCache[temp.rowObjCache.length - 1];
+              if (lastSnippet.text.length === 0) {
+                temp.rowObjCache.splice(-1);
+              }
+            } else {
+              const lastSnippet = temp.rowObjCache[temp.rowObjCache.length - 1];
+              lastSnippet.text = lastSnippet.text.substr(0, lastSnippet.text.length - 1);
+              lastSnippet.width -= charWidth;
+              if (lastSnippet.text.length === 0) {
+                temp.rowObjCache.splice(-1);
+              }
+              temp.startPos = idx + 1;
+              isSnippetEnd = false;
+            }
+          } else if (!isSnippetEnd) {
             resolveSnippet(temp, texts, idx, richText);
           }
           newTexts.push(temp.rowObjCache);
@@ -371,15 +377,26 @@ class Draw {
           temp.snippetIdxNow += 1;
         }
       }
-      // draw rich text
+      // set row max font size and calculate total height
       let txtHeight = 0;
-      newTexts.forEach((textInfo, idx) => {
-        if (idx !== newTexts.length - 1) {
-          txtHeight += (textInfo.maxFontSize + 2);
-        }
+      newTexts.forEach((textInfo) => {
+        textInfo.forEach((snippetInfo) => {
+          if (snippetInfo.style && snippetInfo.style.font) {
+            if (getFontSizePxByPt(snippetInfo.style.font.size || 0)
+              > textInfo.maxFontSize) {
+              textInfo.maxFontSize = getFontSizePxByPt(
+                snippetInfo.style.font.size,
+              );
+            }
+          }
+        });
+        txtHeight += (textInfo.maxFontSize + 2);
       });
+      // console.log('reformat result:',newTexts);
+      // draw rich text
       let ty = box.texty(valign, txtHeight);
       newTexts.forEach((textInfo) => {
+        ty += (textInfo.maxFontSize / 2 + 1);
         textInfo.forEach((snippetInfo, idx) => {
           const offsetX = calulateOffsetX(align, textInfo, idx);
           this.attr(combineFontStyle(snippetInfo.style, font));
@@ -406,13 +423,13 @@ class Draw {
           }
           this.fillTextRawXY(snippetInfo.text, npx(tx) + offsetX, npx(ty + offsetY / 2));
           if (snippetStrike) {
-            drawFontLine.call(this, 'strike', rpx(npx(tx) + offsetX), ty + offsetY / 2, align, valign, fontSize, rpx(snippetInfo.width));
+            drawFontLine.call(this, 'strike', rpx(npx(tx) + offsetX), ty + offsetY / 2, align, fontSize, rpx(snippetInfo.width));
           }
           if (snippetUnderline) {
-            drawFontLine.call(this, 'underline', rpx(npx(tx) + offsetX), ty + offsetY / 2, align, valign, fontSize, rpx(snippetInfo.width));
+            drawFontLine.call(this, 'underline', rpx(npx(tx) + offsetX), ty + offsetY / 2, align, fontSize, rpx(snippetInfo.width), snippetUnderline === 'double');
           }
         });
-        ty += (textInfo.maxFontSize + 2);
+        ty += (textInfo.maxFontSize / 2 + 1);
       });
     } else {
       const texts = `${text}`.split('\n');
@@ -432,13 +449,22 @@ class Draw {
             };
             for (let i = 0; i < it.length; i += 1) {
               if (textLine.w > biw) {
-                newTexts.push(it.substr(textLine.start, textLine.len - 1));
-                textLine = {
-                  w: 0,
-                  len: 0,
-                  start: i - 1,
-                };
-                i -= 1;
+                if (textLine.len > 1) {
+                  newTexts.push(it.substr(textLine.start, textLine.len - 1));
+                  textLine = {
+                    w: 0,
+                    len: 0,
+                    start: i - 1,
+                  };
+                  i -= 1;
+                } else {
+                  newTexts.push(it.substr(textLine.start, textLine.len));
+                  textLine = {
+                    w: 0,
+                    len: 0,
+                    start: i,
+                  };
+                }
               }
               textLine.len += 1;
               textLine.w += ctx.measureText(it[i]).width;
@@ -454,18 +480,19 @@ class Draw {
         newTexts = texts;
       }
       // draw text
-      const txtHeight = (newTexts.length - 1) * (fontSize + 2);
+      const txtHeight = newTexts.length * (fontSize + 2);
       let ty = box.texty(valign, txtHeight);
       newTexts.forEach((txt) => {
+        ty += fontSize / 2 + 1;
         const txtWidth = ctx.measureText(txt).width;
         this.fillText(txt, tx, ty);
         if (strike) {
-          drawFontLine.call(this, 'strike', tx, ty, align, valign, fontSize, rpx(txtWidth));
+          drawFontLine.call(this, 'strike', tx, ty, align, fontSize, rpx(txtWidth));
         }
         if (underline) {
-          drawFontLine.call(this, 'underline', tx, ty, align, valign, fontSize, rpx(txtWidth));
+          drawFontLine.call(this, 'underline', tx, ty, align, fontSize, rpx(txtWidth), underline === 'double');
         }
-        ty += fontSize + 2;
+        ty += fontSize / 2 + 1;
       });
     }
     ctx.restore();
