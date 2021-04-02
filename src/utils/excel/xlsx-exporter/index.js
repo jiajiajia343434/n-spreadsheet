@@ -130,6 +130,7 @@ export default class {
                           text: rt.text,
                         };
                         info.font = transFont(rt);
+                        richText.push(info);
                       });
                       cell.value = {
                         richText,
