@@ -7,10 +7,23 @@ function inputMovePrev(evt) {
   evt.stopPropagation();
   const { filterItems } = this;
   if (filterItems.length <= 0) return;
+  const parent = filterItems[0].parent();
   if (this.itemIndex >= 0) filterItems[this.itemIndex].toggle();
   this.itemIndex -= 1;
   if (this.itemIndex < 0) {
     this.itemIndex = filterItems.length - 1;
+    parent.scroll({
+      top: parent.el.scrollHeight,
+    });
+  } else {
+    const height = parent.el.offsetHeight;
+    if (filterItems[this.itemIndex].box().y < parent.box().y
+      || filterItems[this.itemIndex].box().y + filterItems[this.itemIndex].el.offsetHeight
+      > parent.box().y + height) {
+      parent.scroll({
+        top: filterItems[this.itemIndex].el.offsetTop,
+      });
+    }
   }
   filterItems[this.itemIndex].toggle();
 }
@@ -19,10 +32,38 @@ function inputMoveNext(evt) {
   evt.stopPropagation();
   const { filterItems } = this;
   if (filterItems.length <= 0) return;
+  const parent = filterItems[0].parent();
   if (this.itemIndex >= 0) filterItems[this.itemIndex].toggle();
   this.itemIndex += 1;
   if (this.itemIndex > filterItems.length - 1) {
     this.itemIndex = 0;
+    parent.scroll({
+      top: 0,
+    });
+  } else {
+    const height = parent.el.offsetHeight;
+    // const { top } = parent.scroll();
+    // if (top + height <= filterItems[this.itemIndex].el.offsetTop
+    //   + filterItems[this.itemIndex].el.offsetHeight) {
+    //   parent.scroll({
+    //     top: top + filterItems[this.itemIndex].el.offsetHeight,
+    //   });
+    // } else if (top >= filterItems[this.itemIndex].el.offsetTop) {
+    //   parent.scroll({
+    //     top: filterItems[this.itemIndex].el.offsetTop
+    //       + height
+    //       - filterItems[this.itemIndex].el.offsetHeight,
+    //   });
+    // }
+    if (filterItems[this.itemIndex].box().y < parent.box().y
+      || filterItems[this.itemIndex].box().y + filterItems[this.itemIndex].el.offsetHeight
+      > parent.box().y + height) {
+      parent.scroll({
+        top: filterItems[this.itemIndex].el.offsetTop
+          - height
+          + filterItems[this.itemIndex].el.offsetHeight,
+      });
+    }
   }
   filterItems[this.itemIndex].toggle();
 }
@@ -74,9 +115,11 @@ export default class Suggest {
     this.el = h('div', `${cssPrefix}-suggest`).css('width', width).hide();
     this.itemClick = itemClick;
     this.itemIndex = -1;
+    this.position = {};
   }
 
   setOffset(v) {
+    this.el.css('position', 'absolute');
     this.el.cssRemoveKeys('top', 'bottom')
       .offset(v);
   }
@@ -96,6 +139,7 @@ export default class Suggest {
 
   search(word) {
     let { items } = this;
+    const { el } = this;
     if (!/^\s*$/.test(word)) {
       items = items.filter(it => (it.key || it).startsWith(word.toUpperCase()));
     }
@@ -123,10 +167,30 @@ export default class Suggest {
     if (items.length <= 0) {
       return;
     }
-    const { el } = this;
-    // items[0].toggle();
     el.html('').children(...items).show();
-    bindClickoutside(el.parent(), () => { this.hide(); });
+    // items[0].toggle();
+    const { top, bottom, height } = el.box();
+    if (bottom >= window.innerHeight) {
+      const fixedHeight = height + window.innerHeight - bottom - 56;
+      el.css('maxHeight', `${fixedHeight}px`);
+    }
+    if (top <= 10) {
+      const fixedHeight = bottom - 50;
+      el.css('maxHeight', `${fixedHeight}px`);
+    }
+
+    // set fixed can display completable
+    el.css('left', `${el.box().x}px`);
+    el.css('top', `${el.box().y}px`);
+    el.css('position', 'fixed');
+    el.css('width', `${el.parent().el.offsetWidth}px`);
+    el.el.onwheel = (event) => {
+      event.stopPropagation();
+    };
+    bindClickoutside(el.parent(), () => {
+      this.hide();
+      // el.css('position', 'absolute');
+    });
   }
 
   bindInputEvents(input) {

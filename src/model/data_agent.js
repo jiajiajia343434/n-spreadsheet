@@ -968,16 +968,20 @@ export default class DataAgent {
   }
 
   // type: row | column
-  delete(type) {
+  // _range custom range when invoke by api
+  delete(type = 'row', _range) {
     this.changeData(() => {
       const {
         rows, merges, selector, cols,
       } = this;
-      const { range } = selector;
+      let { range } = selector;
+      if (_range) {
+        range = new CellRange(_range.sri, _range.sci, _range.eri, _range.eci);
+      }
       const {
         sri, sci, eri, eci,
-      } = selector.range;
-      const [rsize, csize] = selector.range.size();
+      } = range;
+      const [rsize, csize] = range.size();
       let si = sri;
       let size = rsize;
       if (type === 'row') {
@@ -1210,7 +1214,8 @@ export default class DataAgent {
 
   freezeViewRange() {
     const [ri, ci] = this.freeze;
-    return new CellRange(0, 0, ri - 1, ci - 1,
+    return new CellRange(
+      0, 0, ri - 1, ci - 1,
       this.freezeTotalWidth() / this.scale,
       this.freezeTotalHeight() / this.scale,
     );

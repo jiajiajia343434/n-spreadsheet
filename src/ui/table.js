@@ -6,7 +6,7 @@ import { Draw, DrawBox, npx, thinLineWidth } from '../canvas/draw';
 import cellModel from '../model/cell';
 import { formulam } from '../formula/formula';
 // gobal var
-const cellPaddingWidth = 5;
+const cellPaddingWidth = 2;
 const tableFixedHeaderCleanStyle = { fillStyle: '#f4f5f8' };
 const tableGridStyle = {
   fillStyle: '#fff',
@@ -72,6 +72,7 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
   draw.rect(dbox, () => {
     // render text
     let cellText;
+    // todo: optimize performance. do calculation in data model, not in UI.
     if (cell.formula) {
       const deps = new Set();
       cellText = cellModel.calFormula(`=${cell.formula}`, formulam, (y, x) => (data.getCellTextOrDefault(x, y)), deps);
@@ -83,9 +84,8 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
       // console.log(data.formatm, '>>', cell.format);
       cellText = formatm[style.format].render(cellText);
     }
+    // render text
     const font = Object.assign({}, style.font);
-    font.size = getFontSizePxByPt(font.size);
-    // console.log('style:', style);
     draw.text(cellText, dbox, {
       align: style.align,
       valign: style.valign,
@@ -93,7 +93,7 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
       color: style.color,
       strike: style.strike,
       underline: style.underline,
-    }, style.textwrap);
+    }, style.textwrap, cell.richText);
     // error
     const error = data.validations.getError(rindex, cindex);
     if (error) {

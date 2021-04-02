@@ -54,6 +54,19 @@ function addStyle(nstyle, styles) {
   return styles.length - 1;
 }
 
+function resolveFont(style, _style, indexedColors) {
+  style.font = Object.assign({}, _style.font);
+  if (_style.font.strike) {
+    style.strike = _style.font.strike;
+  }
+  if (_style.font.underline) {
+    style.underline = _style.font.underline;
+  }
+  if (_style.font.color) {
+    style.color = resolveColor.call(this, _style.font.color, indexedColors);
+  }
+}
+
 export default class {
   constructor() {
     this.workbook = new Excel.Workbook();
@@ -62,6 +75,7 @@ export default class {
   parse(arrayBuffer) {
     return new Promise((resolve, reject) => {
       this.workbook.xlsx.load(arrayBuffer).then(async () => {
+        // console.log(window.xx = this.workbook);
         const indexedColors = [];
         try {
           const jsZip = await new JSZip().loadAsync(arrayBuffer);
@@ -80,7 +94,6 @@ export default class {
         this.theme = new Theme(this.workbook);
         const data = [];
         this.workbook.eachSheet((_sheet) => {
-          console.log(_sheet);
           const sheet = {};
           sheet.name = _sheet.name;
           sheet.rows = {};
@@ -106,9 +119,23 @@ export default class {
                   if (_cell.master.address === _cell.address) {
                     const cell = {};
                     if (typeof _cell.value === 'object') {
+                      // formula resove
                       if (_cell.formula) {
                         cell.formula = _cell.formula;
                         cell.text = _cell.value.result;
+                      }
+                      // richText resolve
+                      if (_cell.value && _cell.value.richText) {
+                        cell.text = _cell.text;
+                        cell.richText = [];
+                        _cell.value.richText.forEach((info) => {
+                          const style = {};
+                          resolveFont.call(this, style, info, indexedColors);
+                          cell.richText.push({
+                            text: info.text,
+                            style,
+                          });
+                        });
                       }
                     } else {
                       cell.text = _cell.value;
@@ -118,16 +145,7 @@ export default class {
                       const style = {};
                       // font
                       if (_style.font) {
-                        style.font = Object.assign({}, _style.font);
-                        if (_style.font.strike) {
-                          style.strike = _style.font.strike;
-                        }
-                        if (_style.font.underline) {
-                          style.underline = _style.font.underline;
-                        }
-                        if (_style.font.color) {
-                          style.color = resolveColor.call(this, _style.font.color, indexedColors);
-                        }
+                        resolveFont.call(this, style, _style, indexedColors);
                       }
                       // align and wrap
                       if (_style.alignment) {
