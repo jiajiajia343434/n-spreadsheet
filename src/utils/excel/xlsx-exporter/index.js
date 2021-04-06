@@ -129,7 +129,7 @@ export default class {
                         const info = {
                           text: rt.text,
                         };
-                        info.font = transFont(rt);
+                        info.font = transFont(rt.style || {});
                         richText.push(info);
                       });
                       cell.value = {
