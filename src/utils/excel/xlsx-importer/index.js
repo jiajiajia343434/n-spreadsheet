@@ -54,16 +54,16 @@ function addStyle(nstyle, styles) {
   return styles.length - 1;
 }
 
-function resolveFont(style, _style, indexedColors) {
-  style.font = Object.assign({}, _style.font);
-  if (_style.font.strike) {
-    style.strike = _style.font.strike;
+function resolveFont(style, font, indexedColors) {
+  style.font = Object.assign({}, font);
+  if (font.strike) {
+    style.strike = font.strike;
   }
-  if (_style.font.underline) {
-    style.underline = _style.font.underline;
+  if (font.underline) {
+    style.underline = font.underline;
   }
-  if (_style.font.color) {
-    style.color = resolveColor.call(this, _style.font.color, indexedColors);
+  if (font.color) {
+    style.color = resolveColor.call(this, font.color, indexedColors);
   }
 }
 
@@ -130,7 +130,7 @@ export default class {
                         cell.richText = [];
                         _cell.value.richText.forEach((info) => {
                           const style = {};
-                          resolveFont.call(this, style, info, indexedColors);
+                          resolveFont.call(this, style, info.font || {}, indexedColors);
                           cell.richText.push({
                             text: info.text,
                             style,
@@ -145,7 +145,7 @@ export default class {
                       const style = {};
                       // font
                       if (_style.font) {
-                        resolveFont.call(this, style, _style, indexedColors);
+                        resolveFont.call(this, style, _style.font || {}, indexedColors);
                       }
                       // align and wrap
                       if (_style.alignment) {
