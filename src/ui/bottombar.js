@@ -52,6 +52,7 @@ class ContextMenu {
   constructor() {
     this.el = h('div', `${cssPrefix}-contextmenu`)
       .css('width', '160px')
+      .css('position', 'fixed') // fix position
       .children(...buildMenu.call(this))
       .hide();
     this.itemClick = () => {

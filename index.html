@@ -6,22 +6,119 @@
     <title>n-spreadsheet</title>
 </head>
 <body onload="load()" style="overflow: hidden;padding: 0;margin: 0">
-<div style="width: 100%;height: 100vh;resize: both;overflow: hidden">
+<div style="width: 100%;height: 100vh;resize: both;overflow: hidden;display: flex">
+    <div>test position offset</div>
     <div id="main" style="width: 100%;height: 100%"></div>
 </div>
 <script>
   var xs;
   function load() {
     xs = $.spreadsheet('#main', {
+      privileges: {
+        editable: true, // 编辑数据
+        dataEdit: true,
+      },
     })
-      .loadData([{"name":"sheet1","freeze":"B3","styles":[{"bgcolor":"#f4f5f8","textwrap":true,"color":"#900b09","border":{"top":["thick","rgba(100,100,100,0.5)"],"bottom":["thick","#0366d6"],"right":["thick","#0366d6"],"left":["thick","#0366d6"]}},{"format":"percent"},{"format":"usd"},{"format":"date"},{"format":"time"},{"format":"datetime"},{"bgcolor":"#d5dce4"},{"border":{"bottom":["thick","#000"],"top":["thick","#000"],"left":["thick","#dd0024"],"right":["thick","#dd0024"]}},{"align":"center"}],"merges":["B13:D14"],"rows":{"0":{"cells":{"0":{text:'1',comment:'123'},}},"1":{"cells":{"0":{},"2":{}}},"2":{"cells":{"0":{},"1":{"text":"1",'editable':false,'style':{
+      .loadData([{
+        'name': 'sheet1',
+        'freeze': 'B3',
+        'styles': [
+          {
+            'bgcolor': '#f4f5f8',
+            'textwrap': true,
+            'color': '#900b09',
+            'border': {
+              'top': ['thick', 'rgba(100,100,100,0.5)'],
+              'bottom': ['thick', '#0366d6'],
+              'right': ['thick', '#0366d6'],
+              'left': ['thick', '#0366d6'],
+            },
+          },
+          { 'format': 'percent' },
+          { 'format': 'usd' },
+          { 'format': 'date' },
+          { 'format': 'time' },
+          { 'format': 'datetime' },
+          { 'bgcolor': '#d5dce4' },
+          {
+            'border': {
+              'bottom': ['thick', '#000'],
+              'top': ['thick', '#000'],
+              'left': ['thick', '#dd0024'],
+              'right': ['thick', '#dd0024'],
+            },
+          },
+          { 'align': 'center' }
+        ],
+        'merges': ['B13:D14'],
+        'rows': {
+          '0': { 'cells': { '0': { text: '1', comment: '123' } } },
+          '1': { 'cells': { '0': {}, '2': {} } },
+          '2': {
+            'cells': {
+              '0': {}, '1': {
+                'text': '1', 'editable': false, 'style': {
                   'border': {
                     'bottom': ['thin', '#000'],
                     'top': ['thin', '#000'],
                     'left': ['thin', '#000'],
-                    'right': ['thin', '#000']
-                  }
-                }},"2":{}}},"3":{"cells":{"1":{"text":"1","style":1}}},"4":{"cells":{"1":{"text":"1","style":2}}},"5":{"cells":{"1":{"style":5}}},"6":{"cells":{"1":{"style":6,"text":"填充色"},"2":{"style":6},"3":{"style":6}}},"7":{"cells":{"1":{"style":6},"2":{"style":6},"3":{"style":6},"5":{"text":"数据格式：（数字）","editable":false},"6":{"text":"101"}}},"8":{"cells":{"1":{"text":"边框","style":7},"2":{"style":7},"3":{"style":7},"5":{"text":"2"},"8":{}}},"9":{"cells":{"1":{"style":7},"2":{"style":7},"3":{"style":7}}},"12":{"cells":{"1":{"merge":[1,2],"text":"合并并居中","style":8},"2":{"style":8},"3":{"style":8}}},"13":{"cells":{"1":{"text":"合并并居中","style":8},"2":{"style":8},"3":{"style":8}}},"len":100},"cols":{"5":{"width":200},"len":20},"validations":[{"refs":["G8"],"mode":"cell","type":"number","required":false,"operator":"be","value":["1","100"]},{"refs":["F9"],"mode":"cell","type":"list","required":false,"operator":"be","value":"1,2,3,4,5,6,7,8,9,10,11,12,13"}],"autofilter":{}}
+                    'right': ['thin', '#000'],
+                  },
+                },
+              }, '2': {},
+            },
+          },
+          '3': { 'cells': { '1': { 'text': '1', 'style': 1 } } },
+          '4': { 'cells': { '1': { 'text': '1', 'style': 2 } } },
+          '5': { 'cells': { '1': { 'style': 5 } } },
+          '6': { 'cells': { '1': { 'style': 6, 'text': '填充色' }, '2': { 'style': 6 }, '3': { 'style': 6 } } },
+          '7': {
+            'cells': {
+              '1': { 'style': 6 },
+              '2': { 'style': 6 },
+              '3': { 'style': 6 },
+              '5': { 'text': '数据格式：（数字）', 'editable': false },
+              '6': { 'text': '101' },
+            },
+          },
+          '8': {
+            'cells': {
+              '1': { 'text': '边框', 'style': 7 },
+              '2': { 'style': 7 },
+              '3': { 'style': 7 },
+              '5': { 'text': '2' },
+              '8': {},
+            },
+          },
+          '9': { 'cells': { '1': { 'style': 7 }, '2': { 'style': 7 }, '3': { 'style': 7 } } },
+          '12': {
+            'cells': {
+              '1': { 'merge': [1, 2], 'text': '合并并居中', 'style': 8 },
+              '2': { 'style': 8 },
+              '3': { 'style': 8 },
+            },
+          },
+          '13': { 'cells': { '1': { 'text': '合并并居中', 'style': 8 }, '2': { 'style': 8 }, '3': { 'style': 8 } } },
+          'len': 100,
+        },
+        'cols': { '5': { 'width': 200 }, 'len': 20 },
+        'validations': [{
+          'refs': ['G8'],
+          'mode': 'cell',
+          'type': 'number',
+          'required': false,
+          'operator': 'be',
+          'value': ['1', '100'],
+        }, {
+          'refs': ['F9'],
+          'mode': 'cell',
+          'type': 'list',
+          'required': false,
+          'operator': 'be',
+          'value': '1,2,3,4,5,6,7,8,9,10,11,12,13',
+        }],
+        'autofilter': {},
+      },
       // {
       //   'name': 'sheet1',
       //   //设置冻结行和列的右下角单元格，例如B3表示冻结第1，2行和A列

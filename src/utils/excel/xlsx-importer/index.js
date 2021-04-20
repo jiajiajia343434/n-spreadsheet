@@ -75,7 +75,7 @@ export default class {
   parse(arrayBuffer) {
     return new Promise((resolve, reject) => {
       this.workbook.xlsx.load(arrayBuffer).then(async () => {
-        // console.log(window.xx = this.workbook);
+        console.log(window.xx = this.workbook);
         const indexedColors = [];
         try {
           const jsZip = await new JSZip().loadAsync(arrayBuffer);
@@ -118,6 +118,7 @@ export default class {
                 if (_cell) {
                   if (_cell.master.address === _cell.address) {
                     const cell = {};
+                    console.log(_cell, _cell.numFmt, _cell.type);
                     if (typeof _cell.value === 'object') {
                       // formula resove
                       if (_cell.formula) {

@@ -1,5 +1,5 @@
 import { h } from './element';
-import { bindClickoutside, unbindClickoutside } from './event';
+import { bind, bindClickoutside, unbind, unbindClickoutside } from './event';
 import { cssPrefix } from '../config';
 
 function inputMovePrev(evt) {
@@ -108,6 +108,34 @@ function inputKeydownHandler(evt) {
   }
 }
 
+// set modal height and position
+function setHeightAndPosition(el) {
+  const { top, bottom, height } = el.box();
+  // fix previous height
+  if (this.position === 'bottom') {
+    const fixedHeight = bottom - 50;
+    el.css('maxHeight', `${fixedHeight}px`);
+  } else {
+    const fixedHeight = height + window.innerHeight - bottom - 56;
+    el.css('maxHeight', `${fixedHeight}px`);
+  }
+  // calculate height
+  if (bottom >= window.innerHeight) {
+    const fixedHeight = height + window.innerHeight - bottom - 56;
+    el.css('maxHeight', `${fixedHeight}px`);
+  }
+  if (top <= 10) {
+    const fixedHeight = bottom - 50;
+    el.css('maxHeight', `${fixedHeight}px`);
+  }
+
+  // set fixed can display completable
+  el.css('left', `${el.box().x}px`);
+  el.css('top', `${el.box().y}px`);
+  el.css('position', 'fixed');
+  el.css('width', `${el.parent().el.offsetWidth}px`);
+}
+
 export default class Suggest {
   constructor(items, itemClick, width = '200px') {
     this.filterItems = [];
@@ -115,10 +143,24 @@ export default class Suggest {
     this.el = h('div', `${cssPrefix}-suggest`).css('width', width).hide();
     this.itemClick = itemClick;
     this.itemIndex = -1;
-    this.position = {};
+    this.position = 'bottom';
+    let timeout;
+    this._r = () => {
+      if (this.el) {
+        if (timeout) {
+          clearTimeout(timeout);
+        }
+        timeout = setTimeout(() => {
+          setHeightAndPosition.call(this, this.el);
+        }, 100);
+      } else {
+        unbind(window, 'resize', this._r);
+      }
+    };
   }
 
-  setOffset(v) {
+  setOffset(v, position = 'bottom') {
+    this.position = position;
     this.el.css('position', 'absolute');
     this.el.cssRemoveKeys('top', 'bottom')
       .offset(v);
@@ -130,6 +172,7 @@ export default class Suggest {
     this.itemIndex = -1;
     el.hide();
     unbindClickoutside(this.el.parent());
+    unbind(window, 'resize', this._r);
   }
 
   setItems(items) {
@@ -169,24 +212,12 @@ export default class Suggest {
     }
     el.html('').children(...items).show();
     // items[0].toggle();
-    const { top, bottom, height } = el.box();
-    if (bottom >= window.innerHeight) {
-      const fixedHeight = height + window.innerHeight - bottom - 56;
-      el.css('maxHeight', `${fixedHeight}px`);
-    }
-    if (top <= 10) {
-      const fixedHeight = bottom - 50;
-      el.css('maxHeight', `${fixedHeight}px`);
-    }
-
-    // set fixed can display completable
-    el.css('left', `${el.box().x}px`);
-    el.css('top', `${el.box().y}px`);
-    el.css('position', 'fixed');
-    el.css('width', `${el.parent().el.offsetWidth}px`);
+    setHeightAndPosition.call(this, el);
     el.el.onwheel = (event) => {
       event.stopPropagation();
     };
+
+    bind(window, 'resize', this._r);
     bindClickoutside(el.parent(), () => {
       this.hide();
       // el.css('position', 'absolute');

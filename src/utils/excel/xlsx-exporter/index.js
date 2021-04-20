@@ -55,8 +55,6 @@ export default class {
   setData(sheetsData) {
     if (Array.isArray(sheetsData)) {
       const { workbook } = this;
-      workbook.creator = '河北新禾科技';
-      workbook.lastModifiedBy = '河北新禾科技';
       workbook.created = new Date();
       workbook.modified = new Date();
       workbook.lastPrinted = new Date();

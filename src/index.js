@@ -18,11 +18,11 @@ class Spreadsheet {
     if (typeof selectors === 'string') {
       container = document.querySelector(selectors);
     }
-    settings.view = {
+    this.settings = helper.merge(DefaultSetting, settings || {});
+    this.settings.view = {
       height: () => container.clientHeight,
       width: () => container.clientWidth,
     };
-    this.settings = helper.merge(DefaultSetting, settings || {});
     this.sheetIndex = 1;
     this.dataAgents = [];
     this.bottombar = new BottomBar(() => {
