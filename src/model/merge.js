@@ -89,6 +89,19 @@ class Merges {
         }
       }
       if (!isNotMerge) {
+        // fix bug: 删除时，可能导致坐标越界
+        if (range.sri < 0) {
+          range.sri = 0;
+        }
+        if (range.sci < 0) {
+          range.sci = 0;
+        }
+        if (range.eri < 0) {
+          range.eri = 0;
+        }
+        if (range.eci < 0) {
+          range.eci = 0;
+        }
         _new.push(range);
       }
     });
