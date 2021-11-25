@@ -55,8 +55,6 @@ export default class {
   setData(sheetsData) {
     if (Array.isArray(sheetsData)) {
       const { workbook } = this;
-      workbook.creator = '河北新禾科技';
-      workbook.lastModifiedBy = '河北新禾科技';
       workbook.created = new Date();
       workbook.modified = new Date();
       workbook.lastPrinted = new Date();
@@ -129,7 +127,7 @@ export default class {
                         const info = {
                           text: rt.text,
                         };
-                        info.font = transFont(rt);
+                        info.font = transFont(rt.style || {});
                         richText.push(info);
                       });
                       cell.value = {

@@ -226,7 +226,7 @@ export default class Editor {
       textEl.offset({ width: width - 9 + 0.8, height: height - 3 + 0.8 });
       const sOffset = { left: 0 };
       sOffset[suggestPosition] = height;
-      suggest.setOffset(sOffset);
+      suggest.setOffset(sOffset, suggestPosition);
       suggest.hide();
     }
   }

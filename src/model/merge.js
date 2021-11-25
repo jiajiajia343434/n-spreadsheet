@@ -55,38 +55,56 @@ class Merges {
 
   // type: row | column
   shift(type, index, n, cbWithin) {
+    // console.log('type:', type, 'index:', index, 'n:', n);
     const _new = [];
     this._.forEach((cellRange) => {
+      let isNotMerge = false;
       const {
         sri, sci, eri, eci,
       } = cellRange;
       const range = cellRange;
       if (type === 'row') {
-        if (sri >= index) {
+        if (sri > index) {
           // fix bug: 删除行时，合并信息没有删除
-          if (eri < index - n) {
+          if (eri <= index - n) {
             return;
           }
           range.sri += n;
           range.eri += n;
-        } else if (sri < index && index <= eri) {
+        } else if (sri <= index && index <= eri) {
           range.eri += n;
-          cbWithin(sri, sci, n, 0);
+          isNotMerge = cbWithin(sri, sci, n, 0, cellRange);
         }
       } else if (type === 'column') {
-        if (sci >= index) {
+        console.log(sci,index);
+        if (sci > index) {
           // fix bug: 删除行时，合并信息没有删除
-          if (eci < index - n) {
+          if (eci <= index - n) {
             return;
           }
           range.sci += n;
           range.eci += n;
-        } else if (sci < index && index <= eci) {
+        } else if (sci <= index && index <= eci) {
           range.eci += n;
-          cbWithin(sri, sci, 0, n);
+          isNotMerge = cbWithin(sri, sci, 0, n, cellRange);
         }
       }
-      _new.push(range);
+      if (!isNotMerge) {
+        // fix bug: 删除时，可能导致坐标越界
+        if (range.sri < 0) {
+          range.sri = 0;
+        }
+        if (range.sci < 0) {
+          range.sci = 0;
+        }
+        if (range.eri < 0) {
+          range.eri = 0;
+        }
+        if (range.eci < 0) {
+          range.eci = 0;
+        }
+        _new.push(range);
+      }
     });
     this._ = _new;
   }

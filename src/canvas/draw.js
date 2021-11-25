@@ -131,7 +131,7 @@ function drawFontLine(type, tx, ty, align, blheight, blwidth, isDouble = false) 
   }
 }
 
-function combineFontStyle(partialStyle, mainFont) {
+function combineFontStyle(partialStyle, mainFont, color) {
   const style = {};
   if (partialStyle.font) {
     const italic = Object.hasOwnProperty.call(partialStyle.font, 'italic') ? partialStyle.font.italic : mainFont.italic;
@@ -143,6 +143,9 @@ function combineFontStyle(partialStyle, mainFont) {
   if (partialStyle.color) {
     style.fillStyle = partialStyle.color;
     style.strokeStyle = partialStyle.color;
+  } else {
+    style.fillStyle = color;
+    style.strokeStyle = color;
   }
   return style;
 }
@@ -319,7 +322,7 @@ class Draw {
         let isSnippetEnd = false;
         // set snippet style
         if (richText[temp.snippetIdxNow].style) {
-          const style = combineFontStyle(richText[temp.snippetIdxNow].style, font);
+          const style = combineFontStyle(richText[temp.snippetIdxNow].style, font, color);
           this.attr(style);
         }
         // measure char width
@@ -399,7 +402,7 @@ class Draw {
         ty += (textInfo.maxFontSize / 2 + 1);
         textInfo.forEach((snippetInfo, idx) => {
           const offsetX = calulateOffsetX(align, textInfo, idx);
-          this.attr(combineFontStyle(snippetInfo.style, font));
+          this.attr(combineFontStyle(snippetInfo.style, font, color));
           let offsetY;
           let fontSize;
           if (snippetInfo.style && snippetInfo.style.font && snippetInfo.style.font.size) {
