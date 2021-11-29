@@ -1,6 +1,6 @@
 import { Element } from './element';
 import { cssPrefix } from '../config';
-import { t } from '../locale/locale';
+import { t } from '@/locale/locale';
 
 export default class Button extends Element {
   // type: primary
