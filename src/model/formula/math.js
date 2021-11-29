@@ -2,7 +2,7 @@
  formula:
  数学运算类
  */
-import { tf } from '../locale/locale';
+import { tf } from '@/locale/locale';
 
 // 修复四则运算小数不准确
 const floatCalc = (x, y) => {

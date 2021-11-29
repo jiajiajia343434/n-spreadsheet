@@ -4,7 +4,7 @@ import { formatm } from '../model/format';
 
 import { Draw, DrawBox, npx, thinLineWidth } from '../canvas/draw';
 import cellModel from '../model/cell';
-import { formulam } from '../formula/formula';
+import { formulam } from '@/model/formula/formula';
 // gobal var
 const cellPaddingWidth = 1;
 const tableFixedHeaderCleanStyle = { fillStyle: '#f4f5f8' };
