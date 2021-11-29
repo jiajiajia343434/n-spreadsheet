@@ -66,6 +66,7 @@
     "webpack-merge": "^4.1.4"
   },
   "dependencies": {
+    "eslint-import-resolver-webpack": "^0.13.2",
     "exceljs": "^4.2.1",
     "jszip": "^3.4.0"
   }
