@@ -2,11 +2,11 @@ import { tf } from '@/locale/locale';
 
 const formatStringRender = v => v;
 
-const formatNumberRender = (v) => {
+const formatNumberRender = (v, precision) => {
   // match "-12.1" or "12" or "12.1"
   if (/^(-?\d*.?\d*)$/.test(v)) {
     const v1 = Number(v)
-      .toFixed(2)
+      .toFixed(precision || 2)
       .toString();
     const [first, ...parts] = v1.split('\\.');
     return [first.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), ...parts];
@@ -39,7 +39,22 @@ const baseFormats = [
     title: tf('format.percent'),
     type: 'number',
     label: '10.12%',
-    render: v => `${v * 100}%`,
+    render: (v) => {
+      if (v === null || typeof v === 'undefined') {
+        return '0%';
+      }
+      const precision = v.length - (v.indexOf('.') + 1) - 2;
+      if (precision >= 0) {
+        return `${(v * 100).toFixed(precision)}%`;
+      }
+      return `${(v * 100).toFixed(0)}%`;
+    },
+  }, {
+    key: 'percentNumber',
+    title: tf('format.percentNumber'),
+    type: 'number',
+    label: '10.12%',
+    render: v => `${v}%`,
   },
   {
     key: 'rmb',

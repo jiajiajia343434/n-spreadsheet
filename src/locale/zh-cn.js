@@ -50,6 +50,7 @@ export default {
     text: '文本',
     number: '数值',
     percent: '百分比',
+    percentNumber: '百分比数字',
     rmb: '人民币',
     usd: '美元',
     eur: '欧元',

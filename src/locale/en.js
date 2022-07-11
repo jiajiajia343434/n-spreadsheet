@@ -49,6 +49,7 @@ export default {
     text: 'Plain Text',
     number: 'Number',
     percent: 'Percent',
+    percentNumber: 'Percent Number',
     rmb: 'RMB',
     usd: 'USD',
     eur: 'EUR',
