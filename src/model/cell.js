@@ -1,4 +1,4 @@
-import { evalFormula } from '@/model/formula/interpreter';
+import { evalFormula } from '../formula/interpreter';
 
 const calFormula = (src, formulaMap, getCellText, deps) => {
   if (src[0] === '=') {

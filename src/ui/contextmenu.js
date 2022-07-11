@@ -1,7 +1,7 @@
 import { h } from './element';
 import { bindClickoutside, unbindClickoutside } from './event';
 import { cssPrefix } from '../config';
-import { tf } from '@/locale/locale';
+import { tf } from '../locale/locale';
 
 const sysMenuItems = [
   { key: 'cut', title: tf('contextmenu.cut'), label: 'Ctrl+X', privileges: [] },

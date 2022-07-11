@@ -5,7 +5,7 @@ import Icon from './icon';
 import FormInput from './form_input';
 import Dropdown from './dropdown';
 import { message } from './message';
-import { t, tf } from '@/locale/locale';
+import { t, tf } from '../locale/locale';
 
 class DropdownMore extends Dropdown {
   constructor(click) {

@@ -1,4 +1,4 @@
-import { t } from '@/locale/locale';
+import { t } from '../locale/locale';
 import helper from './helper';
 
 const rules = {

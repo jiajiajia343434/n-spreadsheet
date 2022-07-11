@@ -2,7 +2,7 @@ import { h } from './element';
 import Button from './button';
 import { bindClickoutside, unbindClickoutside } from './event';
 import { cssPrefix } from '../config';
-import { t } from '@/locale/locale';
+import { t } from '../locale/locale';
 
 function buildMenu(clsName) {
   return h('div', `${cssPrefix}-item ${clsName}`);

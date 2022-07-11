@@ -13,8 +13,8 @@ import ModalValidation from './modal_validation';
 import SortFilter from './sort_filter';
 import { message } from './message';
 import { cssPrefix } from '../config';
-import { formulas } from '@/model/formula/formula';
-import { t as locale } from '@/locale/locale';
+import { formulas } from '../formula/formula';
+import { t as locale } from '../locale/locale';
 import helper from '../model/helper';
 import OperableCell from '../utils/decorator/OperableCell';
 

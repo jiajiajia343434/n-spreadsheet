@@ -1,4 +1,4 @@
-import { expr2xy, xy2expr } from '@/model/alphabet';
+import { expr2xy, xy2expr } from '../model/alphabet';
 
 const baseOperator = [
   ':',
