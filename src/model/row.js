@@ -109,11 +109,13 @@ class Rows {
 
   setCellText(ri, ci, text, formulaText) {
     const cell = this.getCellOrNew(ri, ci);
-    cell.formula = formulaText;
-    cell.text = text;
-    // todo: edit richText. only delete the richText attribute now
-    if (cell.richText) {
-      delete cell.richText;
+    if (typeof cell.editable === 'undefined' || cell.editable) {
+      cell.formula = formulaText;
+      cell.text = text;
+      // todo: edit richText. only delete the richText attribute now
+      if (cell.richText) {
+        delete cell.richText;
+      }
     }
   }
 
