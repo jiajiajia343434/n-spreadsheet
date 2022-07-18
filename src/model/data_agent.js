@@ -418,7 +418,7 @@ function copyToSystemClipboard(clipboardData) {
       }
     }
     if (ri !== range.eri) {
-      text += '\n';
+      text += '\r\n';
     }
   }
   clipboardData.setData('text', text);
@@ -538,7 +538,7 @@ export default class DataAgent {
 
   pasteFromText(txt) {
     const lines = txt.split('\r\n').map(it => it.replace(/"/g, '').split('\t'));
-    if (lines.length > 0) lines.length -= 1;
+    // if (lines.length > 0) lines.length -= 1;
     const { rows, selector } = this;
     this.changeData(() => {
       rows.paste(lines, selector.range);
@@ -1139,8 +1139,7 @@ export default class DataAgent {
       const deps = new Set();
       result = cellModel.calFormula(text || '', formulam, (y, x) => (this.getCellTextOrDefault(x, y)), deps);
       if (deps.has(name)) {
-        // 循环引用 todo 优化提醒
-        alert('循环引用');
+        message(t('error.tip'), t('error.circularReference'));
         return;
       }
       // set dependence

@@ -481,6 +481,7 @@ function clearClipboard() {
 }
 
 function copy(evt) {
+  debugger
   if (evt && evt.target.tagName !== 'TEXTAREA') {
     const { data, selector } = this;
     const clipboardData = evt.clipboardData || window.clipboardData;

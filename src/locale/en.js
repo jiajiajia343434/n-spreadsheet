@@ -134,6 +134,7 @@ export default {
   },
   error: {
     pasteForMergedCell: 'Unable to do this for merged cells',
+    circularReference: 'Appear circular reference',
   },
   calendar: {
     weeks: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],

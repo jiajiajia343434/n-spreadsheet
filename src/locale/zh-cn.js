@@ -146,6 +146,7 @@ export default {
     tip: '提示',
     pasteForMergedCell: '无法对合并的单元格执行此操作',
     hasCannotEditable: '包含不可编辑的单元格',
+    circularReference: '出现循环引用',
   },
   calendar: {
     weeks: ['日', '一', '二', '三', '四', '五', '六'],
