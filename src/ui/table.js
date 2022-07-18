@@ -1,4 +1,4 @@
-import { stringAt } from '../model/alphabet';
+import { stringAt, xy2expr } from '../model/alphabet';
 import { getFontSizePxByPt } from '../model/font';
 import { formatm } from '../model/format';
 
@@ -76,6 +76,9 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
     if (cell.formula) {
       const deps = new Set();
       cellText = cellModel.calFormula(`=${cell.formula}`, formulam, (y, x) => (data.getCellTextOrDefault(x, y)), deps);
+      const name = xy2expr(cindex, rindex);
+      // set dependence
+      data.cellDepsList[name] = deps;
     } else {
       cellText = cell.text || '';
     }
