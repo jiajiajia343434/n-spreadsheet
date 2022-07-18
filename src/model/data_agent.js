@@ -1151,21 +1151,23 @@ export default class DataAgent {
     if (typeof formulaText === 'undefined') {
       delete this.cellDepsList[name];
     }
-    rows.setCellText(ri, ci, result, formulaText);
+    const isSet = rows.setCellText(ri, ci, result, formulaText);
     // update dependent cell
-    Object.keys(this.cellDepsList).forEach((cellName) => {
-      let updated = false;
-      this.cellDepsList[cellName].forEach((k) => {
-        if (k === name && !updated) {
-          updated = true;
-          const xy = expr2xy(cellName);
-          const cell = this.getCell(xy[1], xy[0]);
-          const deps = new Set();
-          const s = cellModel.calFormula(`=${cell.formula}`, formulam, (y, x) => (this.getCellTextOrDefault(x, y)), deps);
-          rows.setCellText(xy[1], xy[0], s, cell.formula);
-        }
+    if (isSet) {
+      Object.keys(this.cellDepsList).forEach((cellName) => {
+        let updated = false;
+        this.cellDepsList[cellName].forEach((k) => {
+          if (k === name && !updated) {
+            updated = true;
+            const xy = expr2xy(cellName);
+            const cell = this.getCell(xy[1], xy[0]);
+            const deps = new Set();
+            const s = cellModel.calFormula(`=${cell.formula}`, formulam, (y, x) => (this.getCellTextOrDefault(x, y)), deps);
+            rows.setCellText(xy[1], xy[0], s, cell.formula, true);
+          }
+        });
       });
-    });
+    }
 
     this.change(this);
     // validator

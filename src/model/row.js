@@ -107,16 +107,22 @@ class Rows {
     }
   }
 
-  setCellText(ri, ci, text, formulaText) {
+  setCellText(ri, ci, text, formulaText, byDeps = false) {
     const cell = this.getCellOrNew(ri, ci);
-    if (typeof cell.editable === 'undefined' || cell.editable) {
-      cell.formula = formulaText;
-      cell.text = text;
+    if (byDeps || typeof cell.editable === 'undefined' || cell.editable) {
+      if (formulaText) {
+        cell.formula = formulaText;
+      }
+      if (text) {
+        cell.text = text;
+      }
       // todo: edit richText. only delete the richText attribute now
       if (cell.richText) {
         delete cell.richText;
       }
+      return true;
     }
+    return false;
   }
 
   // what: all | format | text
