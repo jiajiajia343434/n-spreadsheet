@@ -137,7 +137,7 @@ function overlayerMousemove(evt) {
   const {
     rowResizer, colResizer, tableEl, data,
   } = this;
-  const { rows, cols } = data;
+  const { rows, cols, scale } = data;
   if (offsetX > cols.indexWidth && offsetY > rows.height) {
     rowResizer.hide();
     colResizer.hide();
@@ -481,7 +481,7 @@ function clearClipboard() {
 }
 
 function copy(evt) {
-  debugger
+  // debugger
   if (evt && evt.target.tagName !== 'TEXTAREA') {
     const { data, selector } = this;
     const clipboardData = evt.clipboardData || window.clipboardData;

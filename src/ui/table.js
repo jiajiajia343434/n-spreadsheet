@@ -266,6 +266,7 @@ function renderFixedLeftTopCell(fw, fh) {
 }
 
 function renderContentGrid({ sri, sci, eri, eci, w, h }, fw, fh, tx, ty) {
+  const r = [];
   const { draw, data } = this;
   const { settings } = data;
   draw.save();
@@ -277,25 +278,32 @@ function renderContentGrid({ sri, sci, eri, eci, w, h }, fw, fh, tx, ty) {
   draw.clearRect(0, 0, w, h);
   if (!settings.showGrid) {
     draw.restore();
-    return;
+    return r;
   }
   // console.log('rowStart:', rowStart, ', rowLen:', rowLen);
   data.rowEach(sri, eri, (i, y, ch) => {
     // console.log('y:', y);
     if (i !== sri) draw.line([0, y], [w, y]);
-    if (i === eri) draw.line([0, y + ch], [w, y + ch]);
+    if (i === eri) {
+      draw.line([0, y + ch], [w, y + ch]);
+      r[0] = y + ch;
+    }
   });
   data.colEach(sci, eci, (i, x, cw) => {
     if (i !== sci) draw.line([x, 0], [x, h]);
-    if (i === eci) draw.line([x + cw, 0], [x + cw, h]);
+    if (i === eci) {
+      draw.line([x + cw, 0], [x + cw, h]);
+      r[1] = x + cw;
+    }
   });
   draw.restore();
+  return r;
 }
 
-function renderFreezeHighlightLine(fw, fh, ftw, fth) {
+function renderFreezeHighlightLine(fw, fh, ftw, fth, boundary) {
   const { draw, data } = this;
-  const twidth = data.viewWidth() / data.scale - fw;
-  const theight = data.viewHeight() / data.scale - fh;
+  const twidth = boundary[0][1] ? boundary[0][1] : data.viewWidth() / data.scale - fw;
+  const theight = boundary[1][0] ? boundary[1][0] : data.viewHeight() / data.scale - fh;
   draw.save()
     .translate(fw, fh)
     .attr({ strokeStyle: 'rgba(75, 137, 255, .6)' });
@@ -304,10 +312,10 @@ function renderFreezeHighlightLine(fw, fh, ftw, fth) {
   draw.restore();
 }
 
-function renderFreezeMask(fw, fh, ftw, fth) {
+function renderFreezeMask(fw, fh, ftw, fth, boundary) {
   const { draw, data } = this;
-  const twidth = data.viewWidth() / data.scale - fw;
-  const theight = data.viewHeight() / data.scale - fh;
+  const twidth = boundary[0][1] ? boundary[0][1] : data.viewWidth() / data.scale - fw;
+  const theight = boundary[1][0] ? boundary[1][0] : data.viewHeight() / data.scale - fh;
   draw.save();
   draw.attr({ fillStyle: 'rgba(75, 137, 255, .2)' });
   // cross
@@ -403,13 +411,14 @@ class Table {
     renderFixedLeftTopCell.call(this, fw, fh);
     const [fri, fci] = data.freeze;
     if (fri > 0 || fci > 0) {
+      const boundary = [[undefined, 0], [0, undefined]];
       // 2
       if (fri > 0) {
         const vr = viewRange.clone();
         vr.sri = 0;
         vr.eri = fri - 1;
         vr.h = ty;
-        renderContentGrid.call(this, vr, fw, fh, tx, 0);
+        boundary[0] = renderContentGrid.call(this, vr, fw, fh, tx, 0);
         renderContent.call(this, vr, fw, fh, -x, 0);
         renderFixedHeaders.call(this, 'top', vr, fw, fh, tx, 0);
       }
@@ -419,7 +428,7 @@ class Table {
         vr.sci = 0;
         vr.eci = fci - 1;
         vr.w = tx;
-        renderContentGrid.call(this, vr, fw, fh, 0, ty);
+        boundary[1] = renderContentGrid.call(this, vr, fw, fh, 0, ty);
         renderFixedHeaders.call(this, 'left', vr, fw, fh, 0, ty);
         renderContent.call(this, vr, fw, fh, 0, -y);
       }
@@ -429,8 +438,8 @@ class Table {
       renderFixedHeaders.call(this, 'all', freezeViewRange, fw, fh, 0, 0);
       renderContent.call(this, freezeViewRange, fw, fh, 0, 0);
       // 5
-      renderFreezeHighlightLine.call(this, fw, fh, tx, ty);
-      renderFreezeMask.call(this, fw, fh, tx, ty);
+      renderFreezeHighlightLine.call(this, fw, fh, tx, ty, boundary);
+      renderFreezeMask.call(this, fw, fh, tx, ty, boundary);
     }
   }
 }

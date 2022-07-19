@@ -229,7 +229,6 @@
 }
 
 .@{css-prefix}-dropdown {
-  position: relative;
 
   .@{css-prefix}-dropdown-content {
     position: absolute;
@@ -246,28 +245,28 @@
 
   &.bottom-left {
     .@{css-prefix}-dropdown-content {
-      top: calc(~'100% + 5px');
+      top: calc(~'100%');
       left: 0;
     }
   }
 
   &.bottom-right {
     .@{css-prefix}-dropdown-content {
-      top: calc(~'100% + 5px');
+      top: calc(~'100%');
       right: 0;
     }
   }
 
   &.top-left {
     .@{css-prefix}-dropdown-content {
-      bottom: calc(~'100% + 5px');
+      bottom: calc(~'100%');
       left: 0;
     }
   }
 
   &.top-right {
     .@{css-prefix}-dropdown-content {
-      bottom: calc(~'100% + 5px');
+      bottom: calc(~'100%');
       right: 0;
     }
   }
@@ -789,6 +788,7 @@
     }
 
     .@{css-prefix}-bottom-btn-infos {
+      position: relative;
     }
 
     .@{css-prefix}-bottom-btn-add {
@@ -922,6 +922,7 @@
   }
 
   .@{css-prefix}-toolbar-more {
+    position: relative;
     padding: 0 6px 6px;
     text-align: left;
 
@@ -931,6 +932,7 @@
   }
 
   .@{css-prefix}-toolbar-btn {
+    position: relative;
     flex: 0 0 auto;
     display: inline-block;
     border: 1px solid transparent;

@@ -59,9 +59,15 @@ export default class Resizer {
       width: vertical ? 0 : line.width,
       height: vertical ? line.height : 0,
     });
+    // unhideHoverEl.offset({
+    //   left: vertical ? scaleFn(5 - width) : left,
+    //   top: vertical ? top : scaleFn(5 - height),
+    //   width: vertical ? scaleFn(5) : scaleFn(width),
+    //   height: vertical ? scaleFn(height) : scaleFn(5),
+    // });
     unhideHoverEl.offset({
-      left: vertical ? scaleFn(5 - width) : left,
-      top: vertical ? top : scaleFn(5 - height),
+      left: vertical ? scaleFn(5) - width : 0,
+      top: vertical ? 0 : scaleFn(5) - height,
       width: vertical ? scaleFn(5) : scaleFn(width),
       height: vertical ? scaleFn(height) : scaleFn(5),
     });
