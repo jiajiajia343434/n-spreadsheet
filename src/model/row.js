@@ -1,5 +1,34 @@
 import helper from './helper';
-import { expr2expr } from './alphabet';
+import { expr2expr, xy2expr } from './alphabet';
+import cellModel from './cell';
+import { formulam } from '../formula/formula';
+
+function addProxyFn(that, name, target) {
+  const obj = {};
+  Object.defineProperty(obj, 'text', {
+    set(text) {
+      obj.__text__ = text;
+    },
+    get() {
+      if (obj.formula) {
+        const deps = new Set();
+        const result = cellModel.calFormula(`=${obj.formula}` || '', formulam, (y, x) => {
+          const cell = that.getCell(x, y);
+          if (name === xy2expr(y, x)) {
+            return '';
+          }
+          return (cell && cell.text) ? cell.text : '';
+        }, deps);
+        if (deps.has(name)) {
+          return '#ERR';
+        }
+        return result;
+      }
+      return obj.__text__;
+    },
+  });
+  return Object.assign(obj, target);
+}
 
 class Rows {
   constructor(globalSettings, { len, height, minHeight }) {
@@ -88,7 +117,7 @@ class Rows {
 
   getCellOrNew(ri, ci) {
     const row = this.getOrNew(ri);
-    row.cells[ci] = row.cells[ci] || {};
+    row.cells[ci] = row.cells[ci] || addProxyFn(this, xy2expr(ci, ri), {});
     return row.cells[ci];
   }
 
@@ -309,7 +338,7 @@ class Rows {
         if (what === 'all') {
           delete row.cells[ci];
         } else if (what === 'text') {
-          if (cell.text) delete cell.text;
+          if (cell.text) cell.text = undefined;
           if (cell.value) delete cell.value;
           if (cell.formula) delete cell.formula;
         } else if (what === 'format') {
@@ -357,6 +386,17 @@ class Rows {
       delete d.len;
     }
     this._ = d;
+    // 增加计算公式的拦截器
+    const rowKeys = Object.keys(this._);
+    for (let i = 0; i < rowKeys.length; i += 1) {
+      const { cells } = this._[rowKeys[i]];
+      if (cells) {
+        const cellKeys = Object.keys(cells);
+        for (let j = 0; j < cellKeys.length; j += 1) {
+          cells[cellKeys[j]] = addProxyFn(this, xy2expr(j, i), cells[cellKeys[j]]);
+        }
+      }
+    }
   }
 
   getData() {

@@ -540,6 +540,7 @@ const evalFormula = (srcText, formulaMap, cellRender, deps) => {
     result = evalSuffixExpr(expr, formulaMap, cellRender, deps);
   } catch (e) {
     console.log(e);
+    result = '#ERR';
   }
   if (result instanceof Cell) {
     deps.add(result.name);

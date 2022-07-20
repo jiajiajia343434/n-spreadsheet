@@ -71,17 +71,18 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
   // console.log('cell:', rindex, cindex);
   draw.rect(dbox, () => {
     // render text
-    let cellText;
-    // todo: optimize performance. do calculation in data model, not in UI.
-    if (cell.formula) {
-      const deps = new Set();
-      cellText = cellModel.calFormula(`=${cell.formula}`, formulam, (y, x) => (data.getCellTextOrDefault(x, y)), deps);
-      const name = xy2expr(cindex, rindex);
-      // set dependence
-      data.cellDepsList[name] = deps;
-    } else {
-      cellText = cell.text || '';
-    }
+    let cellText = cell.text;
+    // optimize performance. do calculation in data model, not in UI. 2022-07-20
+    // if (cell.formula) {
+    //   const deps = new Set();
+    //   cellText = cellModel.calFormula(`=${cell.formula}`, formulam,
+    //     (y, x) => (data.getCellTextOrDefault(x, y)), deps);
+    //   const name = xy2expr(cindex, rindex);
+    //   // set dependence
+    //   data.cellDepsList[name] = deps;
+    // } else {
+    //   cellText = cell.text || '';
+    // }
     // render format
     if (style.format) {
       // console.log(data.formatm, '>>', cell.format);
