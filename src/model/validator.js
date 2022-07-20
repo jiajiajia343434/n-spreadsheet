@@ -58,8 +58,11 @@ export default class Validator {
     const {
       required, operator, value, type,
     } = this;
-    if (required && /^\s*$/.test(v)) {
+    if (required && (typeof v === 'undefined' || v === null || /^\s*$/.test(v))) {
       return returnMessage(false, 'required');
+    }
+    if (!required && (typeof v === 'undefined' || v === null || /^\s*$/.test(v))) {
+      return [true];
     }
     if (/^\s*$/.test(v)) return [true];
     if (rules[type] && !rules[type].test(v)) {

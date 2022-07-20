@@ -1,6 +1,6 @@
 {
   "name": "n-spreadsheet",
-  "version": "0.0.43-alpha6",
+  "version": "0.0.43-alpha7",
   "description": "A excel-liked javaScript spreadsheet",
   "main": "src/index.js",
   "files": [

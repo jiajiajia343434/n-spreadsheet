@@ -432,9 +432,9 @@ export default class DataAgent {
     this.freeze = [0, 0];
     this.styles = []; // Array<Style>
     this.merges = new Merges(); // [CellRange, ...]
-    this.rows = new Rows(this.settings, this.settings.row);
-    this.cols = new Cols(this.settings, this.settings.col);
     this.validations = new Validations();
+    this.rows = new Rows(this.settings, this.settings.row, this.validations);
+    this.cols = new Cols(this.settings, this.settings.col);
     this.hyperlinks = {};
     this.comments = {};
     this.scale = 1;
@@ -1173,7 +1173,7 @@ export default class DataAgent {
 
     this.change(this);
     // validator
-    validations.validate(ri, ci, text);
+    // validations.validate(ri, ci, text);
   }
 
   freezeIsActive() {

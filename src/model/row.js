@@ -3,7 +3,7 @@ import { expr2expr, xy2expr } from './alphabet';
 import cellModel from './cell';
 import { formulam } from '../formula/formula';
 
-function addProxyFn(that, name, target) {
+function addProxyFn(that, name, target, ri, ci) {
   const obj = {};
   Object.defineProperty(obj, 'text', {
     set(text) {
@@ -22,8 +22,10 @@ function addProxyFn(that, name, target) {
         if (deps.has(name)) {
           return '#ERR';
         }
+        that.validations.validate(ri, ci, result);
         return result;
       }
+      that.validations.validate(ri, ci, obj.__text__);
       return obj.__text__;
     },
   });
@@ -31,13 +33,14 @@ function addProxyFn(that, name, target) {
 }
 
 class Rows {
-  constructor(globalSettings, { len, height, minHeight }) {
+  constructor(globalSettings, { len, height, minHeight }, validations) {
     this.globalSettings = globalSettings;
     this._ = {};
     this.len = len;
     // default row height
     this.height = height;
     this.minHeight = minHeight;
+    this.validations = validations;
   }
 
   getHeight(ri) {
@@ -117,7 +120,7 @@ class Rows {
 
   getCellOrNew(ri, ci) {
     const row = this.getOrNew(ri);
-    row.cells[ci] = row.cells[ci] || addProxyFn(this, xy2expr(ci, ri), {});
+    row.cells[ci] = row.cells[ci] || addProxyFn(this, xy2expr(ci, ri), {}, ri, ci);
     return row.cells[ci];
   }
 
@@ -393,7 +396,7 @@ class Rows {
       if (cells) {
         const cellKeys = Object.keys(cells);
         for (let j = 0; j < cellKeys.length; j += 1) {
-          cells[cellKeys[j]] = addProxyFn(this, xy2expr(j, i), cells[cellKeys[j]]);
+          cells[cellKeys[j]] = addProxyFn(this, xy2expr(j, i), cells[cellKeys[j]], i, j);
         }
       }
     }
