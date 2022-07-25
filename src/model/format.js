@@ -54,7 +54,7 @@ const baseFormats = [
     title: tf('format.percentNumber'),
     type: 'number',
     label: '10.12%',
-    render: v => `${v}%`,
+    render: v => (v ? '' : `${Number.parseFloat(v)}%`),
   },
   {
     key: 'rmb',
