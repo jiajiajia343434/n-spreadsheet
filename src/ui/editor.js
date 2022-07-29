@@ -170,6 +170,9 @@ export default class Editor {
     this.el = h('div', `${cssPrefix}-editor`)
       .child(this.areaEl).hide();
     this.suggest.bindInputEvents(this.textEl);
+    this.textEl.el.onblur = () => {
+      this.restore();
+    };
 
     this.areaOffset = null;
     this.freeze = { w: 0, h: 0 };
