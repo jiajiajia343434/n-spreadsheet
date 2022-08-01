@@ -73,7 +73,12 @@ function inputEnter(evt) {
   const { filterItems } = this;
   if (filterItems.length <= 0) return;
   evt.stopPropagation();
-  if (this.itemIndex < 0) this.itemIndex = 0;
+  if (this.itemIndex < 0) {
+    // this.itemIndex = 0;  <- 默认选中第一个
+    // 默认不选中 v
+    this.hide();
+    return;
+  }
   filterItems[this.itemIndex].el.click();
   this.hide();
 }
@@ -141,6 +146,9 @@ export default class Suggest {
     this.filterItems = [];
     this.items = items;
     this.el = h('div', `${cssPrefix}-suggest`).css('width', width).hide();
+    this.el.on('mouseout', () => {
+      this.value = undefined;
+    });
     this.itemClick = itemClick;
     this.itemIndex = -1;
     this.position = 'bottom';
@@ -200,6 +208,9 @@ export default class Suggest {
         .on('click.stop', () => {
           this.itemClick(it);
           this.hide();
+        })
+        .on('mouseover', () => {
+          this.value = it;
         });
       if (it.label) {
         item.child(h('div', 'label').html(it.label));

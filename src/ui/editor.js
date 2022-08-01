@@ -189,7 +189,12 @@ export default class Editor {
 
   restore() {
     if (this.isEditing()) {
-      this.change(this.inputText);
+      console.log(this.suggest.value, this.inputText);
+      if (this.suggest.value) {
+        this.change(this.suggest.value);
+      } else {
+        this.change(this.inputText);
+      }
     }
     this.cell = null;
     this.areaOffset = null;
