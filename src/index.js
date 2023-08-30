@@ -68,7 +68,7 @@ class Spreadsheet {
       .on('contextmenu', evt => evt.preventDefault());
     // create canvas element
     container.appendChild(rootEl.el);
-    this.sheet = new Sheet(rootEl, this.dataAgent);
+    this.sheet = new Sheet(rootEl, this.dataAgent, container);
     rootEl.child(this.bottombar.el);
     this.loadData(initData);
     onLoad.call(this, this, this.dataAgent, this.dataAgents);

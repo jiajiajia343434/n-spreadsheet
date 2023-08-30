@@ -1,13 +1,15 @@
 {
-  "name": "n-spreadsheet",
-  "version": "0.0.43-alpha13",
+  "name": "@newhero/n-spreadsheet",
+  "version": "0.0.43-alpha18",
   "description": "A excel-liked javaScript spreadsheet",
-  "main": "src/index.js",
+  "source": "src/index.js",
+  "main": "dist/index.js",
   "files": [
     "assets",
     "src",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "dist"
   ],
   "author": "gooleem",
   "license": "MIT",
@@ -63,7 +65,7 @@
     "webpack": "^4.29.6",
     "webpack-cli": "^3.1.0",
     "webpack-dev-server": "^3.10.2",
-    "webpack-merge": "^4.1.4"
+    "webpack-merge": "^4.1.4",
   },
   "dependencies": {
     "eslint-import-resolver-webpack": "^0.13.2",

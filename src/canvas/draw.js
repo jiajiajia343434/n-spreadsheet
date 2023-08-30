@@ -624,7 +624,7 @@ class Draw {
     const { ctx } = this;
     const { x, y, width, height } = box;
     ctx.save();
-    ctx.fillStyle = 'rgba(193,193,193,0.2)';
+    ctx.fillStyle = 'rgba(193,193,193,0.35)';
     ctx.fillRect(
       npx(x),
       npx(y),

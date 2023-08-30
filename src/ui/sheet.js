@@ -768,6 +768,7 @@ function sortFilterChange(ci, order, operator, value) {
 
 function sheetInitEvents() {
   const {
+    container,
     selector,
     overlayerEl,
     rowResizer,
@@ -994,7 +995,7 @@ function sheetInitEvents() {
     },
   ];
 
-  bind(window, 'resize', () => {
+  bind(container, 'resize', () => {
     this.reload();
   });
 
@@ -1177,7 +1178,8 @@ function sheetInitEvents() {
 }
 
 export default class Sheet {
-  constructor(targetEl, data) {
+  constructor(targetEl, data, container) {
+    this.container = container;
     this.eventMap = new Map();
     const { showToolbar, showContextmenu } = data.settings;
     this.el = h('div', `${cssPrefix}-sheet`);
