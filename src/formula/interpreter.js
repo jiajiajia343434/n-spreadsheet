@@ -1,4 +1,4 @@
-import { expr2xy, xy2expr } from '../model/alphabet';
+import {expr2xy, xy2expr} from '../model/alphabet';
 
 const baseOperator = [
   ':',
@@ -58,8 +58,8 @@ class Colon extends Operator {
     const sCell = params[0];
     const eCell = params[1];
     const result = [];
-    for (let { x } = sCell; x <= eCell.x; x += 1) {
-      for (let { y } = sCell; y <= eCell.y; y += 1) {
+    for (let {x} = sCell; x <= eCell.x; x += 1) {
+      for (let {y} = sCell; y <= eCell.y; y += 1) {
         result.push(new Cell(xy2expr(x, y)));
       }
     }
@@ -270,7 +270,7 @@ const operatorMap = {
 // 中缀表达式 => 后缀表达式 + 公式树的形式 , 即公式作为子表达式处理，在后缀表达式里一个公式当做普通操作数看待
 const infixToSuffixExpr = (src) => {
   const ex = src.trim();
-
+  console.log(ex)
   const result = [];// 存放结果
   let chars = [];// 存放读取到的零散操作数
   const stack = [];// 操作符栈
@@ -300,7 +300,7 @@ const infixToSuffixExpr = (src) => {
     }
 
     // 遇到连续的字母和数字，合并为操作数
-    while ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || c === '.') {
+    while ((c >= 'a' && c <= 'z') || (typeof c !== 'number' && c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || c === '.') {
       chars.push(c.toUpperCase());
       i += 1;
       c = ex.charAt(i);
@@ -360,7 +360,7 @@ const infixToSuffixExpr = (src) => {
       const operator = operatorMap[c]();
       if (stack.length > 0) {
         let fn = stack[stack.length - 1];
-        while (operator.proper(fn) === -1 && fn !== '(') {
+        while (operator.proper(fn) < 1 && fn !== '(') {
           result.push(fn);
           stack.pop();
           fn = stack[stack.length - 1];
