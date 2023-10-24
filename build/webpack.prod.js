@@ -25,5 +25,7 @@ module.exports = merge(common, {
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, '../dist'),
+    libraryTarget: 'umd',
+    libraryExport: 'default', // 增加这个属性
   },
 });

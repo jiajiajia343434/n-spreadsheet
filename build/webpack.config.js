@@ -5,7 +5,7 @@ const resolve = dir => path.join(__dirname, '..', dir);
 
 module.exports = {
   entry: {
-    nspreadsheet: './src/index.js',
+    index: './src/index.js',
   },
   module: {
     rules: [

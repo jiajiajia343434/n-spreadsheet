@@ -205,8 +205,10 @@
       // }
       ])//表格内容发生变动时的回调方法
       .change(function(cdata,datas){
+
         window.datas = datas;
         //cdata是当前sheet表格数据，再次可以根据数据做一些事情
+          console.log("cdata",datas);
         console.log(cdata,datas);
         console.log(Object.keys(cdata.getData()));
         window.xe = () => {
@@ -230,7 +232,10 @@
         console.log(args);
       }).on('cell-selected', function(...args){
         console.log(...args);
-      }).setCustomMenu([
+      }).on('cell-edited',function(...args){
+            //console.log("123",args);
+            console.log(args);
+        }).setCustomMenu([
         {
           key:'test',
           title:'测试',

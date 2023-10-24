@@ -3,17 +3,17 @@ import Scroll from './scroll';
 import History from './history';
 import Clipboard from './clipboard';
 import AutoFilter from './auto_filter';
-import { Merges } from './merge';
+import {Merges} from './merge';
 import helper from './helper';
-import { Rows } from './row';
-import { Cols } from './col';
-import { Validations } from './validation';
-import { CellRange } from './cell_range';
-import { expr2xy, xy2expr } from './alphabet';
-import { t } from '../locale/locale';
-import { message } from '../ui/message';
+import {Rows} from './row';
+import {Cols} from './col';
+import {Validations} from './validation';
+import {CellRange} from './cell_range';
+import {expr2xy, xy2expr} from './alphabet';
+import {t} from '../locale/locale';
+import {message} from '../ui/message';
 import cellModel from './cell';
-import { formulam } from '../formula/formula';
+import {formulam} from '../formula/formula';
 
 // private methods
 /*
@@ -1081,6 +1081,12 @@ export default class DataAgent {
     return (cell && cell.text) ? cell.text : '';
   }
 
+  setCellTextOrFormula(ri,ci,text,formulaText){
+    return this.rows.setCellText(ri, ci, text, formulaText);
+  }
+  setCellEditTable(ri,ci,editTable){
+     this.rows.setCellEditTable(ri, ci, editTable);
+  }
   getCellStyle(ri, ci) {
     const cell = this.getCell(ri, ci);
     if (cell && cell.style !== undefined) {

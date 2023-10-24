@@ -120,6 +120,9 @@ class Rows {
 
   getCellOrNew(ri, ci) {
     const row = this.getOrNew(ri);
+    if(row.cells==null){
+      row.cells={};
+    }
     row.cells[ci] = row.cells[ci] || addProxyFn(this, xy2expr(ci, ri), {}, ri, ci);
     return row.cells[ci];
   }
@@ -157,6 +160,11 @@ class Rows {
     return false;
   }
 
+  setCellEditTable(ri, ci, editTable) {
+    const cell = this.getCellOrNew(ri, ci);
+    cell.editable=editTable
+
+  }
   // what: all | format | text
   copyPaste(srcCellRange, dstCellRange, what, autofill = false, cb = () => {
   }) {
@@ -341,6 +349,7 @@ class Rows {
         if (what === 'all') {
           delete row.cells[ci];
         } else if (what === 'text') {
+          if(cell.editable===false) return;
           if (cell.text) cell.text = undefined;
           if (cell.value) delete cell.value;
           if (cell.formula) delete cell.formula;

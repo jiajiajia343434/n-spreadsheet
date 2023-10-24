@@ -4,6 +4,7 @@ import helper from './helper';
 const rules = {
   phone: /^[1-9]\d{10}$/,
   email: /w+([-+.]w+)*@w+([-.]w+)*.w+([-.]w+)*/,
+  yuan: /^-?\d+(\.\d{1,2})?$/,
 };
 
 function returnMessage(flag, key, ...arg) {

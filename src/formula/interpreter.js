@@ -270,7 +270,6 @@ const operatorMap = {
 // 中缀表达式 => 后缀表达式 + 公式树的形式 , 即公式作为子表达式处理，在后缀表达式里一个公式当做普通操作数看待
 const infixToSuffixExpr = (src) => {
   const ex = src.trim();
-  console.log(ex)
   const result = [];// 存放结果
   let chars = [];// 存放读取到的零散操作数
   const stack = [];// 操作符栈

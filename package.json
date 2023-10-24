@@ -1,15 +1,15 @@
 {
   "name": "@newhero/n-spreadsheet",
-  "version": "0.0.43-alpha18",
+  "version": "0.0.43-alpha22",
   "description": "A excel-liked javaScript spreadsheet",
-  "source": "src/index.js",
-  "main": "dist/index.js",
+  "source": "./src/index.js",
+  "main": "./dist/index.js",
   "files": [
     "assets",
     "src",
+    "dist",
     "LICENSE",
-    "README.md",
-    "dist"
+    "README.md"
   ],
   "author": "gooleem",
   "license": "MIT",
