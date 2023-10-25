@@ -433,7 +433,7 @@ export default class DataAgent {
     this.styles = []; // Array<Style>
     this.merges = new Merges(); // [CellRange, ...]
     this.validations = new Validations();
-    this.rows = new Rows(this.settings, this.settings.row, this.validations);
+    this.rows = new Rows(this.settings, this.settings.row, this.validations, sheet);
     this.cols = new Cols(this.settings, this.settings.col);
     this.hyperlinks = {};
     this.comments = {};
@@ -1076,7 +1076,7 @@ export default class DataAgent {
   getCell(ri, ci, sheetName) {
     if (typeof sheetName !== 'undefined') {
       for (let i = 0; i < this.sheet.dataAgents.length; i += 1) {
-        if (sheetName === this.sheet.dataAgents[i].name) {
+        if (sheetName === this.sheet.dataAgents[i].name.toUpperCase()) {
           return this.sheet.dataAgents[i].rows.getCell(ri, ci);
         }
       }
@@ -1155,7 +1155,7 @@ export default class DataAgent {
     if (i === 0) {
       formulaText = text.substr(1);
       const deps = new Set();
-      result = cellModel.calFormula(text || '', formulam, (y, x) => (this.getCellTextOrDefault(x, y)), deps);
+      result = cellModel.calFormula(text || '', formulam, (y, x,sheetName) => (this.getCellTextOrDefault(x, y,sheetName)), deps);
       if (deps.has(name)) {
         message(t('error.tip'), t('error.circularReference'));
       }

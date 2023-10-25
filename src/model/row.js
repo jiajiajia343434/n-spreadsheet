@@ -12,8 +12,8 @@ function addProxyFn(that, name, target, ri, ci) {
     get() {
       if (obj.formula) {
         const deps = new Set();
-        const result = cellModel.calFormula(`=${obj.formula}` || '', formulam, (y, x) => {
-          const cell = that.getCell(x, y);
+        const result = cellModel.calFormula(`=${obj.formula}` || '', formulam, (y, x,sheetName) => {
+          const cell = that.getCell(y, x, sheetName);
           if (name === xy2expr(y, x)) {
             return '';
           }
@@ -33,7 +33,7 @@ function addProxyFn(that, name, target, ri, ci) {
 }
 
 class Rows {
-  constructor(globalSettings, { len, height, minHeight }, validations) {
+  constructor(globalSettings, { len, height, minHeight }, validations, sheet) {
     this.globalSettings = globalSettings;
     this._ = {};
     this.len = len;
@@ -41,6 +41,7 @@ class Rows {
     this.height = height;
     this.minHeight = minHeight;
     this.validations = validations;
+    this[Symbol.for('sheet')] = sheet;
   }
 
   getHeight(ri) {
@@ -104,12 +105,25 @@ class Rows {
     return this._[ri];
   }
 
-  getCell(ri, ci) {
-    const row = this.get(ri);
-    if (row !== undefined && row.cells !== undefined && row.cells[ci] !== undefined) {
-      return row.cells[ci];
+  getCell(ri, ci , sheetName) {
+    if(typeof sheetName !== 'undefined'){
+      try {
+        for (let i = 0; i < this[Symbol.for('sheet')].dataAgents.length; i += 1) {
+          if (sheetName === this[Symbol.for('sheet')].dataAgents[i].name.toUpperCase()) {
+            return this[Symbol.for('sheet')].dataAgents[i].rows.getCell(ri, ci);
+          }
+        }
+      } catch (e) {
+        console.warn(e);
+        return null;
+      }
+    }else{
+      const row = this.get(ri);
+      if (row !== undefined && row.cells !== undefined && row.cells[ci] !== undefined) {
+        return row.cells[ci];
+      }
+      return null;
     }
-    return null;
   }
 
   getCellMerge(ri, ci) {

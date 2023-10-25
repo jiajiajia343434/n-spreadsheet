@@ -1,4 +1,4 @@
-import { evalFormula } from '../formula/interpreter';
+import {evalFormula} from '../formula/interpreter';
 
 const calFormula = (src, formulaMap, getCellText, deps) => {
   if (src[0] === '=') {
@@ -6,7 +6,7 @@ const calFormula = (src, formulaMap, getCellText, deps) => {
       return '=';
     }
     return evalFormula(src.substring(1), formulaMap,
-      (x, y) => calFormula(getCellText(x, y), formulaMap, getCellText, deps), deps);
+        (x, y, sheetName) => calFormula(getCellText(x, y, sheetName), formulaMap, getCellText, deps), deps);
   }
   return src;
 };

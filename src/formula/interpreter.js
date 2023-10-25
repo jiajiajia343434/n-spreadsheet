@@ -21,6 +21,15 @@ class Formula {
 // 单元格引用
 class Cell {
   constructor(name) {
+    if (name.indexOf('!') > 0) {
+        const [sheetName, cellName] = name.split('!');
+        const [x, y] = expr2xy(cellName);
+        this.x = x;
+        this.y = y;
+        this.name = sheetName+cellName;
+        this.sheetName = sheetName;
+        return;
+    }
     const [x, y] = expr2xy(name);
     this.x = x;
     this.y = y;
@@ -279,18 +288,25 @@ const infixToSuffixExpr = (src) => {
 
     // 遇到""字符串直接引用内部所有内容作为操作数
     // todo 转义的情况
-    if (c === '"') {
+
+    if (c === '"'||c==='\'') {
+      const fh = c === '"'?'"':'\'';
       i += 1;
-      while (ex.charAt(i) !== '"') {
+      while (ex.charAt(i) !== fh) {
         chars.push(ex.charAt(i));
         i += 1;
         if (i > ex.length) {
           throw new Error('公式拼写错误');
         }
       }
-      result.push(`"${chars.join('')}`);
-      chars = [];
-      continue;
+      if (ex.charAt(i+1) !== '!') {
+        result.push(`"${chars.join('')}`);
+        chars = [];
+        continue;
+      }else{
+        i += 1;
+        c = ex.charAt(i);
+      }
     }
 
     // 遇到空格判断是否为操作符
@@ -299,11 +315,12 @@ const infixToSuffixExpr = (src) => {
     }
 
     // 遇到连续的字母和数字，合并为操作数
-    while ((c >= 'a' && c <= 'z') || (typeof c !== 'number' && c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || c === '.') {
+    while ((c >= 'a' && c <= 'z') || (typeof c !== 'number' && c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || c === '.'||c==='!') {
       chars.push(c.toUpperCase());
       i += 1;
       c = ex.charAt(i);
     }
+    console.log("chars",chars)
     if (chars.length > 0) {
       result.push(chars.join(''));
       chars = [];
@@ -461,10 +478,12 @@ const infixToSuffixExpr = (src) => {
 
   for (let i = 0; i < result.length; i += 1) {
     const e = result[i];
-    if (typeof (e) === 'string' && e.length > 1 && e[0] >= 'A' && e[0] <= 'Z') {
+    if (typeof (e) === 'string' && e.length > 1 && ((e[0] >= 'A' && e[0] <= 'Z')||e.indexOf('!') > 0)) {
       result[i] = new Cell(e);
     }
   }
+
+  console.log(ex,'-',result)
   return result;
 };
 // 计算后缀表达式
@@ -479,7 +498,7 @@ const evalSuffixExpr = (suffixExpr, formulaMap, cellRender, deps) => {
 
         if (r instanceof Cell) { // todo 以后转为引用实现时不需要判断
           deps.add(r.name);
-          eps[e] = cellRender(r.x, r.y);
+          eps[e] = cellRender(r.x, r.y, r.sheetName);
         } else {
           eps[e] = r;
         }
@@ -502,7 +521,7 @@ const evalSuffixExpr = (suffixExpr, formulaMap, cellRender, deps) => {
         const r = op.cal(p.map((_p) => {
           if (_p instanceof Cell) {
             deps.add(_p.name);
-            return cellRender(_p.x, _p.y);
+            return cellRender(_p.x, _p.y, _p.sheetName);
           }
           return _p;
         }));
@@ -510,7 +529,7 @@ const evalSuffixExpr = (suffixExpr, formulaMap, cellRender, deps) => {
       } else {
         const n = params.map((p) => {
           if (p instanceof Cell) {
-            return cellRender(p.x, p.y);
+            return cellRender(p.x, p.y, p.sheetName);
           }
           return p;
         });
@@ -543,7 +562,10 @@ const evalFormula = (srcText, formulaMap, cellRender, deps) => {
   }
   if (result instanceof Cell) {
     deps.add(result.name);
-    return cellRender(result.x, result.y);
+    if (typeof result.sheetName !== 'undefined') {
+      console.log('result.sheetName is not undefined', result)
+    }
+    return cellRender(result.x, result.y, result.sheetName);
   }
   if (Array.isArray(result)) {
     return result[0];
