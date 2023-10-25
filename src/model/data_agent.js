@@ -425,7 +425,7 @@ function copyToSystemClipboard(clipboardData) {
 }
 
 export default class DataAgent {
-  constructor(name, settings) {
+  constructor(name, settings, sheet) {
     this.settings = settings;
     // save data begin
     this.name = name || 'sheet';
@@ -441,6 +441,7 @@ export default class DataAgent {
     // save data end
 
     // don't save object
+    this.sheet = sheet;
     this.selector = new Selector();
     this.scroll = new Scroll();
     this.history = new History();
@@ -451,7 +452,7 @@ export default class DataAgent {
     this.exceptRowSet = new Set();
     this.sortedRowMap = new Map();
     this.unsortedRowMap = new Map();
-    this.innerPropsList = ['innerPropsList', 'settings', 'name', 'freeze', 'styles', 'merges', 'rows', 'cols', 'validations', 'hyperlinks', 'comments', 'selector', 'scroll', 'clipboard', 'autoFilter', 'exceptRowSet', 'sortedRowMap', 'unsortedRowMap', 'autofilter', 'history', 'cellDepsList'];
+    this.innerPropsList = ['innerPropsList','sheet', 'settings', 'name', 'freeze', 'styles', 'merges', 'rows', 'cols', 'validations', 'hyperlinks', 'comments', 'selector', 'scroll', 'clipboard', 'autoFilter', 'exceptRowSet', 'sortedRowMap', 'unsortedRowMap', 'autofilter', 'history', 'cellDepsList'];
     this.cellDepsList = {};
   }
 
@@ -1072,21 +1073,32 @@ export default class DataAgent {
     };
   }
 
-  getCell(ri, ci) {
-    return this.rows.getCell(ri, ci);
+  getCell(ri, ci, sheetName) {
+    if (typeof sheetName !== 'undefined') {
+      for (let i = 0; i < this.sheet.dataAgents.length; i += 1) {
+        if (sheetName === this.sheet.dataAgents[i].name) {
+          return this.sheet.dataAgents[i].rows.getCell(ri, ci);
+        }
+      }
+    } else {
+      return this.rows.getCell(ri, ci);
+    }
+    return '';
   }
 
-  getCellTextOrDefault(ri, ci) {
-    const cell = this.getCell(ri, ci);
+  getCellTextOrDefault(ri, ci, sheetName) {
+    const cell = this.getCell(ri, ci, sheetName);
     return (cell && cell.text) ? cell.text : '';
   }
 
-  setCellTextOrFormula(ri,ci,text,formulaText){
+  setCellTextOrFormula(ri, ci, text, formulaText) {
     return this.rows.setCellText(ri, ci, text, formulaText);
   }
-  setCellEditTable(ri,ci,editTable){
-     this.rows.setCellEditTable(ri, ci, editTable);
+
+  setCellEditTable(ri, ci, editTable) {
+    this.rows.setCellEditTable(ri, ci, editTable);
   }
+
   getCellStyle(ri, ci) {
     const cell = this.getCell(ri, ci);
     if (cell && cell.style !== undefined) {

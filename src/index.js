@@ -76,7 +76,7 @@ class Spreadsheet {
 
   addSheet(name, active = true) {
     const n = name || `Sheet${this.sheetIndex}`;
-    const d = new DataAgent(n, this.settings);
+    const d = new DataAgent(n, this.settings, this);
     d.change = () => {
       this.sheet.trigger('change', d, this.dataAgents);
     };
