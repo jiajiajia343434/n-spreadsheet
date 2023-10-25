@@ -178,6 +178,10 @@ export default class {
                           fgColor: { argb: Color.transRgbToArgb(oStyle.bgcolor) },
                         };
                       }
+                      // resolve percent number
+                      if (oStyle.format === 'percent') {
+                        cell.numFmt = '0.00%';
+                      }
                     }
                   }
                 });

@@ -117,7 +117,6 @@ const Formula = [
       var weekenddates = [0,6];
 
       var holidays = args.length>=3?args[2]:null;
-      console.log(args[2])
       //判断是否周末
       if(weekenddates.findIndex(item => { return item == startdate.getDay()})>=0 && weekenddates.findIndex(item => { return item == enddate.getDay()})>=0 && Math.abs(rd)<2){
         return 0;

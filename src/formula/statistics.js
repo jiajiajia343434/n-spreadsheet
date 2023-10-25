@@ -10,7 +10,6 @@ const Formula = [
         key: 'AVERAGE',
         title: tf('formula.statistics.average'),
         render: (args)=>{
-            console.log(args);
             if(args.length==0){
                 throw new Error("没有参数，无法计算");
             }
@@ -43,7 +42,6 @@ const Formula = [
             if(args.length==0){
                 throw new Error("没有参数，无法计算");
             }
-            console.log(args);
             let total=0;
             let idx;
             let count=0;

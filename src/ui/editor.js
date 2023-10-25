@@ -189,7 +189,6 @@ export default class Editor {
 
   restore() {
     if (this.isEditing()) {
-      console.log(this.suggest.value, this.inputText);
       if (this.suggest.value) {
         this.change(this.suggest.value);
       } else {

@@ -10,7 +10,6 @@ const Formula = [
     key: 'IF',
     title: tf('formula.logic._if'),
     render: (args) => {
-      console.log(args);
       if (args.length < 2) {
         throw new Error('参数过少');
       }

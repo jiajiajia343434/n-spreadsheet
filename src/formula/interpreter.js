@@ -336,7 +336,6 @@ const infixToSuffixExpr = (src) => {
       i += 1;
       c = ex.charAt(i);
     }
-    console.log("chars",chars)
     if (chars.length > 0) {
       result.push(chars.join(''));
       chars = [];
@@ -498,8 +497,6 @@ const infixToSuffixExpr = (src) => {
       result[i] = new Cell(e);
     }
   }
-
-  console.log(ex,'-',result)
   return result;
 };
 // 计算后缀表达式

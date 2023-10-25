@@ -76,7 +76,6 @@ class Merges {
           isNotMerge = cbWithin(sri, sci, n, 0, cellRange);
         }
       } else if (type === 'column') {
-        console.log(sci,index);
         if (sci > index) {
           // fix bug: 删除行时，合并信息没有删除
           if (eci <= index - n) {

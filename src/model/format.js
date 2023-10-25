@@ -39,11 +39,13 @@ const baseFormats = [
     title: tf('format.percent'),
     type: 'number',
     label: '10.12%',
-    render: (v) => {
-      if (v === null || typeof v === 'undefined') {
-        return '0%';
+    render: (t) => {
+      if (Number.isNaN(Number(t))) {
+        return t;
       }
-      const precision = v.length - (v.indexOf('.') + 1) - 2;
+      const v = `${t}`;
+      // const precision = v.length - (v.indexOf('.') + 1) - 2;
+      const precision = 2; // 暂时固定保留2位
       if (precision >= 0) {
         return `${(v * 100).toFixed(precision)}%`;
       }
