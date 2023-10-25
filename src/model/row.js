@@ -6,27 +6,41 @@ import { formulam } from '../formula/formula';
 function addProxyFn(that, name, target, ri, ci) {
   const obj = {};
   Object.defineProperty(obj, 'text', {
-    set(text) {
-      obj.__text__ = text;
+    enumerable: true,
+    set(o) {
+      obj[Symbol.for('text')] = o;
     },
     get() {
       if (obj.formula) {
         const deps = new Set();
-        const result = cellModel.calFormula(`=${obj.formula}` || '', formulam, (y, x) => {
-          const cell = that.getCell(x, y);
-          if (name === xy2expr(y, x)) {
+        const result = cellModel.calFormula(`=${obj.formula}` || '', formulam, (x, y) => {
+          const cell = that.getCell(y, x);
+          if (name === xy2expr(x, y)) {
             return '';
+          }
+          if (cell[Symbol.for('err')]) {
+            return cell[Symbol.for('err')];
           }
           return (cell && cell.text) ? cell.text : '';
         }, deps);
         if (deps.has(name)) {
-          return '#ERR';
+          // return '#ERR';
+          return new Error('#ERR');
+        }
+        // 公式错误
+        if (result instanceof Error) {
+          that.validations.validate(ri, ci, '');
+          obj[Symbol.for('err')] = result;
+          return undefined;
         }
         that.validations.validate(ri, ci, result);
+        delete obj[Symbol.for('err')];
         return result;
+      } else {
+        delete obj[Symbol.for('err')];
       }
-      that.validations.validate(ri, ci, obj.__text__);
-      return obj.__text__;
+      that.validations.validate(ri, ci, obj[Symbol.for('text')]);
+      return obj[Symbol.for('text')];
     },
   });
   return Object.assign(obj, target);

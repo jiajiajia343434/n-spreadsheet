@@ -171,7 +171,7 @@ const Formula = [
           }
         }
       } else {
-        //参数2为负
+        // 参数2为负
         let power = Number(args[1]) * (-1);//要舍弃的位数
         let str = args[0].toString();//参数1
         if (str.indexOf('.') != -1) {

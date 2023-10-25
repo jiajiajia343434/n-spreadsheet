@@ -115,7 +115,9 @@ export default class {
                     // add target cell, 1-based
                     const cell = row.getCell(ci + 1);
                     // resolve value
-                    cell.value = c.text;
+                    if (c.text) {
+                      cell.value = c.text;
+                    }
                     // resolve formula
                     if (c.formula) {
                       cell.value = { formula: c.formula, result: c.text };

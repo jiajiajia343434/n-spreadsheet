@@ -72,6 +72,9 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
   draw.rect(dbox, () => {
     // render text
     let cellText = cell.text;
+    if (cell[Symbol.for('err')]) {
+      cellText = cell[Symbol.for('err')].message;
+    }
     // optimize performance. do calculation in data model, not in UI. 2022-07-20
     // if (cell.formula) {
     //   const deps = new Set();

@@ -10,6 +10,14 @@ const baseOperator = [
   '=', '>', '<', '>=', '<=', '<>',
 ];
 
+function checkNumberParam(params) {
+  for (let i = 0; i < params.length; i += 1) {
+    if (Number.isNaN(Number(params[i]))) {
+      throw new Error('#VALUE!');
+    }
+  }
+}
+
 // 公式
 class Formula {
   constructor(key, ...expressions) {
@@ -58,8 +66,8 @@ class Colon extends Operator {
     const sCell = params[0];
     const eCell = params[1];
     const result = [];
-    for (let {x} = sCell; x <= eCell.x; x += 1) {
-      for (let {y} = sCell; y <= eCell.y; y += 1) {
+    for (let { x } = sCell; x <= eCell.x; x += 1) {
+      for (let { y } = sCell; y <= eCell.y; y += 1) {
         result.push(new Cell(xy2expr(x, y)));
       }
     }
@@ -102,6 +110,7 @@ class Power extends Operator {
   }
 
   cal(params) {
+    checkNumberParam(params);
     return params[0] ** params[1];
   }
 }
@@ -115,6 +124,7 @@ class Multiple extends Operator {
   }
 
   cal(params) {
+    checkNumberParam(params);
     return Number(params[0]).multiply(Number(params[1]));
   }
 }
@@ -128,6 +138,10 @@ class Div extends Operator {
   }
 
   cal(params) {
+    if (`${Number(params[1])}` === '0') {
+      throw new Error('#DIV/0');
+    }
+    checkNumberParam(params);
     return Number(params[0]).divide(Number(params[1]));
   }
 }
@@ -141,6 +155,7 @@ class Add extends Operator {
   }
 
   cal(params) {
+    checkNumberParam(params);
     return Number(params[0]).add(Number(params[1]));
   }
 }
@@ -154,6 +169,7 @@ class Sub extends Operator {
   }
 
   cal(params) {
+    checkNumberParam(params);
     return Number(params[0]).subtract(Number(params[1]));
   }
 }
@@ -476,7 +492,6 @@ const evalSuffixExpr = (suffixExpr, formulaMap, cellRender, deps) => {
       const eps = op.expressions;
       for (let e = 0; e < eps.length; e += 1) {
         const r = evalSuffixExpr(eps[e], formulaMap, cellRender, deps);
-
         if (r instanceof Cell) { // todo 以后转为引用实现时不需要判断
           deps.add(r.name);
           eps[e] = cellRender(r.x, r.y);
@@ -534,16 +549,19 @@ const evalSuffixExpr = (suffixExpr, formulaMap, cellRender, deps) => {
 const evalFormula = (srcText, formulaMap, cellRender, deps) => {
   const expr = infixToSuffixExpr(srcText);
   if (expr.length === 0) return srcText;
-  let result = srcText;
+  let result;
   try {
     result = evalSuffixExpr(expr, formulaMap, cellRender, deps);
   } catch (e) {
-    console.log(e);
-    result = '#ERR';
+    result = e;
   }
   if (result instanceof Cell) {
     deps.add(result.name);
-    return cellRender(result.x, result.y);
+    try {
+      return cellRender(result.x, result.y);
+    } catch (e) {
+      return e;
+    }
   }
   if (Array.isArray(result)) {
     return result[0];
