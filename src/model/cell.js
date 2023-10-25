@@ -7,8 +7,8 @@ const calFormula = (src, formulaMap, getCellText, deps) => {
         return '=';
       }
       return evalFormula(src.substring(1), formulaMap,
-        (x, y) => {
-          const result = calFormula(getCellText(x, y), formulaMap, getCellText, deps);
+        (x, y, sheetName) => {
+          const result = calFormula(getCellText(x, y, sheetName), formulaMap, getCellText, deps);
           if (result instanceof Error) {
             throw result;
           }
