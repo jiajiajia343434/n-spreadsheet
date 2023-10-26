@@ -30,13 +30,13 @@ class Formula {
 class Cell {
   constructor(name) {
     if (name.indexOf('!') > 0) {
-        const [sheetName, cellName] = name.split('!');
-        const [x, y] = expr2xy(cellName);
-        this.x = x;
-        this.y = y;
-        this.name = sheetName+cellName;
-        this.sheetName = sheetName;
-        return;
+      const [sheetName, cellName] = name.split('!');
+      const [x, y] = expr2xy(cellName);
+      this.x = x;
+      this.y = y;
+      this.name = sheetName + cellName;
+      this.sheetName = sheetName;
+      return;
     }
     const [x, y] = expr2xy(name);
     this.x = x;
@@ -75,8 +75,8 @@ class Colon extends Operator {
     const sCell = params[0];
     const eCell = params[1];
     const result = [];
-    for (let { x } = sCell; x <= eCell.x; x += 1) {
-      for (let { y } = sCell; y <= eCell.y; y += 1) {
+    for (let {x} = sCell; x <= eCell.x; x += 1) {
+      for (let {y} = sCell; y <= eCell.y; y += 1) {
         result.push(new Cell(xy2expr(x, y)));
       }
     }
@@ -305,8 +305,8 @@ const infixToSuffixExpr = (src) => {
     // 遇到""字符串直接引用内部所有内容作为操作数
     // todo 转义的情况
 
-    if (c === '"'||c==='\'') {
-      const fh = c === '"'?'"':'\'';
+    if (c === '"' || c === '\'') {
+      const fh = c === '"' ? '"' : '\'';
       i += 1;
       while (ex.charAt(i) !== fh) {
         chars.push(ex.charAt(i));
@@ -315,11 +315,11 @@ const infixToSuffixExpr = (src) => {
           throw new Error('公式拼写错误');
         }
       }
-      if (ex.charAt(i+1) !== '!') {
+      if (ex.charAt(i + 1) !== '!') {
         result.push(`"${chars.join('')}`);
         chars = [];
         continue;
-      }else{
+      } else {
         i += 1;
         c = ex.charAt(i);
       }
@@ -331,7 +331,7 @@ const infixToSuffixExpr = (src) => {
     }
 
     // 遇到连续的字母和数字，合并为操作数
-    while ((c >= 'a' && c <= 'z') || (typeof c !== 'number' && c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || c === '.'||c==='!') {
+    while ((c >= 'a' && c <= 'z') || (typeof c !== 'number' && c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || c === '.' || c === '!' || isChinese(c)) {
       chars.push(c.toUpperCase());
       i += 1;
       c = ex.charAt(i);
@@ -493,12 +493,19 @@ const infixToSuffixExpr = (src) => {
 
   for (let i = 0; i < result.length; i += 1) {
     const e = result[i];
-    if (typeof (e) === 'string' && e.length > 1 && ((e[0] >= 'A' && e[0] <= 'Z')||e.indexOf('!') > 0)) {
+    if (typeof (e) === 'string' && e.length > 1 && ((e[0] >= 'A' && e[0] <= 'Z') || e.indexOf('!') > 0)) {
       result[i] = new Cell(e);
     }
   }
   return result;
 };
+const isChinese = (char) => {
+  const re = new RegExp("[\u4E00-\u9FA5]");
+  if (re.test(char)) {
+    return true;
+  }
+  return false;
+}
 // 计算后缀表达式
 const evalSuffixExpr = (suffixExpr, formulaMap, cellRender, deps) => {
   const stack = [];
