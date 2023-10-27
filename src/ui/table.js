@@ -50,7 +50,7 @@ function renderCellBorders(bboxes, translateFunc) {
 */
 
 export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
-  const { sortedRowMap, rows, cols } = data;
+  const { sortedRowMap, rows, cols, settings } = data;
   if (rows.isHide(rindex) || cols.isHide(cindex)) return;
   let nrindex = rindex;
   if (sortedRowMap.has(rindex)) {
@@ -72,8 +72,12 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
   draw.rect(dbox, () => {
     // render text
     let cellText = cell.text;
-    if (cell[Symbol.for('err')]) {
-      cellText = cell[Symbol.for('err')].message;
+    if (cell && cell[Symbol.for('err')]) {
+      if (settings.hideFormulaErr) {
+        cellText = '--';
+      } else {
+        cellText = cell[Symbol.for('err')].message;
+      }
     }
     // optimize performance. do calculation in data model, not in UI. 2022-07-20
     // if (cell.formula) {
@@ -89,7 +93,14 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
     // render format
     if (style.format) {
       // console.log(data.formatm, '>>', cell.format);
-      cellText = formatm[style.format].render(cellText);
+      if (formatm[style.format]) {
+        cellText = formatm[style.format].render(cellText);
+        if (formatm[style.format].align) {
+          if (typeof style.align === 'undefined') {
+            style.align = formatm[style.format].align;
+          }
+        }
+      }
     }
     // render text
     const font = Object.assign({}, style.font);

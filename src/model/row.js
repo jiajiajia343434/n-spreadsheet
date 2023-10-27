@@ -18,7 +18,7 @@ function addProxyFn(that, name, target, ri, ci) {
           if (name === xy2expr(x, y)) {
             return '';
           }
-          if (cell[Symbol.for('err')]) {
+          if (cell && cell[Symbol.for('err')]) {
             return cell[Symbol.for('err')];
           }
           return (cell && cell.text) ? cell.text : '';

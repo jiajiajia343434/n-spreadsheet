@@ -102,6 +102,12 @@ export default class {
           sheet.cols.len = _sheet.columnCount;
           setColsWidth(sheet, _sheet, _sheet.columnCount);
           sheet.styles = [];
+          // frozen
+          if (_sheet.views && _sheet.views.length > 0) {
+            if (_sheet.views[0].topLeftCell) {
+              sheet.freeze = _sheet.views[0].topLeftCell;
+            }
+          }
           const mergeInfo = setMerges(_sheet, sheet);
           for (let i = 0; i < _sheet.rowCount; i += 1) {
             const _row = _sheet._rows[i];
@@ -178,6 +184,13 @@ export default class {
                         } else if (_style.fill.pattern === 'solid') {
                           // system default color
                           style.bgcolor = resolveColor.call(this, { indexed: 64 }, indexedColors);
+                        }
+                      }
+                      // numFmt
+                      if (_cell.numFmt) {
+                        const matchPercent = _cell.numFmt.match(/^[-+]?\d+(\.\d+)?%$/g);
+                        if (matchPercent && matchPercent.length === 1) {
+                          style.format = 'percent';
                         }
                       }
                       cell.style = addStyle(style, sheet.styles);
