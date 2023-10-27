@@ -1098,7 +1098,9 @@ export default class DataAgent {
   setCellEditTable(ri, ci, editTable) {
     this.rows.setCellEditTable(ri, ci, editTable);
   }
-
+  setCellStyle(ri, ci, style) {
+    this.rows.setCellStyle(ri, ci, style);
+  }
   getCellStyle(ri, ci) {
     const cell = this.getCell(ri, ci);
     if (cell && cell.style !== undefined) {

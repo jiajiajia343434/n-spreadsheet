@@ -193,6 +193,10 @@ class Rows {
     cell.editable=editTable
 
   }
+  setCellStyle(ri, ci, style) {
+    const cell = this.getCellOrNew(ri, ci);
+      cell.style = style;
+  }
   // what: all | format | text
   copyPaste(srcCellRange, dstCellRange, what, autofill = false, cb = () => {
   }) {
