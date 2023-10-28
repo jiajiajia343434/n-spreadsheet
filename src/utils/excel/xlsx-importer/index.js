@@ -129,7 +129,13 @@ export default class {
                       // formula resove
                       if (_cell.formula) {
                         cell.formula = _cell.formula;
-                        cell.text = _cell.value.result;
+                        if (_cell.value.result) {
+                          if (typeof _cell.value.result.error !== 'undefined') {
+                            cell[Symbol.for('err')] = { message: _cell.value.result.error };
+                          } else {
+                            cell.text = _cell.value.result;
+                          }
+                        }
                       }
                       // richText resolve
                       if (_cell.value && _cell.value.richText) {

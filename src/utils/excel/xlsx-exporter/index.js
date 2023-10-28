@@ -120,7 +120,13 @@ export default class {
                     }
                     // resolve formula
                     if (c.formula) {
-                      cell.value = { formula: c.formula, result: c.text };
+                      cell.value = { formula: c.formula, date1904: true };
+                      if (c.text) {
+                        cell.value.result = c.text;
+                      }
+                      if (c[Symbol.for('err')]) {
+                        cell.value.result = { error: { error: c[Symbol.for('err')].message } };
+                      }
                     }
                     // resolve richText
                     if (c.richText) {
