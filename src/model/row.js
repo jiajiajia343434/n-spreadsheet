@@ -283,14 +283,17 @@ class Rows {
   }
 
   // src: Array<Array<String>>
-  paste(src, dstCellRange) {
+  paste(src, dstCellRange, eventTrigger = ()=>{}) {
     if (src.length <= 0) return;
     const { sri, sci } = dstCellRange;
     src.forEach((row, i) => {
       const ri = sri + i;
       row.forEach((cell, j) => {
         const ci = sci + j;
-        this.setCellText(ri, ci, cell);
+        const edited = this.setCellText(ri, ci, cell);
+        if( edited ){
+          eventTrigger('cell-edited', cell, ri, ci);
+        }
       });
     });
   }

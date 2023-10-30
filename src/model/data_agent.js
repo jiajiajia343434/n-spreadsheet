@@ -542,7 +542,7 @@ export default class DataAgent {
     // if (lines.length > 0) lines.length -= 1;
     const { rows, selector } = this;
     this.changeData(() => {
-      rows.paste(lines, selector.range);
+      rows.paste(lines, selector.range, this.sheet?.sheet?.trigger.bind(this.sheet?.sheet));
     });
   }
 
