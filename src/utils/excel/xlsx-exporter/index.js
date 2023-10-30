@@ -122,10 +122,44 @@ export default class {
                     if (c.formula) {
                       cell.value = { formula: c.formula, date1904: true };
                       if (c.text) {
-                        cell.value.result = c.text;
+                        cell.value = { formula: c.formula, date1904: true, result: c.text };
                       }
                       if (c[Symbol.for('err')]) {
-                        cell.value.result = { error: { error: c[Symbol.for('err')].message } };
+                        let err;
+                        switch (c[Symbol.for('err')]) {
+                          case Excel.ErrorValue.NotApplicable:
+                            err = Excel.ErrorValue.NotApplicable;
+                            break;
+                          case Excel.ErrorValue.Ref:
+                            err = Excel.ErrorValue.Ref;
+                            break;
+                          case Excel.ErrorValue.Name:
+                            err = Excel.ErrorValue.Name;
+                            break;
+                          case Excel.ErrorValue.DivZero:
+                            err = Excel.ErrorValue.DivZero;
+                            break;
+                          case Excel.ErrorValue.Null:
+                            err = Excel.ErrorValue.Null;
+                            break;
+                          case Excel.ErrorValue.Value:
+                            err = Excel.ErrorValue.Value;
+                            break;
+                          case Excel.ErrorValue.Num:
+                            err = Excel.ErrorValue.Num;
+                            break;
+                          default:
+                            err = '';
+                        }
+                        if (err) {
+                          cell.value = {
+                            formula: c.formula,
+                            date1904: true,
+                            result: { error: err },
+                          };
+                        } else {
+                          cell.value = { formula: c.formula, date1904: true };
+                        }
                       }
                     }
                     // resolve richText

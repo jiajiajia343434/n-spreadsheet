@@ -1,4 +1,5 @@
 import {expr2xy, xy2expr} from '../model/alphabet';
+import Excel from 'exceljs';
 
 const baseOperator = [
   ':',
@@ -13,7 +14,7 @@ const baseOperator = [
 function checkNumberParam(params) {
   for (let i = 0; i < params.length; i += 1) {
     if (Number.isNaN(Number(params[i]))) {
-      throw new Error('#VALUE!');
+      throw new Error(Excel.ErrorValue.Value);
     }
   }
 }
@@ -148,7 +149,7 @@ class Div extends Operator {
 
   cal(params) {
     if (`${Number(params[1])}` === '0') {
-      throw new Error('#DIV/0');
+      throw new Error(Excel.ErrorValue.DivZero);
     }
     checkNumberParam(params);
     return Number(params[0]).divide(Number(params[1]));

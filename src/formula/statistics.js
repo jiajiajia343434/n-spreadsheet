@@ -3,6 +3,7 @@
  统计类
  */
 import { tf } from '../locale/locale';
+import Excel from 'exceljs';
 
 
 const Formula = [
@@ -16,7 +17,7 @@ const Formula = [
             let total=0;
             let idx;
             let count=0;
-            //读取单元格区域内容，并进行判断
+            // 读取单元格区域内容，并进行判断
             for(idx=0;idx<args.length;idx++){
                 if(Array.isArray(args[idx])){
                     let childIdx;
@@ -45,14 +46,14 @@ const Formula = [
             let total=0;
             let idx;
             let count=0;
-            //读取条件表达式
+            // 读取条件表达式
             let strExp=args[args.length-1];
-            //读取单元格区域内容，并进行判断
+            // 读取单元格区域内容，并进行判断
             for(idx=0;idx<args.length-1;idx++){
                 if(Array.isArray(args[idx])){
                     let childIdx;
                     for(childIdx=0;childIdx<args[idx].length;childIdx++){
-                        //判断表达式，转换为函数得到逻辑值
+                        // 判断表达式，转换为函数得到逻辑值
                         if(isNumber(args[idx][childIdx])){
                             let boolValue= (new Function("return " +args[idx][childIdx]+strExp)).call(this);
                             total+=Number(boolValue?(args[idx][childIdx]):0);
@@ -71,7 +72,7 @@ const Formula = [
                 }
             }
             if(count===0){
-                throw new Error("#DIV/0!");
+                throw new Error(Excel.ErrorValue.DivZero);
             }else{
                 return total/count;
             }
@@ -152,20 +153,20 @@ const Formula = [
                 return 0;
             }else{
                 let count=0;
-                //取出条件语句
+                // 取出条件语句
                 let strExp=args[args.length-1];
                 for(let idx=0;idx<args.length-1;idx++){
                     if(Array.isArray(args[idx])){
                         let childIdx;
                         for(childIdx=0;childIdx<args[idx].length;childIdx++){
-                            //判断是否符合条件，是则计数器加一
+                            // 判断是否符合条件，是则计数器加一
                             let boolValue= (new Function("return " +args[idx][childIdx]+strExp)).call(this);
                             if(boolValue){
                                 count++;
                             }
                         }
                     }else{
-                        //判断是否符合条件，是则计数器加一
+                        // 判断是否符合条件，是则计数器加一
                         let boolValue= (new Function("return " +args[idx]+strExp)).call(this);
                         if(boolValue){
                             count++;
@@ -203,7 +204,7 @@ const Formula = [
 
 ];
 
-//内部函数，判断字符串是否可以转换为数值
+// 内部函数，判断字符串是否可以转换为数值
 function isNumber(value) {
     return 'number' && !isNaN(value);
 }
