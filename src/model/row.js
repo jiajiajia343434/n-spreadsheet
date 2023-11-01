@@ -176,7 +176,7 @@ class Rows {
       if (formulaText) {
         cell.formula = formulaText;
       }
-      if (text) {
+      if (typeof text !== 'undefined') {
         cell.text = text;
       }
       // todo: edit richText. only delete the richText attribute now
@@ -283,7 +283,7 @@ class Rows {
   }
 
   // src: Array<Array<String>>
-  paste(src, dstCellRange, eventTrigger = ()=>{}) {
+  paste(src, dstCellRange, eventTrigger = () => {}) {
     if (src.length <= 0) return;
     const { sri, sci } = dstCellRange;
     src.forEach((row, i) => {
@@ -291,7 +291,7 @@ class Rows {
       row.forEach((cell, j) => {
         const ci = sci + j;
         const edited = this.setCellText(ri, ci, cell);
-        if( edited ){
+        if (edited) {
           eventTrigger('cell-edited', cell, ri, ci);
         }
       });

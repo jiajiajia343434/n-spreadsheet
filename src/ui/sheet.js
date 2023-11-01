@@ -525,6 +525,10 @@ function paste(what, evt) {
           const text = evt.clipboardData.getData(type);
           data.pasteFromText(text);
           sheetReset.call(this);
+        } else if (type === 'text/html') {
+          // todo 实现读取格式
+          // console.log(new DOMParser()
+          // .parseFromString(evt.clipboardData.getData(type), 'text/html'));
         }
       },
     );

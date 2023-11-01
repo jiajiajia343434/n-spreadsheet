@@ -45,4 +45,7 @@ export default {
       italic: false,
     },
   },
+  hideFormulaErr: false,
+  hideMenus: [
+  ],
 };

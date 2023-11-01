@@ -9,10 +9,10 @@ const sysMenuItems = [
   // { key: 'paste', title: tf('contextmenu.paste'), label: 'Ctrl+V', privileges: ['dataEdit', 'formatEdit'] },
   // { key: 'paste-value', title: tf('contextmenu.pasteValue'), privileges: ['dataEdit'] },
   // { key: 'paste-format', title: tf('contextmenu.pasteFormat'), privileges: ['formatEdit'] },
-  { key: 'divider' },
+  { key: 'divider-1' },
   { key: 'insert-row', title: tf('contextmenu.insertRow'), privileges: ['dataEdit'] },
   { key: 'insert-column', title: tf('contextmenu.insertColumn'), privileges: ['dataEdit'] },
-  { key: 'divider' },
+  { key: 'divider-2' },
   { key: 'delete-row', title: tf('contextmenu.deleteRow'), privileges: ['dataEdit'] },
   { key: 'delete-column', title: tf('contextmenu.deleteColumn'), privileges: ['dataEdit'] },
   { key: 'delete-cell-text', title: tf('contextmenu.deleteCellText'), privileges: ['dataEdit'] },
@@ -28,7 +28,10 @@ const sysMenuItems = [
 ];
 
 function buildMenuItem(item) {
-  if (item.key === 'divider') {
+  if (typeof item.key === 'undefined') {
+    return '';
+  }
+  if (item.key.indexOf('divider') === 0) {
     return h('div', `${cssPrefix}-item divider`);
   }
   let hasPrivilege = true;
@@ -58,7 +61,8 @@ function buildMenuItem(item) {
 
 function buildMenu() {
   const els = [];
-  els.push(...sysMenuItems.map(it => buildMenuItem.call(this, it)));
+  console.log(this.settings)
+  els.push(...sysMenuItems.filter(it => !this.settings.hideMenus.includes(it.key)).map(it => buildMenuItem.call(this, it)));
   if (this.customMenu.length > 0 && els[els.length - 1] && els[els.length - 1].attr('key') !== 'divider') {
     els.push(buildMenuItem.call(this, { key: 'divider' }));
   }

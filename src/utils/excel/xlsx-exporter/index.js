@@ -1,7 +1,6 @@
 import Excel from 'exceljs';
 import { expr2xy } from '../../../model/alphabet';
 import Color from '../xlsx-importer/color';
-import DataAgent from '../../../model/data_agent';
 
 function transBorder(source, target, position) {
   if (Array.isArray(source[position])) {
@@ -59,8 +58,11 @@ export default class {
       workbook.modified = new Date();
       workbook.lastPrinted = new Date();
       sheetsData.forEach((dataAgent) => {
+        if (typeof dataAgent === 'undefined') {
+          return;
+        }
         let s;
-        if (dataAgent instanceof DataAgent) {
+        if (typeof dataAgent.getData === 'function') {
           s = dataAgent.getData();
         } else {
           s = dataAgent;
