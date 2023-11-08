@@ -118,13 +118,25 @@ export default class {
                     const cell = row.getCell(ci + 1);
                     // resolve value
                     if (c.text) {
-                      cell.value = c.text;
+                      if (!Number.isNaN(Number(c.text))) {
+                        cell.value = Number(c.text);
+                      } else {
+                        cell.value = c.text;
+                      }
                     }
                     // resolve formula
                     if (c.formula) {
                       cell.value = { formula: c.formula, date1904: true };
                       if (c.text) {
-                        cell.value = { formula: c.formula, date1904: true, result: c.text };
+                        if (!Number.isNaN(Number(c.text))) {
+                          cell.value = {
+                            formula: c.formula,
+                            date1904: true,
+                            result: Number(c.text),
+                          };
+                        } else {
+                          cell.value = { formula: c.formula, date1904: true, result: c.text };
+                        }
                       }
                       if (c[Symbol.for('err')]) {
                         let err;
