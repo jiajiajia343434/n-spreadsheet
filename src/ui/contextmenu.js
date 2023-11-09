@@ -61,13 +61,11 @@ function buildMenuItem(item) {
 
 function buildMenu() {
   const els = [];
-  console.log(this.settings)
-  els.push(...sysMenuItems.filter(it => !this.settings.hideMenus.includes(it.key)).map(it => buildMenuItem.call(this, it)));
+  els.push(...this.customMenu.map(it => buildMenuItem.call(this, it)));
   if (this.customMenu.length > 0 && els[els.length - 1] && els[els.length - 1].attr('key') !== 'divider') {
     els.push(buildMenuItem.call(this, { key: 'divider' }));
   }
-
-  els.push(...this.customMenu.map(it => buildMenuItem.call(this, it)));
+  els.push(...sysMenuItems.filter(it => !this.settings.hideMenus.includes(it.key)).map(it => buildMenuItem.call(this, it)));
   return els;
 }
 
