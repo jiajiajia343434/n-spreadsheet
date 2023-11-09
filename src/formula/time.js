@@ -804,6 +804,23 @@ const Formula = [
       return Math.floor(serial);
     },
   },
+  {
+    //返回日期（以序列数表示）中的年份
+    key: 'YEAR',
+    title: tf('formula.time.year'),
+    render: function (args) {
+      if (args == null || args.length < 1) {
+        throw new Error("参数过少");
+      }
+      //如果参数中有非数字，返回#NAME
+      if (isNaN(args[0])) {
+        throw new Error("#NAME");
+      }
+      //参数为一个时间的序列号值
+      let date = new Date(Math.round((Number(args[0]) - 25569) * 86400 * 1000 + (new Date()).getTimezoneOffset() * 60 * 1000));
+      return date.getFullYear();
+    }
+  },
 ];
 
 export default {};
