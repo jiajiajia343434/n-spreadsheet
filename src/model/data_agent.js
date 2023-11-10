@@ -69,8 +69,9 @@ import {formulam} from '../formula/formula';
  *  }
  * }
  */
-const toolbarHeight = 41;
-const bottombarHeight = 41;
+const toolbarHeight = 40 + 1; // height 40 border 1
+const valuebarHeight = 30 + 2; // height 30 border 2
+const bottombarHeight = 40 + 1; // height 40 border 1
 
 function containsReadonly(range) {
   const { getCell } = this;
@@ -1231,6 +1232,7 @@ export default class DataAgent {
     const { view, showToolbar } = this.settings;
     let h = view.height();
     h -= bottombarHeight;
+    h -= valuebarHeight;
     if (showToolbar) {
       h -= toolbarHeight;
     }

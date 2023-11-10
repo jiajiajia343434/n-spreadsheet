@@ -2,6 +2,7 @@ import { h } from './element';
 import { cssPrefix } from '../config';
 import { CellRange } from '../model/cell_range';
 import comment from './comment';
+import { xy2expr } from '../model/alphabet';
 
 const selectorHeightBorderWidth = 2 * 2 - 1;
 let startZIndex = 10;
@@ -194,11 +195,40 @@ function setAllClipboardOffset(offset) {
   setLClipboardOffset.call(this, offset);
 }
 
+function getText(data, ri, ci) {
+  const cell = data.getCell(ri, ci);
+  if (cell) {
+    if (cell.formula) {
+      return `=${cell.formula}`;
+    }
+    if (cell.text) {
+      return cell.text;
+    }
+  }
+  return '';
+}
+
+function setValueBar(data, mode, ci, ri, sci, sri) {
+  if (mode === 'col') {
+    const n = xy2expr(ci, ri);
+    this.valueBar.update(n.substring(0, n.length - 1), getText(data, ri, ci));
+  } else if (mode === 'row') {
+    this.valueBar.update('', '');
+  } else if (mode === 'range') {
+    const n = xy2expr(sci, sri);
+    this.valueBar.update(n, getText(data, sri, sci));
+  } else {
+    const n = xy2expr(ci, ri);
+    this.valueBar.update(n, getText(data, ri, ci));
+  }
+}
+
 export default class Selector {
-  constructor(data) {
+  constructor(data, valueBar) {
     this.inputChange = () => {
     };
     this.data = data;
+    this.valueBar = valueBar;
     this.br = new SelectorElement(true);
     this.t = new SelectorElement();
     this.l = new SelectorElement();
@@ -322,6 +352,7 @@ export default class Selector {
     this.range = cellRange;
     this.resetAreaOffset();
     this.el.show();
+    setValueBar.call(this, data, mode, ci, ri, sci, sri);
   }
 
   setEnd(ri, ci, moving = true, mode) {

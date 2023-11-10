@@ -17,6 +17,7 @@ import { formulas } from '../formula/formula';
 import { t as locale } from '../locale/locale';
 import helper from '../model/helper';
 import OperableCell from '../utils/decorator/OperableCell';
+import ValueBar from './value_bar';
 
 /**
  * @desc throttle fn
@@ -1188,8 +1189,10 @@ export default class Sheet {
     const { showToolbar, showContextmenu } = data.settings;
     this.el = h('div', `${cssPrefix}-sheet`);
     this.toolbar = new Toolbar(data, !showToolbar);
+    this.valueBar = new ValueBar();
     this.print = new Print(data);
     targetEl.children(this.toolbar.el, this.el, this.print.el);
+    targetEl.children(this.valueBar.el, this.el, this.print.el);
     this.data = data;
     // table
     this.tableEl = h('canvas', `${cssPrefix}-table`);
@@ -1210,7 +1213,7 @@ export default class Sheet {
     // contextMenu
     this.contextMenu = new ContextMenu(() => this.getRect(), !showContextmenu, data.settings);
     // selector
-    this.selector = new Selector(data);
+    this.selector = new Selector(data, this.valueBar);
     this.overlayerCEl = h('div', `${cssPrefix}-overlayer-content`)
       .children(
         this.editor.el,

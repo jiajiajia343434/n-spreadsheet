@@ -688,7 +688,7 @@
   }
 }
 
-.@{css-prefix}-toolbar, .@{css-prefix}-bottom-bar {
+.@{css-prefix}-toolbar, .@{css-prefix}-bottom-bar,.@{css-prefix}-value-bar {
   height: 40px;
   padding: 0 40px;
   text-align: left;
@@ -1011,6 +1011,43 @@
     overflow-x: auto;
     overflow-y: scroll;
     height: 100%;
+  }
+}
+.@{css-prefix}-value-bar {
+  height: 30px;
+  border-bottom: 2px double #e0e2e4;
+  padding-left: 0;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+
+  .@{css-prefix}-position-value-bar-position {
+    height: calc(100% - 6px);
+    width: 80px;
+    margin: 3px;
+    background: white;
+    line-height: 24px;
+    text-align: center;
+  }
+
+  .@{css-prefix}-cell-value-bar-position {
+    height: calc(100% - 6px);
+    flex: 1;
+    margin: 3px;
+    background: white;
+    line-height: 24px;
+    text-align: left;
+    padding-left: 4px;
+  }
+
+  .@{css-prefix}-value-bar-divider {
+    display: inline-block;
+    border-right: 2px solid #e0e2e4;
+    width: 0;
+    vertical-align: middle;
+    height: 18px;
+    margin: 3px 8px 0 8px;
   }
 }
 
